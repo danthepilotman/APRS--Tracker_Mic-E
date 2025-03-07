@@ -26,10 +26,10 @@ void setup_Timers()
     
     WAVE_GEN_TMR_TCCRA = 0;  /* Set entire TCCRxA register to 0 */
     WAVE_GEN_TMR_TCCRB = 0;  /* Same for TCCRxB */
-    WAVE_GEN_TMR_TIMSK = 0;  /* Initialize TimerX interupt register */   
+    WAVE_GEN_TMR_TIMSK = 0;  /* Initialize TimerX interrupt register */   
  
-    WAVE_GEN_TMR_TCCRA |= ( 1<<WAVE_GEN_TMR_WGM1 ); /* CTC mode     */ 
-    WAVE_GEN_TMR_TCCRB |= ( 1<<WAVE_GEN_TMR_CS0 );  /*  No prescaler */  
+    WAVE_GEN_TMR_TCCRA |= ( 1 << WAVE_GEN_TMR_WGM1 ); /* CTC mode     */ 
+    WAVE_GEN_TMR_TCCRB |= ( 1 << WAVE_GEN_TMR_CS0 );  /*  No prescaler */  
 
     WAVE_GEN_TMR_OCRA = MRK_TMR_CMP;  /* Set TimerX A compare value */     
   
@@ -37,9 +37,9 @@ void setup_Timers()
 
     BAUD_TMR_TCCRA = 0;  /* Set entire TCCRyA register to 0 */
     BAUD_TMR_TCCRB = 0;  /* Same for TCCRyB */
-    BAUD_TMR_TIMSK = 0;  /* Initialize TimerY interupt register */
+    BAUD_TMR_TIMSK = 0;  /* Initialize TimerY interrupt register */
   
-    BAUD_TMR_TCCRB |= ( 1<<BAUD_TMR_WGM2 ) | ( 1<<BAUD_TMR_CS0 );  /* CTC mode, no prescaler */
+    BAUD_TMR_TCCRB |= ( 1 << BAUD_TMR_WGM2 ) | ( 1 << BAUD_TMR_CS0 );  /* CTC mode, no prescaler */
 
     BAUD_TMR_OCRA = BAUD_TIMER_CMP;  /* Set Timer 1 compare value */
 
@@ -56,7 +56,7 @@ void setup_LCD()
 
     /* ----- Print Splash Screen to LCD ------ */
 
-    lcd.print( F( "APRS courseer" ) );
+    lcd.print( F( "APRS Tracker" ) );
   
     lcd.setCursor( 0, BOT_ROW );
   
