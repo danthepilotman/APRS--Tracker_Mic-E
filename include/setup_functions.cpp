@@ -1,11 +1,11 @@
 void setup_Pins()
 {
 
-    pinMode( DISP_MODE_PIN, INPUT_PULLUP );  // configure display mode pin
+    pinMode( DISP_MODE_PIN, INPUT_PULLUP );  // Configure display mode pin
   
-    pinMode( PTT_PIN, OUTPUT );  // configure PTT pin
+    pinMode( PTT_PIN, OUTPUT );  // Configure PTT pin
   
-    pinMode( GPS_VALID_PIN, OUTPUT );  // configure GPS_VALID_PIN pin
+    pinMode( GPS_VALID_PIN, OUTPUT );  // Configure GPS_VALID_PIN pin
   
     digitalWrite( PTT_PIN, LOW );  // Set PTT to off be default 
   
@@ -21,25 +21,25 @@ void setup_Timers()
 
     /*------------------ Setup Wave Generator ------------------------ */
 
-    WAVE_PORT_DDR = B00001111; // set PORT (digital 3~0) to outputs
+    WAVE_PORT_DDR = B00001111; // Set PORT (digital 3~0) to outputs
     WAVE_PORT = 8;  // Set wave port outputs to mid range to start
     
-    WAVE_GEN_TMR_TCCRA = 0;  /* set entire TCCRxA register to 0 */
-    WAVE_GEN_TMR_TCCRB = 0;  /* same for TCCRxB */
-    WAVE_GEN_TMR_TIMSK = 0;  /* initialize TimerX interupt register */   
+    WAVE_GEN_TMR_TCCRA = 0;  /* Set entire TCCRxA register to 0 */
+    WAVE_GEN_TMR_TCCRB = 0;  /* Same for TCCRxB */
+    WAVE_GEN_TMR_TIMSK = 0;  /* Initialize TimerX interupt register */   
  
     WAVE_GEN_TMR_TCCRA |= ( 1<<WAVE_GEN_TMR_WGM1 ); /* CTC mode     */ 
-    WAVE_GEN_TMR_TCCRB |= ( 1<<WAVE_GEN_TMR_CS0 ); /*  no prescaler */  
+    WAVE_GEN_TMR_TCCRB |= ( 1<<WAVE_GEN_TMR_CS0 );  /*  No prescaler */  
 
-    WAVE_GEN_TMR_OCRA = MRK_TMR_CMP;  /* set TimerX A compare value */     
+    WAVE_GEN_TMR_OCRA = MRK_TMR_CMP;  /* Set TimerX A compare value */     
   
    /*------------------ Setup Baud Rate Timer ------------------------ */
 
-    BAUD_TMR_TCCRA = 0;  /* set entire TCCRyA register to 0 */
-    BAUD_TMR_TCCRB = 0;  /* same for TCCRyB */
-    BAUD_TMR_TIMSK = 0;  /* initialize TimerY interupt register */
+    BAUD_TMR_TCCRA = 0;  /* Set entire TCCRyA register to 0 */
+    BAUD_TMR_TCCRB = 0;  /* Same for TCCRyB */
+    BAUD_TMR_TIMSK = 0;  /* Initialize TimerY interupt register */
   
-    BAUD_TMR_TCCRB |= ( 1<<BAUD_TMR_WGM2 ) | ( 1<<BAUD_TMR_CS0 ); /* CTC mode, no prescaler */
+    BAUD_TMR_TCCRB |= ( 1<<BAUD_TMR_WGM2 ) | ( 1<<BAUD_TMR_CS0 );  /* CTC mode, no prescaler */
 
     BAUD_TMR_OCRA = BAUD_TIMER_CMP;  /* Set Timer 1 compare value */
 

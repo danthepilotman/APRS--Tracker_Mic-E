@@ -1,4 +1,4 @@
-void compute_dest_address( byte mic_e_message)
+void compute_dest_address( byte mic_e_message )
 {
 
   unsigned char char_offset;
@@ -119,7 +119,7 @@ void compute_info_spd_crs()
   byte speed_10 = byte( gps_data.speed / 10 );
   
   if( gps_data.course == 0 )
-    gps_data.course = 360;  // only 360 allowed for Mic-E encoding
+    gps_data.course = 360;  // Only 360 allowed for Mic-E encoding
   
   // Determine 5th Information Field byte ( SP+28 )
 

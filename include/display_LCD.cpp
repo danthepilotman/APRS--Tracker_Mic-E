@@ -139,14 +139,14 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
     
   } // end switch
 
-/*----------------- Dispplay GPS data on the serial terminal for debugging -----------------  */
+/*----------------- Display GPS data on the serial terminal for debugging -----------------  */
 #if DEBUG
 
   print_lcd_debug();
   
 #endif  
 
-} // End display_data()
+}
 
 
 

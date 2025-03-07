@@ -4,7 +4,7 @@
 void setup() 
 {  
   
-  gpsSerial.begin( GPS_BAUD_RATE );  // used for GPS interface
+  gpsSerial.begin( GPS_BAUD_RATE );  // Used for GPS interface
   
   setup_Pins();
 
@@ -12,7 +12,7 @@ void setup()
 
   setup_LCD();
 
-}  // End setup()
+}
 
 
 
@@ -56,12 +56,12 @@ void loop()
 
 #endif
 
-    compute_Mic_E_data( mic_e_message );  // compress data using Mic-E encoding
+    compute_Mic_E_data( mic_e_message );  // Compress data using Mic-E encoding
     
-    send_packet();  // send APRS data packet 
+    send_packet();  // Send APRS data packet 
     
-    last_TX_time = millis();  // update last_TX_time with current time
+    last_TX_time = millis();  // Update last_TX_time with current time
                                                           
   }
 
-}  // end loop()
+}

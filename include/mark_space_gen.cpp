@@ -1,4 +1,5 @@
 /* Timer 4 used for 1200/2200 sine wave generation */
+
 ISR ( WAVE_GEN_TMR_ISR_VECT )
 {
 
@@ -13,6 +14,7 @@ ISR ( WAVE_GEN_TMR_ISR_VECT )
 
 
 /* Timer 5 used for 1200 baud timing */
+
 ISR ( BAUD_TMR_ISR_VECT )
 {
 

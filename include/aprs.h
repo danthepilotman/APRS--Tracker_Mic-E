@@ -10,7 +10,7 @@
 
 #define BTN_DBOUCE_TIME 200            // ms
 
-/********** Smart Beackonging Parameters **********/
+/********** Smart Beaconing Parameters **********/
 
 #define FAST_SPEED (float) 60.0        // mph
 #define FAST_RATE (float) 60.0         // seconds  
@@ -27,11 +27,11 @@
 #define LCD_ROW 2
 #define TOP_ROW 0
 #define BOT_ROW 1
-#define SPD_FLD_OFFSET 0  // lcd display x-axis offset for speed
-#define ALT_FLD_OFFSET 4  // lcd display x-axis offset for altitude
-#define TRK_FLD_OFFSET 8  // lcd display x-axis offset for course
-#define SAT_FLD_OFFSET 14  // lcd display x-axis offset for # of satelites
-#define NUM_OF_DISP_SCREENS 6  // number of unique display screen options
+#define SPD_FLD_OFFSET 0  // LCD display x-axis offset for speed
+#define ALT_FLD_OFFSET 4  // LCD display x-axis offset for altitude
+#define TRK_FLD_OFFSET 8  // LCD display x-axis offset for course
+#define SAT_FLD_OFFSET 14  // LCD display x-axis offset for # of satellites
+#define NUM_OF_DISP_SCREENS 6  // Number of unique display screen options
 
 /********** Serial Port Parameters **********/
 
@@ -52,9 +52,9 @@
 
 #define MARK 1
 #define SPACE 0
-#define FLAG 0x7E           // start/end FLAG(s) sent before and after data portion of packet
-#define NUM_START_FLAGS 30  // number of FLAGS to  send before data portion of packet
-#define NUM_END_FLAGS 10    // number of FLAGS to send at end of packet
+#define FLAG 0x7E           // Start/end FLAG(s) sent before and after data portion of packet
+#define NUM_START_FLAGS 30  // Number of FLAGS to  send before data portion of packet
+#define NUM_END_FLAGS 10    // Number of FLAGS to send at end of packet
 
 #define TX_POWERUP_DLY 30    // Wait time between TX keying and begining of transmission. [ms]
 
@@ -63,8 +63,8 @@
 #define WAVE_ARRY_SIZE sizeof( SIN_ARRAY ) 
 
 #define BAUD_FREQ 1200  // Transmit baud rate [Hz]
-#define MRK_FREQ 1200   // Mark (1) waveform frequecy [Hz]
-#define SPC_FREQ 2200   // Space (0) waveform frequecy [Hz]
+#define MRK_FREQ 1200   // Mark (1) waveform frequency [Hz]
+#define SPC_FREQ 2200   // Space (0) waveform frequency [Hz]
 
 #define MRK_NUM_SAMP   round (  ( (float) MRK_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  )
 #define SPC_NUM_SAMP   round (  ( (float) SPC_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  )
@@ -112,10 +112,10 @@
 
 /********** Unit Conversion Factors **********/
 
-#define M_to_F ( float ) 3.28084  // conversion factor between meters to feet
-#define KTS_to_MPH (  float ) 1.15078  // conversion factor between kts to mph
+#define M_to_F ( float ) 3.28084  // Conversion factor between meters to feet
+#define KTS_to_MPH (  float ) 1.15078  // Conversion factor between kts to mph
 
-/********** Global Varaibles **********/
+/********** Global Variables **********/
 
 volatile byte smp_num = 0;  // stores current sine array sample to put onto output port pins
 
@@ -137,16 +137,13 @@ const byte SIN_ARRAY[] = {
 
 struct GPS_data
 {
-  // typedef uint8_t byte
-  // typedef unsigned char uint8_t
-  // Therefore byte = unsigned char
-  
-  byte hour;          ///< GMT hours
-  byte minute;        ///< GMT minutes
-  byte seconds;       ///< GMT seconds
-  byte year;          ///< GMT year
-  byte month;         ///< GMT month
-  byte day;           ///< GMT day
+   
+  byte hour;          // GMT hours
+  byte minute;        // GMT minutes
+  byte seconds;       // GMT seconds
+  byte year;          // GMT year
+  byte month;         // GMT month
+  byte day;           // GMT day
 
 
   unsigned char lat_DD_10;
@@ -183,9 +180,9 @@ struct GPS_data
 
   char EorW;
     
-  unsigned long altitude;  ///< Altitude in meters above MSL (32 bits)
-  unsigned int speed;     ///< Current speed over ground in knots (16 bits)
-  unsigned int course;    ///< Course in degrees from true north (16 bits )
+  unsigned long altitude;  // Altitude in meters above MSL (32 bits)
+  unsigned int speed;      // Current speed over ground in knots (16 bits)
+  unsigned int course;     // Course in degrees from true north (16 bits )
   
   bool fix;            //  Have a fix?
   byte fixquality;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)

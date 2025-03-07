@@ -15,7 +15,7 @@ void crcbit ( byte tbyte, unsigned short &crc_value )
 
 unsigned short calc_crc()  
 {
-  unsigned short crc_value = 0xFFFF;  //initialize CRC value
+  unsigned short crc_value = 0xFFFF;  // Initialize CRC value
 
   for ( byte i = 0; i < sizeof( dest_address ); i++ ) 
     for ( byte j = 0; j < 8; j++ )  
