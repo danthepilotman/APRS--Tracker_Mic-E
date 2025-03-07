@@ -1,0 +1,196 @@
+void send_tone( bool afsk_tone )
+{         
+  
+  baud_tmr_isr_busy = true;  /* reset timer 5 interrupt flag */ 
+  
+  WAVE_GEN_TMR_TCNT  = 0x0000;  /* initialize Timer4 counter value to 0 */
+  
+  BAUD_TMR_TCNT  = 0x0000;  /* initialize Timer5 counter value to 0 */
+ 
+  afsk_tone ? WAVE_GEN_TMR_OCRA = MRK_TMR_CMP: WAVE_GEN_TMR_OCRA = SPC_TMR_CMP;
+
+  while( baud_tmr_isr_busy ); 
+
+}  /* end send_tone */
+
+
+
+void sendbyte ( byte inbyte, bool flag_in, byte &stuff_ctr )
+{
+  
+  static bool afsk_tone;
+  
+  for ( byte i = 0; i < 8; i++ )
+  {
+    
+    byte bt;
+
+    bt = inbyte & 0x01;  // strip off the rightmost bit
+          
+    if ( bt == 0 )  // if this bit is a zero,
+    {  
+
+      afsk_tone = ! afsk_tone;  //  flip the output state
+
+      send_tone( afsk_tone ); // then send the new tone
+
+      stuff_ctr = 0;
+       
+    }
+     
+    else
+    {
+      
+      stuff_ctr++;    // increment 1's count
+      
+      if ( ( ! flag_in ) && ( stuff_ctr == 5 ) )  // stuff an extra 0, if five 1's in a row
+      {   
+        
+        send_tone( afsk_tone );  // send the 1
+        
+        afsk_tone = ! afsk_tone;  // flip tone for sending 0
+       
+        send_tone( afsk_tone );  // send 0
+        
+        stuff_ctr = 0;  // reset stuff counter
+                                    
+      }   
+
+      else
+        send_tone( afsk_tone );
+
+    }
+    
+    inbyte = inbyte >> 1;  // shift one to the right to look at the next bit                    
+    
+  }
+
+}  /* end sendbyte */
+
+
+
+void send_packet()
+{
+
+  unsigned short crc_value;
+
+  byte crc_lo_byte, crc_hi_byte;
+
+  static byte stuff_ctr = 0;  // reset stuff counter
+     
+
+ 
+  //crc_value = crc16(pkt_data, sizeof(pkt_data),0x1021,0xFFFF,0xFFFF,true,true); 
+  crc_value = calc_crc();   //Calculate CRC
+  
+  crc_lo_byte = crc_value & 0xFF;
+  
+  crc_hi_byte = crc_value >> 8;
+  
+  digitalWrite( PTT_PIN, HIGH );  // key the Transmitter
+  
+  delay( TX_POWERUP_DLY );  // wait for Transmitter to power up 
+   
+  // Enable Timer interrupts
+  WAVE_GEN_TMR_TIMSK |= ( 1 << WAVE_GEN_TMR_OCIEA );
+  
+  BAUD_TMR_TIMSK |= ( 1 << BAUD_TMR_OCIEA );
+   
+  // Send Start FLAGS
+  for ( byte i = 0; i < NUM_START_FLAGS; i++ ) 
+    sendbyte( FLAG, true, stuff_ctr );                   
+   
+  // send Destination Address 
+  for( byte i = 0; i < sizeof( dest_address ); i++ )
+    sendbyte( dest_address[i], false, stuff_ctr );
+
+  // send Source, Digipeter Addresses / Control, PID Fields 
+  for( byte i = 0; i < sizeof( src_digi_addrs_ctl_pid_flds ); i++ )
+    sendbyte( src_digi_addrs_ctl_pid_flds[i], false, stuff_ctr );
+
+  // send Information Field
+  for( byte i = 0; i < sizeof( info ); i++ )
+    sendbyte( info[i], false, stuff_ctr );
+
+  // Send FCS
+  sendbyte( crc_lo_byte, false, stuff_ctr );  //send the low byte of crc
+ 
+  sendbyte( crc_hi_byte, false, stuff_ctr );  //send the high byte of crc
+      
+  //Send End FLAGS
+  for ( byte i = 0; i < NUM_END_FLAGS; i++ ) 
+    sendbyte( FLAG, true, stuff_ctr );                 
+  
+  // Disable Timer interrupts
+  WAVE_GEN_TMR_TIMSK &= ( 0 << WAVE_GEN_TMR_OCIEA );
+  
+  BAUD_TMR_TIMSK &= ( 0 << BAUD_TMR_OCIEA );
+
+  WAVE_PORT = 0;  // reset output port to 0s (low)
+  //*reinterpret_cast<volatile unsigned char* > ( 0x05 + 0x20 ) = 0;
+
+  digitalWrite( PTT_PIN, LOW );  //unkey PTT     
+
+} //end sendpacket()
+
+
+
+bool smart_beaconing ( unsigned short &beacon_period, unsigned short secs_since_beacon, byte &mic_e_message )
+{
+
+  static float prev_course;  // Retain the previous course for corner pegging comparison
+  
+  float delta_course;
+
+  enum mic_E_msg{ emergency, proprity, special, commited, returning, in_service, en_route, off_duty };
+     
+  delta_course = abs( gps_data.course - prev_course );    // Compute course angle change since last packet transmission
+
+  prev_course = gps_data.course;  // capture course for future comparison
+
+
+  if( delta_course > 180.0 )
+    delta_course = 360.0 - delta_course;
+ 
+   
+  if ( gps_data.speed < SLOW_SPEED )  // "Stop" threshold
+  {
+
+    beacon_period = SLOW_RATE;
+
+    mic_e_message = in_service;  // In service if we are NOT moving
+
+  }
+
+  else  // We're moving; adjust beacon period to speed, and peg corners 
+  { 
+    
+    mic_e_message = en_route;  // en route if we are moving
+    
+    float turn_threshold = MIN_TURN_ANGLE + TURN_SLOPE / gps_data.speed;  // Adjust turn threshold according to speed
+
+    // Adjust beacon rate according to speed
+
+    if ( gps_data.speed > FAST_SPEED )  
+      beacon_period = ( unsigned short) FAST_RATE;
+    
+    else
+      beacon_period = ( unsigned short ) round( FAST_RATE * FAST_SPEED / gps_data.speed );
+
+    // Corner pegging
+
+    if ( ( delta_course > turn_threshold ) && ( secs_since_beacon > MIN_TURN_TIME ) )
+     return true;     
+   
+  }
+  
+  // Beacon period exceeded
+
+  if ( secs_since_beacon > beacon_period )
+    return true;
+  
+
+
+  return false;    // Otherise return false
+
+}  // end smart_beackoning ()
