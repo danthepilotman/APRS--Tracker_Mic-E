@@ -3,7 +3,7 @@
 #include <math.h>
 
 
-#define MCP4725_DAC
+//#define MCP4725_DAC  // Comment out to use 4 resistor ladder DAC vs MCP4725 DAC chip
 
 
 #ifdef MCP4725_DAC
@@ -15,7 +15,6 @@
 
 #define DEBUG false  // Set to 'true' to enable debugging serial prints
 
-static constexpr unsigned long  BTN_DBOUCE_TIME = 200;  // ms
 
 /********** Smart Beaconing Parameters **********/
 
@@ -48,6 +47,8 @@ static constexpr unsigned long GPS_BAUD_RATE = 9600;
 /********** Digital Pin Parameters **********/
 
 static constexpr uint8_t DISP_MODE_PIN = 3;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
+static constexpr unsigned long  BTN_DBOUCE_TIME = 200;  // ms
+
 static constexpr uint8_t PTT_PIN = A0;  // Transmitter Push To Talk pin
 static constexpr uint8_t GPS_VALID_PIN = LED_BUILTIN;  // LED for indicating valid GPS position
 
@@ -153,8 +154,8 @@ static constexpr uint8_t  WIDE2_2 = 2;  // APRS Digi Path Code
 
 /********** Unit Conversion Factors **********/
 
-static constexpr float M_to_F = 3.28084;  // Conversion factor between meters to feet
-static constexpr float KTS_to_MPH = 1.15078;  // Conversion factor between kts to mph
+#define M_to_F (float) 3.28084  // Conversion factor between meters to feet
+#define KTS_to_MPH (float) 1.15078  // Conversion factor between kts to mph
 
 /********** Global Variables **********/
 

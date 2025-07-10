@@ -1,7 +1,7 @@
-void compute_dest_address( byte mic_e_message )
+void compute_dest_address( uint8_t mic_e_message )
 {
 
-  unsigned char char_offset;
+  uint8_t char_offset;
   
   // Determine 1st Destination Address byte ( Lat Digit 1 + Message Bit A )
 
@@ -139,11 +139,11 @@ void compute_info_spd_crs()
 
 void compute_info_alt()
 {
-  unsigned long alt_abv_datum = 10000 + gps_data.altitude;
+  uint16_t alt_abv_datum = 10000 + gps_data.altitude;
 
   info[ALT_INDX] = uint8_t( alt_abv_datum / 8281 ) + 33;
   
-  unsigned int remainder =  ( unsigned int ) ( alt_abv_datum % 8281 );
+  uint16_t remainder =  ( uint16_t) ( alt_abv_datum % 8281 );
 
   info[ALT_INDX + 1] = uint8_t( remainder / 91 ) + 33;
 
@@ -163,6 +163,6 @@ void compute_Mic_E_data( uint8_t mic_e_message )
 
   compute_info_spd_crs();
 
-  //compute_info_alt();
+  compute_info_alt();
 
 }

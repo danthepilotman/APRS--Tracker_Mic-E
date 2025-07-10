@@ -128,7 +128,7 @@ bool parse_GGA( char* NMEA_data )
   ptr = strchr( ptr, ',' ) + 1;  // Skip lon
   ptr = strchr( ptr, ',' ) + 1;  // Skip E/W
     
-  if ( ! isEmpty( ptr ) ) 
+  if ( isEmpty( ptr ) == false ) 
   { 
                
     gps_data.fixquality = atoi( ptr );  // Needs additional processing
@@ -141,22 +141,22 @@ bool parse_GGA( char* NMEA_data )
                      
   }
 
-  if( ! gps_data.fix )
-    return true;  // Go back and capture another NMEA senetence
+  if( gps_data.fix == false )
+    return true;  // Go back and capture another NMEA sentence
                        
   ptr = strchr( ptr, ',' ) + 1; // Then move on to the next data field
   
   // Most can just be parsed with atoi() or atof(), then move on to the next.
   
-  if ( ! isEmpty( ptr ) )
+  if ( isEmpty( ptr ) == false )
     gps_data.satellites = atoi( ptr );
     
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
    
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
 
-  if ( ! isEmpty( ptr ) )
-    gps_data.altitude = ( unsigned long ) ( round( atof( ptr ) ) );
+  if ( isEmpty( ptr ) == false )
+    gps_data.altitude = ( uint16_t ) ( round( atof( ptr ) ) );
     
   // Skip the rest
 
@@ -183,7 +183,7 @@ bool parse_RMC( char* NMEA_data )
     
   parseFix( ptr ); // Status
 
-  if( ! gps_data.fix )
+  if( gps_data.fix == false )
     return true;  // Go back and capture another NMEA sentence 
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 3rd comma 
@@ -204,17 +204,17 @@ bool parse_RMC( char* NMEA_data )
 
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 7th comma 
 
-  if ( ! isEmpty ( ptr ) )
+  if ( isEmpty ( ptr ) == false )
     gps_data.speed = ( unsigned int ) ( round( atof ( ptr ) ) );
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 8th comma 
 
-  if ( ! isEmpty ( ptr ) )
+  if ( isEmpty ( ptr ) == false )
     gps_data.course = ( unsigned int ) ( round( atof ( ptr ) ) );
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 9th comma 
 
-  if ( ! isEmpty( ptr ) )
+  if ( isEmpty( ptr ) == false )
   {
 
     unsigned long fulldate = atol( ptr );  // ddmmyy
@@ -246,7 +246,7 @@ bool parse_GSA( char* NMEA_data )
 
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
 
-  if ( ! isEmpty( ptr ) )
+  if ( isEmpty( ptr ) == false )
     gps_data.fixquality_3d = atoi( ptr );
 
   return false;
@@ -278,7 +278,7 @@ bool isEmpty( const char* pStart )
 bool parseTime( const char* ptr ) 
 {
   
-  if ( ! isEmpty( ptr ) ) 
+  if ( isEmpty( ptr ) == false) 
   { 
     
     unsigned long time = atol( ptr );
@@ -308,7 +308,7 @@ bool parseTime( const char* ptr )
 bool parseFix( const char* ptr ) 
 {
   
-  if ( ! isEmpty( ptr ) )
+  if ( isEmpty( ptr ) == false )
   {
     
     if ( ptr[0] == 'A' ) 
@@ -340,7 +340,7 @@ bool parseCoord( char* coord )
   
   const char* ptr = coord;
   
-  if ( ! isEmpty( ptr ) )
+  if ( isEmpty( ptr ) == false )
   {
     
     char* e = strchr( ptr, '.' );

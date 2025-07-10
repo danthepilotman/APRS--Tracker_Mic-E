@@ -5,7 +5,7 @@ ISR ( WAVE_GEN_TMR_ISR_VECT )
 
 #ifdef MCP4725_DAC
 
-  dac.setVoltage(pgm_read_word(&(DACLookup_FullSine_6Bit[smp_num])), false);
+  dac.setVoltage( pgm_read_word( &( DACLookup_FullSine_6Bit[smp_num] ) ), false );
 
 #else
 
