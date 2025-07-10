@@ -11,7 +11,7 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
   
   char oled_row[ OLED_COLS + 1];  // Used to create character string for display on OLED
 
-  const byte degree_symbol_bitmap[] PROGMEM = { 0x06, 0x09, 0x09, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  const uint8_t degree_symbol_bitmap[] PROGMEM = { 0x06, 0x09, 0x09, 0x06 };  // ° symbol bitmap
 
 /* --- Clear OLED display if OLED display mode is changed --- */
 
@@ -35,12 +35,13 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
       oled.setCursor( 0, FIRST_ROW ); // Latitude
       sprintf( oled_row, "%i %02i.%02i%02i %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
       oled.print ( oled_row );
-      oled.bitmap(17, 0, 8 + 17, 16, degree_symbol_bitmap );
+      oled.bitmap( 17, FIRST_ROW, 8 + 17, FIRST_ROW + 16, degree_symbol_bitmap );
 
 
       oled.setCursor( 0, SECOND_ROW ); // Longitude
       sprintf( oled_row, "%03d %02i.%02i%02i %c", gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm, gps_data.EorW );
       oled.print( oled_row );
+      oled.bitmap( 24, SECOND_ROW, 8 + 24, SECOND_ROW + 16, degree_symbol_bitmap );
 
 
       oled.setCursor( 0, THIRD_ROW );  // Course
@@ -71,8 +72,7 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
         
     break;    
 
-
-           
+    
     case DATE_TIME: 
     {
       
