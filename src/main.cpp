@@ -10,7 +10,7 @@ void setup()
 
   setup_Timers();
 
-  setup_LCD();
+  setup_OLED();
 
 }
 
@@ -29,7 +29,7 @@ void loop()
   
   
   if ( gps_data.fix == false )
-    lcd.print( F( "Waiting for GPS signal" ) );
+    oled.print( F( "Waiting for GPS signal" ) );
 
   get_GPS_data();  // Get data from GPS unit
 

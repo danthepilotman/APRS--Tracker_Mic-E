@@ -2,85 +2,78 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
 {  
  
   static byte current_disp_mode;
+
+  enum{POSITION, SATS_INFO, DATE_TIME};
+
   
   const char *pos_fix[] = {"Not available", "GPS SPS Mode",
                     "Differential GPS" , "GPS PPS Mode"};
   
-  char lcd_upper_row[LCD_COL + 1];
+  char oled_row[ OLED_COLS + 1];  // Used to create character string for display on OLED
 
-  char lcd_lower_row[LCD_COL + 1];
+  const byte degree_symbol_bitmap[] PROGMEM = { 0x06, 0x09, 0x09, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+/* --- Clear OLED display if OLED display mode is changed --- */
 
-/* --- Clear LCD display if lcd display mode is changed --- */
-
-  if ( current_disp_mode != lcd_disp_mode )
+  if ( current_disp_mode != disp_mode )
   {
 
-    lcd.clear();
+    oled.clear();
 
-    current_disp_mode = lcd_disp_mode; 
+    current_disp_mode = disp_mode; 
     
   }
 
-  lcd.home();
+ 
+/*----- Display relevant data to OLED screen based on page selection ------- */
 
-/*----- Display relevant data to LCD screen based on page selection ------- */
-
-  switch ( lcd_disp_mode )
+  switch ( disp_mode )
   {
 
-    case 0:
+    case POSITION:
 
-      sprintf( lcd_upper_row, " %i\xdf %02i.%02i%02i %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
+      oled.setCursor( 0, FIRST_ROW ); // Latitude
+      sprintf( oled_row, "%i %02i.%02i%02i %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
+      oled.print ( oled_row );
+      oled.bitmap(17, 0, 8 + 17, 16, degree_symbol_bitmap );
 
-      lcd.print ( lcd_upper_row );
+
+      oled.setCursor( 0, SECOND_ROW ); // Longitude
+      sprintf( oled_row, "%03d %02i.%02i%02i %c", gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm, gps_data.EorW );
+      oled.print( oled_row );
 
 
-      lcd.setCursor( 0, BOT_ROW );
+      oled.setCursor( 0, THIRD_ROW );  // Course
+      oled.print( gps_data.course, 0 );
+      oled.setCursor( SPD_FLD_OFFSET, THIRD_ROW );  // Speed
+      oled.print(  KTS_to_MPH * gps_data.speed, 0 );
 
-      sprintf( lcd_lower_row, "%03d\xdf %02i.%02i%02i %c", gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm, gps_data.EorW );
 
-      lcd.print ( lcd_lower_row );
+      oled.setCursor( 0, FOURTH_ROW );  // Altitude
+      oled.print( M_to_F * gps_data.altitude, 0 );
 
     break;  
       
 
-    case 1:
+    case SATS_INFO:
 
-      lcd.setCursor( 0, TOP_ROW );
-      lcd.print( F( "Spd Alt Trk Sats" ) );
       
-      lcd.setCursor( SPD_FLD_OFFSET, BOT_ROW );
-      lcd.print( KTS_to_MPH * gps_data.speed, 0 );
+      oled.setCursor( 0, FIRST_ROW );  // Fix quality
+      oled.print( pos_fix[gps_data.fixquality] );
+
+
+      oled.setCursor( 0, SECOND_ROW ); // Fix type
+      sprintf( oled_row, "Fix type: %dD", gps_data.fixquality_3d );
+      oled.print( oled_row );
       
-      lcd.setCursor( ALT_FLD_OFFSET, BOT_ROW );
-      lcd.print( M_to_F * gps_data.altitude, 0 );
-      
-      lcd.setCursor( TRK_FLD_OFFSET, BOT_ROW );
-      lcd.print( gps_data.course );
-      lcd.print( F( "\xdf  ") );
-      
-      lcd.setCursor( SAT_FLD_OFFSET, BOT_ROW ); 
-      lcd.print( gps_data.satellites );
+      oled.setCursor( 0, THIRD_ROW ); // Numer of satellites being tracked
+      oled.print( gps_data.satellites );
         
     break;    
 
 
-    case 2:
-
-      lcd.print( pos_fix[gps_data.fixquality] );
-
-      
-      lcd.setCursor( 0, BOT_ROW );
-
-      sprintf( lcd_lower_row, "Fix type: %dD", gps_data.fixquality_3d );
-
-      lcd.print( lcd_lower_row );
-
-    break;             
-
-
-    case 3: 
+           
+    case DATE_TIME: 
     {
       
       short next_tx = beacon_period - secs_since_beacon;  
@@ -93,56 +86,34 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
       byte nxt_min = next_tx / 60;
       byte nxt_sec = next_tx % 60;
 
-
-      sprintf( lcd_upper_row, "Bkn prd: %02d:%02d", bkn_min, bkn_sec );
-
-      lcd.print ( lcd_upper_row );
+      oled.setCursor( 0, FIRST_ROW );  // Beacon period
+      sprintf( oled_row, "Bkn prd: %02d:%02d", bkn_min, bkn_sec );
+      oled.print ( oled_row );
 
     
-      lcd.setCursor( 0, BOT_ROW );
-   
-      sprintf( lcd_lower_row, "Next TX: %02d:%02d", nxt_min, nxt_sec  );
+      oled.setCursor( 0, SECOND_ROW ); // Time until next transmission
+      sprintf( oled_row, "Next TX: %02d:%02d", nxt_min, nxt_sec  );
+      oled.print ( oled_row );
 
-      lcd.print ( lcd_lower_row );
+      oled.setCursor( 0, THIRD_ROW );  // Time
+      sprintf( oled_row, "%0d:%02d:%02d", gps_data.hour, gps_data.minute, gps_data.seconds );
+      oled.print ( oled_row );
+
+
+      oled.setCursor( 0, FOURTH_ROW );  // Date
+      sprintf( oled_row, "%02d-%02d-%02d", gps_data.month, gps_data.day, gps_data.year );
+      oled.print ( oled_row );
 
     }
 
     break;
 
-
-    case 4:
-
-      lcd.print( F( "HH MM SS") );
-
-
-      lcd.setCursor( 0, BOT_ROW );
-
-      sprintf( lcd_lower_row, "%0d:%02d:%02d", gps_data.hour, gps_data.minute, gps_data.seconds );
-
-      lcd.print ( lcd_lower_row );
-
-    break;
-
-
-    case 5:
-
-      lcd.print( F( "MM DD YY") );
-      
-
-      lcd.setCursor( 0, BOT_ROW );
-
-      sprintf( lcd_lower_row, "%02d-%02d-%02d", gps_data.month, gps_data.day, gps_data.year );
-
-      lcd.print ( lcd_lower_row );
-
-    break;
-    
   } // end switch
 
 /*----------------- Display GPS data on the serial terminal for debugging -----------------  */
 #if DEBUG
 
-  print_lcd_debug();
+  print_oled_debug();
   
 #endif  
 
@@ -161,10 +132,10 @@ void disp_mode_btn()
   if ( interrupt_time - last_interrupt_time > BTN_DBOUCE_TIME ) 
   {
 
-    lcd_disp_mode++;
+    disp_mode++;
   
-    if( lcd_disp_mode == NUM_OF_DISP_SCREENS )
-      lcd_disp_mode = 0;
+    if( disp_mode == NUM_OF_DISP_SCREENS )
+      disp_mode = 0;
 
   }
 
@@ -216,7 +187,7 @@ void display_timers_setup()
 
 
 
-void print_lcd_debug()
+void print_oled_debug()
 {
 
   char gps_time[50];

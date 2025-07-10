@@ -3,8 +3,9 @@
 */
 
 #include <Arduino.h>
-#include <LiquidCrystal_I2C.h>
+#include <Tiny4kOLED.h>
 #include <math.h>
+
 
 #define DEBUG false  // Set to 'true' to enable debugging serial prints
 
@@ -20,18 +21,18 @@
 #define MIN_TURN_ANGLE (float ) 30.0   // degrees
 #define TURN_SLOPE (float) 255.0       // unitless
 
-/********** LCD Parameters **********/
+/********** OLED Parameters **********/
 
-#define LCD_I2C_ADDR 0x27
-#define LCD_COL 16
-#define LCD_ROW 2
-#define TOP_ROW 0
-#define BOT_ROW 1
-#define SPD_FLD_OFFSET 0  // LCD display x-axis offset for speed
-#define ALT_FLD_OFFSET 4  // LCD display x-axis offset for altitude
-#define TRK_FLD_OFFSET 8  // LCD display x-axis offset for course
-#define SAT_FLD_OFFSET 14  // LCD display x-axis offset for # of satellites
-#define NUM_OF_DISP_SCREENS 6  // Number of unique display screen options
+const uint8_t width = 128;
+const uint8_t height = 64;
+
+#define OLED_COLS 21
+#define FIRST_ROW 0
+#define SECOND_ROW 10
+#define THIRD_ROW 20
+#define FOURTH_ROW 30
+#define SPD_FLD_OFFSET 10  // OLED display x-axis offset for speed
+#define NUM_OF_DISP_SCREENS 3  // Number of unique display screen options
 
 /********** Serial Port Parameters **********/
 
@@ -121,7 +122,7 @@ volatile byte smp_num = 0;  // stores current sine array sample to put onto outp
 
 volatile bool baud_tmr_isr_busy = true;  // Timer 1 used for 1200 baud timing
 
-volatile byte lcd_disp_mode;
+volatile byte disp_mode;
 
 const byte SIN_ARRAY[] = {
 8,8,9,10,10,11,12,12,
@@ -191,15 +192,11 @@ struct GPS_data
 
 } gps_data;
 
-/********** Object Instance Declarations **********/
-
-LiquidCrystal_I2C lcd( LCD_I2C_ADDR, LCD_COL, LCD_ROW );
-
 /********** Additional Included Files **********/
 
 #include "packet_data.h"
 #include "gps_string_cap_case.cpp"
-#include "display_LCD.cpp"
+#include "display_OLED.cpp"
 #include "mark_space_gen.cpp"
 #include "setup_functions.cpp"
 #include "packet_data_compressed_gps.cpp"

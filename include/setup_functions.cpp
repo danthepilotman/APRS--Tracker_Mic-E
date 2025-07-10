@@ -47,24 +47,17 @@ void setup_Timers()
 
 
 
-void setup_LCD()
+void setup_OLED()
 {
 
-    lcd.init();
+  oled.begin( width, height, sizeof( tiny4koled_init_128x64br), tiny4koled_init_128x64br );
+  
+  oled.setFont( FONT8X16 );
+  
+  oled.clear();
 
-    lcd.backlight();
+  oled.on();
 
-    /* ----- Print Splash Screen to LCD ------ */
-
-    lcd.print( F( "APRS Tracker" ) );
-  
-    lcd.setCursor( 0, BOT_ROW );
-  
-    lcd.print( F( "v1.1 DLDesigns" ) );
-  
-    delay( SPLASH_SCRN_DLY );
-  
-    lcd.clear();
 
 #if DEBUG
   display_timers_setup();
