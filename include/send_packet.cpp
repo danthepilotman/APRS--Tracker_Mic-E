@@ -15,15 +15,15 @@ void send_tone( bool afsk_tone )
 
 
 
-void sendbyte ( byte inbyte, bool flag_in, byte &stuff_ctr )
+void sendbyte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
 {
   
   static bool afsk_tone;
   
-  for ( byte i = 0; i < 8; i++ )
+  for ( uint8_t i = 0; i < 8; i++ )
   {
     
-    byte bt;
+    uint8_t bt;
 
     bt = inbyte & 0x01;  // Strip off the rightmost bit
           
@@ -74,9 +74,9 @@ void send_packet()
 
   unsigned short crc_value;
 
-  byte crc_lo_byte, crc_hi_byte;
+  uint8_t crc_lo_byte, crc_hi_byte;
 
-  static byte stuff_ctr = 0;  // Reset stuff counter
+  static uint8_t stuff_ctr = 0;  // Reset stuff counter
      
 
  
@@ -97,19 +97,19 @@ void send_packet()
   BAUD_TMR_TIMSK |= ( 1 << BAUD_TMR_OCIEA );
    
   // Send Start FLAGS
-  for ( byte i = 0; i < NUM_START_FLAGS; i++ ) 
+  for ( uint8_t i = 0; i < NUM_START_FLAGS; i++ ) 
     sendbyte( FLAG, true, stuff_ctr );                   
    
   // send Destination Address 
-  for( byte i = 0; i < sizeof( dest_address ); i++ )
+  for( uint8_t i = 0; i < sizeof( dest_address ); i++ )
     sendbyte( dest_address[i], false, stuff_ctr );
 
   // send Source, Digipeater Addresses / Control, PID Fields 
-  for( byte i = 0; i < sizeof( src_digi_addrs_ctl_pid_flds ); i++ )
+  for( uint8_t i = 0; i < sizeof( src_digi_addrs_ctl_pid_flds ); i++ )
     sendbyte( src_digi_addrs_ctl_pid_flds[i], false, stuff_ctr );
 
   // send Information Field
-  for( byte i = 0; i < sizeof( info ); i++ )
+  for( uint8_t i = 0; i < sizeof( info ); i++ )
     sendbyte( info[i], false, stuff_ctr );
 
   // Send FCS
@@ -118,7 +118,7 @@ void send_packet()
   sendbyte( crc_hi_byte, false, stuff_ctr );  // Send the high byte of crc
       
   //Send End FLAGS
-  for ( byte i = 0; i < NUM_END_FLAGS; i++ ) 
+  for ( uint8_t i = 0; i < NUM_END_FLAGS; i++ ) 
     sendbyte( FLAG, true, stuff_ctr );                 
   
   // Disable Timer interrupts

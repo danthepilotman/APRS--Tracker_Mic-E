@@ -1,7 +1,7 @@
 void display_data( unsigned short beacon_period, unsigned short secs_since_beacon) 
 {  
  
-  static byte current_disp_mode;
+  static uint8_t current_disp_mode;
 
   enum{POSITION, SATS_INFO, DATE_TIME};
 
@@ -81,10 +81,10 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
       if ( next_tx < 0 )
         next_tx = 0;
       
-      byte bkn_min = beacon_period / 60;
-      byte bkn_sec = beacon_period % 60;
-      byte nxt_min = next_tx / 60;
-      byte nxt_sec = next_tx % 60;
+      uint8_t bkn_min = beacon_period / 60;
+      uint8_t bkn_sec = beacon_period % 60;
+      uint8_t nxt_min = next_tx / 60;
+      uint8_t nxt_sec = next_tx % 60;
 
       oled.setCursor( 0, FIRST_ROW );  // Beacon period
       sprintf( oled_row, "Bkn prd: %02d:%02d", bkn_min, bkn_sec );
@@ -128,7 +128,7 @@ void disp_mode_btn()
   
   unsigned long interrupt_time = millis();
   
-  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  // If interrupts come faster than  BTN_DBOUCE_TIME, assume it's a bounce and ignore
   if ( interrupt_time - last_interrupt_time > BTN_DBOUCE_TIME ) 
   {
 

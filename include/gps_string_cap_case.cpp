@@ -4,7 +4,7 @@
 
 /******** Function prototypes ***********/
 
-byte hex_str_to_int( const char* chk_sum );  // Converts string of characters representing hex values to an integer
+uint8_t hex_str_to_int( const char* chk_sum );  // Converts string of characters representing hex values to an integer
 bool xsum_check( char* NMEA_data );  // Computes and cross checks NMEA sentence checksum
 bool isEmpty( const char* pStart );  // Check for empty data fields in the NMEA sentence
 bool parseTime( const char* ptr );
@@ -65,7 +65,7 @@ void get_NMEA_sentence( char* NMEA_data )
     goto get_NMEA_data;  // Go back to the begining of the sentence capture sequence
     
     
-  for ( byte i = 1; i < NMEA_DATA_MAX_SIZE; i++ )  
+  for ( uint8_t i = 1; i < NMEA_DATA_MAX_SIZE; i++ )  
   {
       
     while ( gpsSerial.available() == 0 );  // Wait for serial data to be available
@@ -407,12 +407,12 @@ bool parseCoord( char* coord )
 
 
 
-byte hex_str_to_int( const char* chk_sum_in )
+uint8_t hex_str_to_int( const char* chk_sum_in )
 {
 
-  byte integer = 0;
+  uint8_t integer = 0;
   
-  byte delta;
+  uint8_t delta;
 
 
   if( isalpha( chk_sum_in[0] ) )  // If first character is a letter
@@ -442,9 +442,9 @@ byte hex_str_to_int( const char* chk_sum_in )
 bool xsum_check( char* NMEA_data )
 {
 
-  byte xsum = 0x00;
+  uint8_t xsum = 0x00;
 
-  byte chk_sum = 0x00;
+  uint8_t chk_sum = 0x00;
 
   char* ptr = NMEA_data;
 
@@ -459,7 +459,7 @@ bool xsum_check( char* NMEA_data )
      Therefore we start the index at 1 instead of 0.
   */
 
-  for( byte i = 1; i < NMEA_DATA_MAX_SIZE; i++ )
+  for( uint8_t i = 1; i < NMEA_DATA_MAX_SIZE; i++ )
   { 
     if( NMEA_data[i] == '*' )
       break;

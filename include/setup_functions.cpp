@@ -1,3 +1,10 @@
+#ifdef MCP4725_DAC
+
+Adafruit_MCP4725 dac;
+
+#endif
+
+
 void setup_Pins()
 {
 

@@ -12,6 +12,12 @@ void setup()
 
   setup_OLED();
 
+#ifdef MCP4725_DAC
+
+  dac.begin(0x62);
+
+#endif
+
 }
 
 
@@ -25,7 +31,7 @@ void loop()
 
   static unsigned long last_TX_time;
 
-  byte mic_e_message;
+  uint8_t mic_e_message;
   
   
   if ( gps_data.fix == false )

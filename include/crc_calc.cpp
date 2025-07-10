@@ -17,16 +17,16 @@ unsigned short calc_crc()
 {
   unsigned short crc_value = 0xFFFF;  // Initialize CRC value
 
-  for ( byte i = 0; i < sizeof( dest_address ); i++ ) 
-    for ( byte j = 0; j < 8; j++ )  
+  for ( uint8_t i = 0; i < sizeof( dest_address ); i++ ) 
+    for ( uint8_t j = 0; j < 8; j++ )  
       crcbit( bitRead( dest_address[i], j), crc_value  );
 
-  for ( byte i = 0; i < sizeof( src_digi_addrs_ctl_pid_flds ); i++ ) 
-    for ( byte j = 0; j < 8; j++ )  
+  for ( uint8_t i = 0; i < sizeof( src_digi_addrs_ctl_pid_flds ); i++ ) 
+    for ( uint8_t j = 0; j < 8; j++ )  
       crcbit( bitRead( src_digi_addrs_ctl_pid_flds[i], j), crc_value  );                                       
 
-  for ( byte i = 0; i < sizeof( info ); i++ ) 
-    for ( byte j = 0; j < 8; j++ )
+  for ( uint8_t i = 0; i < sizeof( info ); i++ ) 
+    for ( uint8_t j = 0; j < 8; j++ )
       crcbit( bitRead( info[i], j ), crc_value );     
 
   crc_value = ~crc_value; 

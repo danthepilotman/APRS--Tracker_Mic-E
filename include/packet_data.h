@@ -1,7 +1,7 @@
-byte dest_address[7];
+uint8_t dest_address[7];
 
 
-const byte src_digi_addrs_ctl_pid_flds[]  = { 
+const uint8_t src_digi_addrs_ctl_pid_flds[]  = { 
 
     'A'<<1   //        A  #0 Begin of Source Address Field
   , 'I'<<1   //        I
@@ -16,7 +16,7 @@ const byte src_digi_addrs_ctl_pid_flds[]  = {
 };
 
 
-byte info[] = {
+uint8_t info[] = {
   
    '`'   // #0  Current GPS Data
   ,'l'   // #1  d+28

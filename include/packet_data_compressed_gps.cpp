@@ -91,7 +91,7 @@ void compute_info_longitude()
   else
     char_offset = '&' - 110;
   
-  info[1] = byte( gps_data.lon_DD + char_offset );
+  info[1] = uint8_t( gps_data.lon_DD + char_offset );
 
   // Determine 3rd Information Field byte ( m+28 )
 
@@ -101,13 +101,13 @@ void compute_info_longitude()
   else
     char_offset = '&' - 10;
 
-  info[2] = byte( gps_data.lon_MM + char_offset );
+  info[2] = uint8_t( gps_data.lon_MM + char_offset );
 
   // Determine 4th Information Field byte ( h+28 )
 
   
 
-  info[3] = byte( gps_data.lon_hh + 28 );
+  info[3] = uint8_t( gps_data.lon_hh + 28 );
 
 }  
 
@@ -116,7 +116,7 @@ void compute_info_longitude()
 void compute_info_spd_crs()
 {
 
-  byte speed_10 = byte( gps_data.speed / 10 );
+  uint8_t speed_10 = uint8_t( gps_data.speed / 10 );
   
   if( gps_data.course == 0 )
     gps_data.course = 360;  // Only 360 allowed for Mic-E encoding
@@ -127,11 +127,11 @@ void compute_info_spd_crs()
 
   // Determine 6th Information Field byte ( DC+28 )
 
-  info[5] = 10 * byte( gps_data.speed % 10 ) +  byte( gps_data.course / 100 ) + 32;  // +32 allows for more ASCII readble characters
+  info[5] = 10 * uint8_t( gps_data.speed % 10 ) +  uint8_t( gps_data.course / 100 ) + 32;  // +32 allows for more ASCII readble characters
 
   // Determine 7h Information Field byte ( SE+28 )
 
-  info[6] = byte( gps_data.course % 100 ) + 28;
+  info[6] = uint8_t( gps_data.course % 100 ) + 28;
   
 } 
 
@@ -141,19 +141,19 @@ void compute_info_alt()
 {
   unsigned long alt_abv_datum = 10000 + gps_data.altitude;
 
-  info[ALT_INDX] = byte( alt_abv_datum / 8281 ) + 33;
+  info[ALT_INDX] = uint8_t( alt_abv_datum / 8281 ) + 33;
   
   unsigned int remainder =  ( unsigned int ) ( alt_abv_datum % 8281 );
 
-  info[ALT_INDX + 1] = byte( remainder / 91 ) + 33;
+  info[ALT_INDX + 1] = uint8_t( remainder / 91 ) + 33;
 
-  info[ALT_INDX + 2] = byte( remainder % 91) + 33;
+  info[ALT_INDX + 2] = uint8_t( remainder % 91) + 33;
 
 }
 
 
 
-void compute_Mic_E_data( byte mic_e_message )
+void compute_Mic_E_data( uint8_t mic_e_message )
 
 {
 
