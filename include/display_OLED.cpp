@@ -33,7 +33,7 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
     case POSITION:
 
       oled.setCursor( 0, FIRST_ROW ); // Latitude
-      sprintf( oled_row, "%i %02i.%02i%02i %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
+      sprintf( oled_row, "%02i %02i.%02i%02i %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
       oled.print ( oled_row );
       oled.bitmap( 17, FIRST_ROW, 8 + 17, FIRST_ROW + 16, degree_symbol_bitmap );
 
