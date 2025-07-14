@@ -211,7 +211,7 @@ struct GPS_data
 
   char EorW = 'W';
     
-  uint16_t altitude = 3;  // Altitude in meters above MSL (32 bits)
+  int16_t altitude = 3;  // Altitude in meters above MSL (32 bits)
   uint16_t speed = 0;      // Current speed over ground in knots (16 bits)
   uint16_t course = 180;     // Course in degrees from true north (16 bits )
   
@@ -269,7 +269,7 @@ struct GPS_data
 
   char EorW;
     
-  uint16_t altitude;  // Altitude in meters above MSL (32 bits)
+  int16_t altitude;  // Altitude in meters above MSL (32 bits)
   uint16_t speed;      // Current speed over ground in knots (16 bits)
   uint16_t course;     // Course in degrees from true north (16 bits )
   
