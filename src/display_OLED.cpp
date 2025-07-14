@@ -1,15 +1,19 @@
-void display_data( unsigned short beacon_period, unsigned short secs_since_beacon) 
+#include"display_OLED.h"
+
+
+
+void display_data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {  
  
   static uint8_t current_disp_mode;
 
-  enum{POSITION, SATS_INFO, DATE_TIME};
+  enum{ POSITION, SATS_INFO, DATE_TIME };
 
   
-  const char *pos_fix[] = {"Not available", "GPS SPS Mode",
-                    "Differential GPS" , "GPS PPS Mode"};
+  const char *pos_fix[] = { "Not available", "GPS SPS Mode",
+                    "Differential GPS" , "GPS PPS Mode" };
   
-  char oled_row[ OLED_COLS + 1];  // Used to create character string for display on OLED
+  char oled_row[ OLED_COLS + 1 ];  // Used to create character string for display on OLED
 
 
 /*   const uint8_t degree_symbol_bitmap[] PROGMEM = {
@@ -157,26 +161,13 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
 }
 
 
-void disp_mode_btn()
+void show_SPLASH_SCRN()
 {
-  
-  static uint32_t last_interrupt_time;
-  
-  uint32_t interrupt_time = millis();
-  
-  // If interrupts come faster than  BTN_DBOUCE_TIME, assume it's a bounce and ignore
-  if ( interrupt_time - last_interrupt_time > BTN_DBOUCE_TIME ) 
-  {
+  oled.print( F( "APRS Tracker\r\nV1.0" ) );
 
-    disp_mode++;
-  
-    if( disp_mode == NUM_OF_DISP_SCREENS )
-      disp_mode = 0;
+  delay( SPLASH_SCRN_DLY );
 
-  }
-
-  last_interrupt_time = interrupt_time;
-
+  oled.clear();
 }
 
 

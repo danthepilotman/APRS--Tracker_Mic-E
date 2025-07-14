@@ -1,8 +1,4 @@
-#ifdef MCP4725_DAC
-
-Adafruit_MCP4725 dac;
-
-#endif
+#include"setup_functions.h"
 
 
 void setup_Pins()
@@ -69,5 +65,28 @@ void setup_OLED()
 #if DEBUG
   display_timers_setup();
 #endif 
+
+}
+
+
+void disp_mode_btn()
+{
+  
+  static uint32_t last_interrupt_time;
+  
+  uint32_t interrupt_time = millis();
+  
+  // If interrupts come faster than  BTN_DBOUCE_TIME, assume it's a bounce and ignore
+  if ( interrupt_time - last_interrupt_time > BTN_DBOUCE_TIME ) 
+  {
+
+    disp_mode++;
+  
+    if( disp_mode == NUM_OF_DISP_SCREENS )
+      disp_mode = 0;
+
+  }
+
+  last_interrupt_time = interrupt_time;
 
 }

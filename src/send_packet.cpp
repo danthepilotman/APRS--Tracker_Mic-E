@@ -1,3 +1,6 @@
+#include"send_packet.h"
+
+
 void send_tone( bool afsk_tone )
 {         
   
@@ -105,11 +108,11 @@ void send_packet()
     sendbyte( dest_address[i], false, stuff_ctr );
 
   // send Source, Digipeater Addresses / Control, PID Fields 
-  for( uint8_t i = 0; i < sizeof( src_digi_addrs_ctl_pid_flds ); i++ )
+  for( uint8_t i = 0; i <SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN; i++ )
     sendbyte( src_digi_addrs_ctl_pid_flds[i], false, stuff_ctr );
 
   // send Information Field
-  for( uint8_t i = 0; i < sizeof( info ); i++ )
+  for( uint8_t i = 0; i <INFO_LEN; i++ )
     sendbyte( info[i], false, stuff_ctr );
 
   // Send FCS

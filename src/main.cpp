@@ -1,4 +1,10 @@
-#include "aprs.h"  // Header file with definitions and global variables, 
+#include<Tiny4kOLED.h>
+#include"aprs.h"
+#include"display_OLED.h"
+#include"setup_functions.h"
+#include"gps_string_cap_case.h"
+#include"packet_data_compressed_gps.h"
+#include"send_packet.h"
 
 
 void setup() 
@@ -18,14 +24,9 @@ void setup()
 
 #endif
 
-  oled.print( F( "APRS Tracker\r\nV1.0" ) );
-
-  delay( SPLASH_SCRN_DLY );
-
-  oled.clear();
+  show_SPLASH_SCRN();
 
 }
-
 
 
 void loop() 

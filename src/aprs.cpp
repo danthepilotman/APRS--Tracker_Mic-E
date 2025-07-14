@@ -1,4 +1,15 @@
-uint8_t dest_address[7];
+#include"aprs.h"
+
+volatile uint8_t smp_num = 0;  // stores current sine array sample to put onto output port pins
+
+volatile bool baud_tmr_isr_busy = true;  // Timer 1 used for 1200 baud timing
+ 
+volatile uint8_t disp_mode;  // Used to store display page
+
+GPS_data gps_data; // GPS data structure
+
+
+uint8_t dest_address[7];  // APRS Destination address
 
 
 const uint8_t src_digi_addrs_ctl_pid_flds[]  = { 
@@ -15,6 +26,7 @@ const uint8_t src_digi_addrs_ctl_pid_flds[]  = {
 
 };
 
+const uint8_t SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN = sizeof(src_digi_addrs_ctl_pid_flds);
 
 uint8_t info[] = {
   
@@ -27,14 +39,26 @@ uint8_t info[] = {
   ,'I'   // #6  SE+28
   ,'>'   // #7  Symbol Code, O = Ballon, ' = Small Aircraft, ^ = Large Aircraft, > = Car
   ,'/'   // #8  Symbol Table ID,  Primary Symbol Table = '/', Alternate Symbol Table = '\'
-
-  ,'"'   // #9  Begin Altitude Field
+  ,'\''  // #9 The ' character.  Display's manufacturer "McE-trk" or "McTrackr". One-way Tracker.
+  ,'"'   // #10  Begin Altitude Field
   ,'3'
   ,'r'
-  ,'}'  // #12 End Altitude Field 
+  ,'}'  // #13 End Altitude Field 
+  ,'1'  // #14 Begin Radio Frequency Field
+  ,'4'
+  ,'6'
+  ,'.'
+  ,'8'
+  ,'5'
+  ,'0'
+  ,'M'
+  ,'H'
+  ,'z' // #23 End Radio Frequency Field
  
-
 };  
+
+
+const uint8_t INFO_LEN = sizeof(info);
 
 
 // http://www.aprs.org/aprs12/mic-e-examples.txt
@@ -58,6 +82,6 @@ uint8_t info[] = {
   ,'0'
   ,'M'
   ,'H'
-  ,'z' // #24 End Radio Frequency Field
+  ,'z' // #23 End Radio Frequency Field
 
 */

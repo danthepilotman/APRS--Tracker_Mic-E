@@ -1,4 +1,7 @@
+#include"mark_space_gen.h"
+
 /* Timer 4 used for 1200/2200 sine wave generation */
+
 
 ISR ( WAVE_GEN_TMR_ISR_VECT )
 {
