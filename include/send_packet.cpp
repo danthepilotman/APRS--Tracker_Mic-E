@@ -135,12 +135,12 @@ void send_packet()
 
 
 
-bool smart_beaconing ( unsigned short &beacon_period, unsigned short secs_since_beacon, byte &mic_e_message )
+bool smart_beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint8_t &mic_e_message )
 {
 
-  static float prev_course;  // Retain the previous course for corner pegging comparison
+  static uint16_t prev_course;  // Retain the previous course for corner pegging comparison
   
-  float delta_course;
+  uint16_t delta_course;
 
   enum mic_E_msg{ emergency, priority, special, commited, returning, in_service, en_route, off_duty };
      
@@ -149,8 +149,8 @@ bool smart_beaconing ( unsigned short &beacon_period, unsigned short secs_since_
   prev_course = gps_data.course;  // Capture course for future comparison
 
 
-  if( delta_course > 180.0 )
-    delta_course = 360.0 - delta_course;
+  if( delta_course > 180 )
+    delta_course = 360 - delta_course;
  
    
   if ( gps_data.speed < SLOW_SPEED )  // "Stop" threshold
@@ -167,15 +167,15 @@ bool smart_beaconing ( unsigned short &beacon_period, unsigned short secs_since_
     
     mic_e_message = en_route;  // En route if we are moving
     
-    float turn_threshold = MIN_TURN_ANGLE + TURN_SLOPE / gps_data.speed;  // Adjust turn threshold according to speed
+    uint16_t turn_threshold = MIN_TURN_ANGLE + (uint16_t)( (float)TURN_SLOPE / (float)gps_data.speed );  // Adjust turn threshold according to speed
 
     // Adjust beacon rate according to speed
 
     if ( gps_data.speed > FAST_SPEED )  
-      beacon_period = ( unsigned short) FAST_RATE;
+      beacon_period = FAST_RATE;
     
     else
-      beacon_period = ( unsigned short ) round( FAST_RATE * FAST_SPEED / gps_data.speed );
+      beacon_period = (uint16_t) round( (float)FAST_RATE * (float)FAST_SPEED / (float)gps_data.speed );
 
     // Corner pegging
 

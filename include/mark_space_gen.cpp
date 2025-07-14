@@ -9,7 +9,9 @@ ISR ( WAVE_GEN_TMR_ISR_VECT )
 
 #else
 
-  WAVE_PORT = SIN_ARRAY[smp_num];
+  //WAVE_PORT = SIN_ARRAY[smp_num];
+
+  WAVE_PORT =  pgm_read_byte( &SIN_ARRAY[smp_num] );
 
 #endif
   

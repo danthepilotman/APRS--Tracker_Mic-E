@@ -28,10 +28,10 @@ uint8_t info[] = {
   ,'>'   // #7  Symbol Code, O = Ballon, ' = Small Aircraft, ^ = Large Aircraft, > = Car
   ,'/'   // #8  Symbol Table ID,  Primary Symbol Table = '/', Alternate Symbol Table = '\'
 
-  ,'"'   // #10  Begin Altitude Field
+  ,'"'   // #9  Begin Altitude Field
   ,'3'
   ,'r'
-  ,'}'  // #13 End Altitude Field 
+  ,'}'  // #12 End Altitude Field 
  
 
 };  

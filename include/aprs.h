@@ -18,25 +18,24 @@
 
 /********** Smart Beaconing Parameters **********/
 
-#define FAST_SPEED (float) 60.0        // mph
-#define FAST_RATE (float) 60.0         // seconds  
-#define SLOW_SPEED (float) 5.0         // mph
-#define SLOW_RATE (uint16_t) 600       // seconds  
-#define MIN_TURN_TIME (uint16_t) 7    // seconds
-#define MIN_TURN_ANGLE (float ) 30.0   // degrees
-#define TURN_SLOPE (float) 255.0       // unitless
+static constexpr uint16_t FAST_SPEED = 60;        // mph
+static constexpr uint16_t FAST_RATE = 60;         // seconds  
+static constexpr uint16_t SLOW_SPEED  = 5;         // mph
+static constexpr uint16_t SLOW_RATE = 600;       // seconds  
+static constexpr uint16_t MIN_TURN_TIME = 7;    // seconds
+static constexpr uint16_t MIN_TURN_ANGLE = 30;   // degrees
+static constexpr uint16_t TURN_SLOPE = 255;       // unitless
 
 /********** OLED Parameters **********/
 
 static constexpr uint8_t width = 128;
 static constexpr uint8_t height = 64;
 
-static constexpr uint8_t OLED_COLS = 21;
+static constexpr uint8_t OLED_COLS = 16;  // 16 columns for 8x16 font size
 static constexpr uint8_t FIRST_ROW = 0;
-static constexpr uint8_t SECOND_ROW = 10;
-static constexpr uint8_t THIRD_ROW = 20;
-static constexpr uint8_t FOURTH_ROW = 30;
-static constexpr uint8_t SPD_FLD_OFFSET = 10;  // OLED display x-axis offset for speed
+static constexpr uint8_t SECOND_ROW = 2;  // 2 pages per font height
+static constexpr uint8_t THIRD_ROW = 4;
+static constexpr uint8_t FOURTH_ROW = 6;
 static constexpr uint8_t NUM_OF_DISP_SCREENS = 3;  // Number of unique display screen options
 
 /********** Serial Port Parameters **********/
@@ -108,12 +107,12 @@ static constexpr uint16_t BAUD_FREQ = 1200;  // Transmit baud rate [Hz]
 static constexpr uint16_t  MRK_FREQ = 1200;   // Mark (1) waveform frequency [Hz]
 static constexpr uint16_t  SPC_FREQ = 2200;   // Space (0) waveform frequency [Hz]
 
-static constexpr uint8_t MRK_NUM_SAMP  = round (  ( (float) MRK_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  );
-static constexpr uint8_t SPC_NUM_SAMP = round (  ( (float) SPC_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  );
+static constexpr uint8_t MRK_NUM_SAMP  = (uint8_t) round (  ( (float) MRK_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  );
+static constexpr uint8_t SPC_NUM_SAMP = (uint8_t) round (  ( (float) SPC_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  );
 
-static constexpr uint8_t MRK_TMR_CMP = (uint8_t) round( ( (float)CPU_FREQ  / (float) ( PRE_SCLR * BAUD_FREQ * MRK_NUM_SAMP ) ) - 1 );
-static constexpr uint8_t SPC_TMR_CMP = (uint8_t) round( ( (float)CPU_FREQ  / (float) ( PRE_SCLR * BAUD_FREQ * SPC_NUM_SAMP ) ) - 1  );
-static constexpr uint16_t BAUD_TIMER_CMP = round( ( (float)CPU_FREQ  / (float) ( PRE_SCLR * BAUD_FREQ ) ) - 1  );
+static constexpr uint8_t MRK_TMR_CMP = (uint8_t) ( round(  (float)CPU_FREQ / ( (float)PRE_SCLR * (float)BAUD_FREQ * (float)MRK_NUM_SAMP ) ) - 1 );
+static constexpr uint8_t SPC_TMR_CMP = (uint8_t) ( round( ( (float)CPU_FREQ  / ( (float)PRE_SCLR * (float)BAUD_FREQ * (float)SPC_NUM_SAMP ) ) - 1  ) );
+static constexpr uint16_t BAUD_TIMER_CMP = (uint16_t) ( round( ( (float)CPU_FREQ  / ( (float)PRE_SCLR * (float)BAUD_FREQ ) ) - 1  ) );
 
 #define WAVE_PORT PORTB     // MCU port used to output waveform
 #define WAVE_PORT_DDR DDRB  // MCU port used to output waveform data direction register
@@ -148,14 +147,14 @@ static constexpr uint8_t NMEA_DATA_MAX_SIZE = 80;
 
 /********** APRS AX.25 Parameters **********/
 
-static constexpr uint8_t ALT_INDX = 10; // starting index of the altitude data field in the info array
+static constexpr uint8_t ALT_INDX = 9; // starting index of the altitude data field in the info array
 
 static constexpr uint8_t  WIDE2_2 = 2;  // APRS Digi Path Code
 
 /********** Unit Conversion Factors **********/
 
 #define M_to_F (float) 3.28084  // Conversion factor between meters to feet
-#define KTS_to_MPH (float) 1.15078  // Conversion factor between kts to mph
+#define KTS_to_MPH (double) 1.15078  // Conversion factor between kts to mph
 
 /********** Global Variables **********/
 
@@ -165,6 +164,65 @@ volatile bool baud_tmr_isr_busy = true;  // Timer 1 used for 1200 baud timing
 
 volatile uint8_t disp_mode;
 
+#if DEBUG
+
+struct GPS_data
+{
+   
+  uint8_t hour = 17;          // GMT hours
+  uint8_t minute = 20;        // GMT minutes
+  uint8_t seconds = 15;       // GMT seconds
+  uint8_t year = 25;          // GMT year
+  uint8_t month = 7;         // GMT month
+  uint8_t day = 14;           // GMT day
+
+
+  uint8_t lat_DD_10 = 2;
+  uint8_t lat_DD_01 = 8;
+  uint8_t lat_MM_10 = 0;
+  uint8_t lat_MM_01 = 1;
+  uint8_t lat_hh_10 = 6;
+  uint8_t lat_hh_01 = 2;
+  uint8_t lat_mm_10 = 0;
+  uint8_t lat_mm_01 = 0;
+
+
+  uint8_t lat_DD = 28;
+  uint8_t lat_MM = 01;
+  uint8_t lat_hh =62;
+  uint8_t lat_mm = 00;
+  
+  char NorS = 'N';
+
+  uint8_t lon_DD_100 = 0;
+  uint8_t lon_DD_10 = 8;
+  uint8_t lon_DD_01 = 0;
+  uint8_t lon_MM_10 = 3;
+  uint8_t lon_MM_01 = 7;
+  uint8_t lon_hh_10 = 8;
+  uint8_t lon_hh_01 = 0;
+  uint8_t lon_mm_10 = 0;
+  uint8_t lon_mm_01 = 0;
+
+  uint8_t lon_DD = 80;
+  uint8_t lon_MM = 37;
+  uint8_t lon_hh= 89;
+  uint8_t lon_mm = 00;
+
+  char EorW = 'W';
+    
+  uint16_t altitude = 3;  // Altitude in meters above MSL (32 bits)
+  uint16_t speed = 0;      // Current speed over ground in knots (16 bits)
+  uint16_t course = 180;     // Course in degrees from true north (16 bits )
+  
+  bool fix = true;            //  Have a fix?
+  uint8_t fixquality = 1;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
+  uint8_t fixquality_3d = 3;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
+  uint8_t satellites = 12;     //  Number of satellites in use
+
+} gps_data;
+
+#else
 
 struct GPS_data
 {
@@ -221,6 +279,8 @@ struct GPS_data
   uint8_t satellites;     //  Number of satellites in use
 
 } gps_data;
+
+#endif
 
 /********** Additional Included Files **********/
 

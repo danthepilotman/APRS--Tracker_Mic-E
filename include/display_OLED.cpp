@@ -11,7 +11,29 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
   
   char oled_row[ OLED_COLS + 1];  // Used to create character string for display on OLED
 
-  const uint8_t degree_symbol_bitmap[] PROGMEM = { 0x06, 0x09, 0x09, 0x06 };  // ° symbol bitmap
+
+/*   const uint8_t degree_symbol_bitmap[] PROGMEM = {
+    // Page 0 (top 8 rows)
+    0b00000000,  // Col 0
+    0b00011100,  // Col 1
+    0b00100010,  // Col 2
+    0b01000001,  // Col 3
+    0b01000001,  // Col 4
+    0b00100010,  // Col 5
+    0b00011100,  // Col 6
+    0b00000000,  // Col 7
+
+    // Page 1 (next 8 rows)
+    0b00000000,  // Col 0
+    0b00000000,  // Col 1
+    0b00000000,  // Col 2
+    0b00000000,  // Col 3
+    0b00000000,  // Col 4
+    0b00000000,  // Col 5
+    0b00000000,  // Col 6
+    0b00000000   // Col 7
+};  // ° symbol bitmap */
+ 
 
 /* --- Clear OLED display if OLED display mode is changed --- */
 
@@ -33,25 +55,31 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
     case POSITION:
 
       oled.setCursor( 0, FIRST_ROW ); // Latitude
-      sprintf( oled_row, "%02i %02i.%02i%02i %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
+      sprintf( oled_row, "%02u %02u.%02u%02u %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
       oled.print ( oled_row );
-      oled.bitmap( 17, FIRST_ROW, 8 + 17, FIRST_ROW + 16, degree_symbol_bitmap );
+      //oled.bitmap( 16, FIRST_ROW, 8 + 16, FIRST_ROW + 2, degree_symbol_bitmap );
+      oled.clearToEOL();
 
 
       oled.setCursor( 0, SECOND_ROW ); // Longitude
-      sprintf( oled_row, "%03d %02i.%02i%02i %c", gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm, gps_data.EorW );
+      sprintf( oled_row, "%03u %02u.%02u%02u %c", gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm, gps_data.EorW );
       oled.print( oled_row );
-      oled.bitmap( 24, SECOND_ROW, 8 + 24, SECOND_ROW + 16, degree_symbol_bitmap );
+      //oled.bitmap( 24, SECOND_ROW, 8 + 24, SECOND_ROW + 2, degree_symbol_bitmap );
+      oled.clearToEOL();
 
 
       oled.setCursor( 0, THIRD_ROW );  // Course
-      oled.print( gps_data.course, 0 );
-      oled.setCursor( SPD_FLD_OFFSET, THIRD_ROW );  // Speed
-      oled.print(  KTS_to_MPH * gps_data.speed, 0 );
+      sprintf( oled_row, "%03u  ", gps_data.course );
+      oled.print( oled_row );
+      oled.print( KTS_to_MPH * gps_data.speed, 0 );
+      oled.print( " mph");
+      oled.clearToEOL();
 
-
+      
       oled.setCursor( 0, FOURTH_ROW );  // Altitude
       oled.print( M_to_F * gps_data.altitude, 0 );
+      oled.print( " ft" );
+      oled.clearToEOL();
 
     break;  
       
@@ -61,14 +89,18 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
       
       oled.setCursor( 0, FIRST_ROW );  // Fix quality
       oled.print( pos_fix[gps_data.fixquality] );
+      oled.clearToEOL();
 
 
       oled.setCursor( 0, SECOND_ROW ); // Fix type
-      sprintf( oled_row, "Fix type: %dD", gps_data.fixquality_3d );
+      sprintf( oled_row, "Fix type: %uD", gps_data.fixquality_3d );
       oled.print( oled_row );
+      oled.clearToEOL();
       
       oled.setCursor( 0, THIRD_ROW ); // Numer of satellites being tracked
-      oled.print( gps_data.satellites );
+      sprintf( oled_row, "Sats: %u", gps_data.satellites );
+      oled.print( oled_row );
+      oled.clearToEOL();
         
     break;    
 
@@ -87,22 +119,27 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
       uint8_t nxt_sec = next_tx % 60;
 
       oled.setCursor( 0, FIRST_ROW );  // Beacon period
-      sprintf( oled_row, "Bkn prd: %02d:%02d", bkn_min, bkn_sec );
+      sprintf( oled_row, "Bkn prd: %02u:%02u", bkn_min, bkn_sec );
       oled.print ( oled_row );
+      oled.clearToEOL();
 
     
       oled.setCursor( 0, SECOND_ROW ); // Time until next transmission
-      sprintf( oled_row, "Next TX: %02d:%02d", nxt_min, nxt_sec  );
+      sprintf( oled_row, "Next TX: %02u:%02u", nxt_min, nxt_sec  );
       oled.print ( oled_row );
+      oled.clearToEOL();
+
 
       oled.setCursor( 0, THIRD_ROW );  // Time
-      sprintf( oled_row, "%0d:%02d:%02d", gps_data.hour, gps_data.minute, gps_data.seconds );
+      sprintf( oled_row, "Time: %0u:%02u:%02u", gps_data.hour, gps_data.minute, gps_data.seconds );
       oled.print ( oled_row );
+      oled.clearToEOL();
 
 
       oled.setCursor( 0, FOURTH_ROW );  // Date
-      sprintf( oled_row, "%02d-%02d-%02d", gps_data.month, gps_data.day, gps_data.year );
+      sprintf( oled_row, "Date: %02u-%02u-%02u", gps_data.month, gps_data.day, gps_data.year );
       oled.print ( oled_row );
+      oled.clearToEOL();
 
     }
 
@@ -113,20 +150,19 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
 /*----------------- Display GPS data on the serial terminal for debugging -----------------  */
 #if DEBUG
 
-  print_oled_debug();
+  //print_oled_debug();
   
 #endif  
 
 }
 
 
-
 void disp_mode_btn()
 {
   
-  static unsigned long last_interrupt_time;
+  static uint32_t last_interrupt_time;
   
-  unsigned long interrupt_time = millis();
+  uint32_t interrupt_time = millis();
   
   // If interrupts come faster than  BTN_DBOUCE_TIME, assume it's a bounce and ignore
   if ( interrupt_time - last_interrupt_time > BTN_DBOUCE_TIME ) 
@@ -187,7 +223,7 @@ void display_timers_setup()
 
 
 
-void print_oled_debug()
+/* void print_oled_debug()
 {
 
   char gps_time[50];
@@ -230,6 +266,6 @@ void print_oled_debug()
   
   Serial.println( F("\r\n") );
 
-}
+} */
 
 #endif 

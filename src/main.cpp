@@ -18,6 +18,12 @@ void setup()
 
 #endif
 
+  oled.print( F( "APRS Tracker\r\nV1.0" ) );
+
+  delay( SPLASH_SCRN_DLY );
+
+  oled.clear();
+
 }
 
 
@@ -25,11 +31,11 @@ void setup()
 void loop() 
 {
 
-  static unsigned short beacon_period;
+  static uint16_t beacon_period;
 
-  static unsigned short secs_since_beacon;
+  static uint16_t secs_since_beacon;
 
-  static unsigned long last_TX_time;
+  static uint32_t last_TX_time;
 
   uint8_t mic_e_message;
   
@@ -57,9 +63,6 @@ void loop()
   Serial.print( "bkn rate: " );
   Serial.println( beacon_period );
   
-  Serial.print( "corner: " );
-  Serial.println( corner_Peg );
-
 #endif
 
     compute_Mic_E_data( mic_e_message );  // Compress data using Mic-E encoding

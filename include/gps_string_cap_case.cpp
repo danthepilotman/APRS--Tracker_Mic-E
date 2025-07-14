@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-
+#include <Tiny4kOLED.h>
 
 /******** Function prototypes ***********/
 
@@ -42,10 +42,25 @@ void get_GPS_data()
       GSA_not_cap = parse_GSA( NMEA_data );
 
     else if ( strncmp( NMEA_data, "$GPRMC", 6 ) == 0  &&  RMC_not_cap )
+    {
       RMC_not_cap = parse_RMC( NMEA_data );
-      
-  }
 
+      if( gps_data.fix == false )  // Check if valid GPS data has been received
+      {
+        oled.setCursor( 0, 0 );  // Move to home position
+
+        for( uint8_t i = 0; i < NMEA_DATA_MAX_SIZE; i++ )  // Loop through the NMEA sentence string
+        {
+          if ( NMEA_data[i] == '\0')  // Terminate string with null character
+            break;
+          else  
+            oled.print( NMEA_data[i] );  // Print each NMEA sentence character
+        }
+
+        oled.clearToEOP();  // Erase old data
+      }
+    }
+  }
 } 
 
 
@@ -64,7 +79,6 @@ void get_NMEA_sentence( char* NMEA_data )
   if ( NMEA_data[0] != '$' )  // Loop back if not at the begining of a NMEA sentence  
     goto get_NMEA_data;  // Go back to the begining of the sentence capture sequence
     
-    
   for ( uint8_t i = 1; i < NMEA_DATA_MAX_SIZE; i++ )  
   {
       
@@ -80,7 +94,6 @@ void get_NMEA_sentence( char* NMEA_data )
       break;  // Break out of the for-loop once we get to the end of the NMEA sentence                 
         
     }
-      
   }
 
   digitalWrite( GPS_VALID_PIN, HIGH );  // Blink LED to indicate activity
