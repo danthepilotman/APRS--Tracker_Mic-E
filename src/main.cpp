@@ -46,7 +46,7 @@ void loop()
 
   get_GPS_data();  // Get data from GPS unit
 
-  secs_since_beacon = ( unsigned short ) ( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
+  secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
   display_data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD 
 
