@@ -143,7 +143,7 @@ void compute_info_alt()
 
   info[ALT_INDX] = uint8_t( alt_abv_datum / 8281 ) + 33;
   
-  uint16_t remainder =  ( uint16_t) ( alt_abv_datum % 8281 );
+  uint16_t remainder =  uint16_t( alt_abv_datum % 8281 );
 
   info[ALT_INDX + 1] = uint8_t( remainder / 91 ) + 33;
 

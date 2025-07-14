@@ -83,7 +83,7 @@ const PROGMEM uint16_t DACLookup_FullSine_6Bit[64] =
    600,  749,  910, 1082, 1264, 1453, 1648, 1847
 };
 
-static constexpr uint8_t WAVE_ARRY_SIZE = sizeof( DACLookup_FullSine_6Bit ); 
+static constexpr uint8_t WAVE_ARRY_SIZE = sizeof( DACLookup_FullSine_6Bit ) / sizeof( uint16_t ); 
 
 #else
 
@@ -98,7 +98,7 @@ const PROGMEM uint8_t SIN_ARRAY[64] = {
 2,3,3,4,5,5,6,7
 };
 
-#define WAVE_ARRY_SIZE sizeof( SIN_ARRAY ) 
+constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
 
 #endif
 
@@ -107,12 +107,12 @@ static constexpr uint16_t BAUD_FREQ = 1200;  // Transmit baud rate [Hz]
 static constexpr uint16_t  MRK_FREQ = 1200;   // Mark (1) waveform frequency [Hz]
 static constexpr uint16_t  SPC_FREQ = 2200;   // Space (0) waveform frequency [Hz]
 
-static constexpr uint8_t MRK_NUM_SAMP  = (uint8_t) round (  ( (float) MRK_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  );
-static constexpr uint8_t SPC_NUM_SAMP = (uint8_t) round (  ( (float) SPC_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  );
+static constexpr uint8_t MRK_NUM_SAMP  = uint8_t( round ( float( MRK_FREQ )  / float( BAUD_FREQ ) * float( WAVE_ARRY_SIZE ) ) );
+static constexpr uint8_t SPC_NUM_SAMP =  uint8_t( round ( float( SPC_FREQ ) /  float( BAUD_FREQ ) * float( WAVE_ARRY_SIZE ) ) );
 
-static constexpr uint8_t MRK_TMR_CMP = (uint8_t) ( round(  (float)CPU_FREQ / ( (float)PRE_SCLR * (float)BAUD_FREQ * (float)MRK_NUM_SAMP ) ) - 1 );
-static constexpr uint8_t SPC_TMR_CMP = (uint8_t) ( round( ( (float)CPU_FREQ  / ( (float)PRE_SCLR * (float)BAUD_FREQ * (float)SPC_NUM_SAMP ) ) - 1  ) );
-static constexpr uint16_t BAUD_TIMER_CMP = (uint16_t) ( round( ( (float)CPU_FREQ  / ( (float)PRE_SCLR * (float)BAUD_FREQ ) ) - 1  ) );
+static constexpr uint8_t MRK_TMR_CMP = uint8_t( round( float( CPU_FREQ ) / ( float( PRE_SCLR ) * float( BAUD_FREQ ) * float( MRK_NUM_SAMP ) ) ) - 1 );
+static constexpr uint8_t SPC_TMR_CMP = uint8_t( round( float( CPU_FREQ ) / ( float( PRE_SCLR ) * float( BAUD_FREQ ) * float( SPC_NUM_SAMP ) ) ) - 1  );
+static constexpr uint16_t BAUD_TIMER_CMP = uint16_t( round(  float( CPU_FREQ )  / ( float( PRE_SCLR ) * float( BAUD_FREQ ) ) ) - 1  );
 
 #define WAVE_PORT PORTB     // MCU port used to output waveform
 #define WAVE_PORT_DDR DDRB  // MCU port used to output waveform data direction register
@@ -153,8 +153,8 @@ static constexpr uint8_t  WIDE2_2 = 2;  // APRS Digi Path Code
 
 /********** Unit Conversion Factors **********/
 
-#define M_to_F (float) 3.28084  // Conversion factor between meters to feet
-#define KTS_to_MPH (double) 1.15078  // Conversion factor between kts to mph
+static constexpr float M_to_F = 3.28084;  // Conversion factor between meters to feet
+static constexpr float KTS_to_MPH = 1.15078;  // Conversion factor between kts to mph
 
 /********** Global Variables **********/
 

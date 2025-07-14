@@ -71,13 +71,13 @@ void display_data( unsigned short beacon_period, unsigned short secs_since_beaco
       oled.setCursor( 0, THIRD_ROW );  // Course
       sprintf( oled_row, "%03u  ", gps_data.course );
       oled.print( oled_row );
-      oled.print( KTS_to_MPH * gps_data.speed, 0 );
+      oled.print( KTS_to_MPH * float( gps_data.speed ), 0 );
       oled.print( " mph");
       oled.clearToEOL();
 
       
       oled.setCursor( 0, FOURTH_ROW );  // Altitude
-      oled.print( M_to_F * gps_data.altitude, 0 );
+      oled.print( M_to_F * float( gps_data.altitude ), 0 );
       oled.print( " ft" );
       oled.clearToEOL();
 

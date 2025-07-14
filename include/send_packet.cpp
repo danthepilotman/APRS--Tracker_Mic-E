@@ -167,7 +167,7 @@ bool smart_beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
     
     mic_e_message = en_route;  // En route if we are moving
     
-    uint16_t turn_threshold = MIN_TURN_ANGLE + (uint16_t)( (float)TURN_SLOPE / (float)gps_data.speed );  // Adjust turn threshold according to speed
+    uint16_t turn_threshold = MIN_TURN_ANGLE + uint16_t( float( TURN_SLOPE ) / float( gps_data.speed ) );  // Adjust turn threshold according to speed
 
     // Adjust beacon rate according to speed
 
@@ -175,7 +175,7 @@ bool smart_beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
       beacon_period = FAST_RATE;
     
     else
-      beacon_period = (uint16_t) round( (float)FAST_RATE * (float)FAST_SPEED / (float)gps_data.speed );
+      beacon_period = uint16_t( round( float( FAST_RATE ) * float( FAST_SPEED ) / float( gps_data.speed ) ) );
 
     // Corner pegging
 

@@ -169,7 +169,7 @@ bool parse_GGA( char* NMEA_data )
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
 
   if ( isEmpty( ptr ) == false )
-    gps_data.altitude = ( uint16_t ) ( round( atof( ptr ) ) );
+    gps_data.altitude = uint16_t( round( atof( ptr ) ) );
     
   // Skip the rest
 
