@@ -12,19 +12,19 @@ void setup()
   
   gpsSerial.begin( GPS_BAUD_RATE );  // Used for GPS interface
   
-  setup_Pins();
+  setup_Pins();  // Pins for buttons and LEDs
 
-  setup_Timers();
+  setup_Timers();  // Timers for baud and DAC transmission rate
 
-  setup_OLED();
+  setup_OLED();  // OLED setup
 
 #ifdef MCP4725_DAC
 
-  dac.begin(0x62);
+  dac.begin( 0x62 );  // External I2C DAC setup
 
 #endif
 
-  show_SPLASH_SCRN();
+  show_SPLASH_SCRN( SPLASH_SCRN_DLY );  // Show splash screen message for a certain amount of time
 
 }
 
@@ -32,13 +32,13 @@ void setup()
 void loop() 
 {
 
-  static uint16_t beacon_period;
+  static uint16_t beacon_period;  // Time in seconds until next packet transmission
 
-  static uint16_t secs_since_beacon;
+  static uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
 
-  static uint32_t last_TX_time;
+  static uint32_t last_TX_time;  // Timestamp in seconds of last packet transmission  
 
-  uint8_t mic_e_message;
+  uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
   
   
   if ( gps_data.fix == false )
