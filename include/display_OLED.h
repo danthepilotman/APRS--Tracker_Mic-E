@@ -9,5 +9,6 @@
 
 void display_data( uint16_t beacon_period,  uint16_t secs_since_beacon );
 void show_SPLASH_SCRN( uint32_t splash_screen_delay );
+void display_timers_setup(); 
 
 #endif

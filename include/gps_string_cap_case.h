@@ -5,6 +5,7 @@
 #include <string.h>
 #include "aprs.h"
 #include<Tiny4kOLED.h>
+#include <avr/wdt.h>
 
 /******** Function prototypes ***********/
 

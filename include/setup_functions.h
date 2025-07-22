@@ -5,17 +5,9 @@
 #include"display_OLED.h"
 
 
-
-#ifdef MCP4725_DAC
-
-Adafruit_MCP4725 dac;
-
-#endif
-
-
 /******** Function prototypes ***********/
 
-
+void disable_Peripherals();
 void setup_Pins();
 void setup_Timers();
 void setup_OLED();

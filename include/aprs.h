@@ -5,25 +5,24 @@
 #include <math.h>
 
 
-//#define MCP4725_DAC  // Comment out to use 4 resistor ladder DAC vs MCP4725 DAC chip
-
-
-#ifdef MCP4725_DAC
-
-#include <Adafruit_MCP4725.h>
-
-#endif
-
-
 #define DEBUG false  // Set to 'true' to enable debugging serial prints
-
 
 /********** Smart Beaconing Parameters **********/
 
  constexpr uint16_t FAST_SPEED = 60;        // mph
  constexpr uint16_t FAST_RATE = 60;         // seconds  
  constexpr uint16_t SLOW_SPEED  = 5;         // mph
- constexpr uint16_t SLOW_RATE = 600;       // seconds  
+
+#if DEBUG
+
+ constexpr uint16_t SLOW_RATE = 30;       // seconds 
+
+#else
+
+ constexpr uint16_t SLOW_RATE = 600;       // seconds 
+ 
+#endif
+
  constexpr uint16_t MIN_TURN_TIME = 7;    // seconds
  constexpr uint16_t MIN_TURN_ANGLE = 30;   // degrees
  constexpr uint16_t TURN_SLOPE = 255;       // unitless
@@ -71,38 +70,18 @@
  constexpr uint8_t PRE_SCLR = 1;     // Timer Pre-scaler value
 
 
-#ifdef MCP4725_DAC
+  const PROGMEM uint8_t SIN_ARRAY[] = {
+  8,8,9,10,10,11,12,12,
+  13,13,14,14,14,15,15,15,
+  15,15,15,15,14,14,14,13,
+  13,12,12,11,10,10,9,8,
+  8,7,6,5,5,4,3,3,
+  2,2,1,1,1,0,0,0,
+  0,0,0,0,1,1,1,2,
+  2,3,3,4,5,5,6,7
+  };
 
-const PROGMEM uint16_t DACLookup_FullSine_6Bit[64] =
-{
-  2048, 2248, 2447, 2642, 2831, 3013, 3185, 3346,
-  3495, 3630, 3750, 3853, 3939, 4007, 4056, 4085,
-  4095, 4085, 4056, 4007, 3939, 3853, 3750, 3630,
-  3495, 3346, 3185, 3013, 2831, 2642, 2447, 2248,
-  2048, 1847, 1648, 1453, 1264, 1082,  910,  749,
-   600,  465,  345,  242,  156,   88,   39,   10,
-     0,   10,   39,   88,  156,  242,  345,  465,
-   600,  749,  910, 1082, 1264, 1453, 1648, 1847
-};
-
- constexpr uint8_t WAVE_ARRY_SIZE = sizeof( DACLookup_FullSine_6Bit ) / sizeof( uint16_t ); 
-
-#else
-
-const PROGMEM uint8_t SIN_ARRAY[64] = {
-8,8,9,10,10,11,12,12,
-13,13,14,14,14,15,15,15,
-15,15,15,15,14,14,14,13,
-13,12,12,11,10,10,9,8,
-8,7,6,5,5,4,3,3,
-2,2,1,1,1,0,0,0,
-0,0,0,0,1,1,1,2,
-2,3,3,4,5,5,6,7
-};
-
-constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
-
-#endif
+  constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
 
 
  constexpr uint16_t BAUD_FREQ = 1200;  // Transmit baud rate [Hz]
@@ -144,13 +123,17 @@ constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
 
 /********** NMEA-0183 Sentence Fields Parameters **********/
 
- constexpr uint8_t NMEA_DATA_MAX_SIZE = 80;  // Define maximum size of NMEA character array for storing NMEA sentences
+constexpr uint8_t NMEA_DATA_MAX_SIZE = 80;  // Define maximum size of NMEA character array for storing NMEA sentences
 
 /********** APRS AX.25 Parameters **********/
 
- constexpr uint8_t ALT_INDX = 10; // Starting index of the altitude data field in the info array
+const char CALL_SIGN[] = "AI4QX 1";
 
- constexpr uint8_t  WIDE2_2 = 2;  // APRS Digi Path Code
+enum DIGI_PATH : uint8_t { VIA, WIDE_1_1, WIDE2_2, WIDE3_3, WIDE4_4, WIDE5_5, WIDE6_6, WIDE7_7, NORTH, SOUTH, EAST, WEST, NORTH_WIDE, SOUTH_WIDE, EAST_WIDE, WEST_WIDE};
+
+enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4, LAT_DIG_5, LAT_DIG_6, DIGI_PATH, DEST_ADDR_SIZE };
+
+enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, SE_28, SYMBOL_CODE, SYMBOL_TABLE, ALT_INDX, MSG_INDX = ALT_INDX + 4 };
 
 /********** Unit Conversion Factors **********/
 
@@ -159,15 +142,15 @@ constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
 
 /********** Global Variables **********/
 
-extern volatile uint8_t smp_num;  // stores current sine array sample to put onto output port pins
+extern volatile uint8_t smp_num;  // Stores current sine array sample to put onto output port pins
 
 extern volatile bool baud_tmr_isr_busy;  // Timer 1 used for 1200 baud timing
 
-extern volatile uint8_t disp_mode;  // Store what mode the isplay is in
+extern volatile uint8_t disp_mode;  // Store the display mode
 
 #if DEBUG
 
-struct GPS_data
+extern struct GPS_data
 {
    
   uint8_t hour = 17;          // GMT hours

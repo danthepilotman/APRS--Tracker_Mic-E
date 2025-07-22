@@ -173,6 +173,7 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 
 #if DEBUG
 
+
 void display_timers_setup() 
 {
 

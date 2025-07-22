@@ -7,10 +7,10 @@
 
 /******** Function prototypes ***********/
 
-void compute_dest_address( uint8_t mic_e_message );
-void compute_info_longitude();
-void compute_info_spd_crs();
-void compute_info_alt();
-void compute_Mic_E_data( uint8_t mic_e_message );
+void compute_Dest_Address( uint8_t mic_e_message );
+void compute_Info_Longitude();
+void compute_Info_Spd_Srs();
+void compute_Info_Alt();
+void compute_Mic_E_Data( uint8_t mic_e_message );
 
 #endif

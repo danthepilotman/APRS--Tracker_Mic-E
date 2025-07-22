@@ -1,7 +1,7 @@
 #include"send_packet.h"
 
 
-void send_tone( bool afsk_tone )
+void send_Tone( bool afsk_tone )
 {         
   
   baud_tmr_isr_busy = true;  /* Reset timer 5 interrupt flag */ 
@@ -10,15 +10,15 @@ void send_tone( bool afsk_tone )
   
   BAUD_TMR_TCNT  = 0x0000;  /* Initialize Timer5 counter value to 0 */
  
-  afsk_tone ? WAVE_GEN_TMR_OCRA = MRK_TMR_CMP: WAVE_GEN_TMR_OCRA = SPC_TMR_CMP;
+  afsk_tone ? WAVE_GEN_TMR_OCRA = MRK_TMR_CMP: WAVE_GEN_TMR_OCRA = SPC_TMR_CMP;  // Set timer compare value based on SPACE or MARK
 
-  while( baud_tmr_isr_busy ); 
+  while( baud_tmr_isr_busy );  // Wait until the BAUD timer ISR is triggered to move on to the next tone 
 
 }
 
 
 
-void sendbyte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
+void send_Byte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
 {
   
   static bool afsk_tone;
@@ -35,7 +35,7 @@ void sendbyte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
 
       afsk_tone = ! afsk_tone;  //  Flip the output state
 
-      send_tone( afsk_tone ); // Then send the new tone
+      send_Tone( afsk_tone ); // Then send the new tone
 
       stuff_ctr = 0;
        
@@ -49,18 +49,18 @@ void sendbyte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
       if ( ( ! flag_in ) && ( stuff_ctr == 5 ) )  // Stuff an extra 0, if five 1's in a row
       {   
         
-        send_tone( afsk_tone );  // Send the 1
+        send_Tone( afsk_tone );  // Send the 1
         
         afsk_tone = ! afsk_tone;  // Flip tone for sending 0
        
-        send_tone( afsk_tone );  // Send 0
+        send_Tone( afsk_tone );  // Send 0
         
         stuff_ctr = 0;  // Reset stuff counter
                                     
       }   
 
       else
-        send_tone( afsk_tone );
+        send_Tone( afsk_tone );
 
     }
     
@@ -72,19 +72,18 @@ void sendbyte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
 
 
 
-void send_packet()
+void send_Packet()
 {
 
-  unsigned short crc_value;
+  uint16_t crc_value;
 
   uint8_t crc_lo_byte, crc_hi_byte;
 
   static uint8_t stuff_ctr = 0;  // Reset stuff counter
      
 
- 
   //crc_value = crc16(pkt_data, sizeof(pkt_data),0x1021,0xFFFF,0xFFFF,true,true); 
-  crc_value = calc_crc();   // Calculate CRC
+  crc_value = calc_CRC();   // Calculate CRC
   
   crc_lo_byte = crc_value & 0xFF;
   
@@ -92,7 +91,7 @@ void send_packet()
   
   digitalWrite( PTT_PIN, HIGH );  // Key the Transmitter
   
-  delay( TX_POWERUP_DLY );  // Wait for Transmitter to power up 
+  delay( TX_POWERUP_DLY );  // Wait for Transmitter to power up
    
   // Enable Timer interrupts
   WAVE_GEN_TMR_TIMSK |= ( 1 << WAVE_GEN_TMR_OCIEA );
@@ -101,28 +100,28 @@ void send_packet()
    
   // Send Start FLAGS
   for ( uint8_t i = 0; i < NUM_START_FLAGS; i++ ) 
-    sendbyte( FLAG, true, stuff_ctr );                   
+    send_Byte( FLAG, true, stuff_ctr );                   
    
   // send Destination Address 
   for( uint8_t i = 0; i < sizeof( dest_address ); i++ )
-    sendbyte( dest_address[i], false, stuff_ctr );
+    send_Byte( dest_address[i], false, stuff_ctr );
 
   // send Source, Digipeater Addresses / Control, PID Fields 
   for( uint8_t i = 0; i <SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN; i++ )
-    sendbyte( src_digi_addrs_ctl_pid_flds[i], false, stuff_ctr );
+    send_Byte( src_digi_addrs_ctl_pid_flds[i], false, stuff_ctr );
 
   // send Information Field
   for( uint8_t i = 0; i <INFO_LEN; i++ )
-    sendbyte( info[i], false, stuff_ctr );
+    send_Byte( info[i], false, stuff_ctr );
 
   // Send FCS
-  sendbyte( crc_lo_byte, false, stuff_ctr );  // Send the low byte of crc
+  send_Byte( crc_lo_byte, false, stuff_ctr );  // Send the low byte of crc
  
-  sendbyte( crc_hi_byte, false, stuff_ctr );  // Send the high byte of crc
+  send_Byte( crc_hi_byte, false, stuff_ctr );  // Send the high byte of crc
       
   //Send End FLAGS
   for ( uint8_t i = 0; i < NUM_END_FLAGS; i++ ) 
-    sendbyte( FLAG, true, stuff_ctr );                 
+    send_Byte( FLAG, true, stuff_ctr );                 
   
   // Disable Timer interrupts
   WAVE_GEN_TMR_TIMSK &= ( 0 << WAVE_GEN_TMR_OCIEA );
@@ -138,7 +137,7 @@ void send_packet()
 
 
 
-bool smart_beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint8_t &mic_e_message )
+bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint8_t &mic_e_message )
 {
 
   static uint16_t prev_course;  // Retain the previous course for corner pegging comparison

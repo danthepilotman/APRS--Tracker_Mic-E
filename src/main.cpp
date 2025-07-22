@@ -11,18 +11,14 @@ void setup()
 {  
   
   gpsSerial.begin( GPS_BAUD_RATE );  // Used for GPS interface
+
+  disable_Peripherals();  // Disable unneeded peripherals to save power
   
   setup_Pins();  // Pins for buttons and LEDs
 
   setup_Timers();  // Timers for baud and DAC transmission rate
 
   setup_OLED();  // OLED setup
-
-#ifdef MCP4725_DAC
-
-  dac.begin( 0x62 );  // External I2C DAC setup
-
-#endif
 
   show_SPLASH_SCRN( SPLASH_SCRN_DLY );  // Show splash screen message for a certain amount of time
 
@@ -40,11 +36,17 @@ void loop()
 
   uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
   
-  
+
   if ( gps_data.fix == false )
     oled.print( F( "Waiting for GPS signal" ) );
 
+
+#if DEBUG == false    
+  
   get_GPS_data();  // Get data from GPS unit
+
+#endif
+
 
   secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
@@ -53,7 +55,7 @@ void loop()
 
 /* ---------------------- Compress data for transmission and send packet  ----------------------- */
 
-  if ( smart_beaconing( beacon_period, secs_since_beacon, mic_e_message ) ) 
+  if ( smart_Beaconing( beacon_period, secs_since_beacon, mic_e_message ) ) 
   {
 
 #if DEBUG
@@ -66,9 +68,9 @@ void loop()
   
 #endif
 
-    compute_Mic_E_data( mic_e_message );  // Compress data using Mic-E encoding
+    compute_Mic_E_Data( mic_e_message );  // Compress data using Mic-E encoding
     
-    send_packet();  // Send APRS data packet 
+    send_Packet();  // Send APRS data packet 
     
     last_TX_time = millis();  // Update last_TX_time with current time
                                                           

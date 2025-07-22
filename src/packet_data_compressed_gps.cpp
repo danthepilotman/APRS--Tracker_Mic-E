@@ -1,8 +1,7 @@
 #include"packet_data_compressed_gps.h"
 
 
-
-void compute_dest_address( uint8_t mic_e_message )
+void compute_Dest_Address( uint8_t mic_e_message )
 {
 
   uint8_t char_offset;
@@ -15,7 +14,7 @@ void compute_dest_address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[0] = ( gps_data.lat_DD_10 + char_offset ) << 1;
+  dest_address[LAT_DIG_1] = ( gps_data.lat_DD_10 + char_offset ) << 1;
 
   // Determine 2nd Destination Address byte ( Lat Digit 2 + Message Bit B )
 
@@ -25,7 +24,7 @@ void compute_dest_address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[1] = ( gps_data.lat_DD_01 + char_offset ) << 1;
+  dest_address[LAT_DIG_2] = ( gps_data.lat_DD_01 + char_offset ) << 1;
 
   // Determine 3rd Destination Address byte ( Lat Digit 3 + Message Bit C )
 
@@ -35,7 +34,7 @@ void compute_dest_address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[2] = ( gps_data.lat_MM_10 + char_offset ) << 1;
+  dest_address[LAT_DIG_3] = ( gps_data.lat_MM_10 + char_offset ) << 1;
 
   // Determine 4th Destination Address byte ( Lat Digit 4 + N/S Lat Indicator )
 
@@ -45,7 +44,7 @@ void compute_dest_address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[3] = ( gps_data.lat_MM_01 + char_offset ) << 1;
+  dest_address[LAT_DIG_4] = ( gps_data.lat_MM_01 + char_offset ) << 1;
 
   // Determine 5th Destination Address byte ( Lat Digit 5 + Longitude Offset )
 
@@ -56,7 +55,7 @@ void compute_dest_address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[4] = ( gps_data.lat_hh_10 + char_offset ) << 1;
+  dest_address[LAT_DIG_5] = ( gps_data.lat_hh_10 + char_offset ) << 1;
 
   // Determine 6th Destination Address byte ( Lat Digit 6 + W/E Lon Indicator )
 
@@ -66,17 +65,16 @@ void compute_dest_address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[5] = ( gps_data.lat_hh_01 + char_offset ) << 1;
+  dest_address[LAT_DIG_6] = ( gps_data.lat_hh_01 + char_offset ) << 1;
 
   // Determine APRS Digi Path Code
 
-  dest_address[6] = WIDE2_2 << 1; 
+  dest_address[DIGI_PATH] = WIDE2_2 << 1; 
 
 }
 
 
-
-void compute_info_longitude()
+void compute_Info_Longitude()
 {
 
   int char_offset = 0;
@@ -95,7 +93,7 @@ void compute_info_longitude()
   else
     char_offset = '&' - 110;
   
-  info[1] = uint8_t( gps_data.lon_DD + char_offset );
+  info[d_28] = uint8_t( gps_data.lon_DD + char_offset );
 
   // Determine 3rd Information Field byte ( m+28 )
 
@@ -105,19 +103,16 @@ void compute_info_longitude()
   else
     char_offset = '&' - 10;
 
-  info[2] = uint8_t( gps_data.lon_MM + char_offset );
+  info[m_28] = uint8_t( gps_data.lon_MM + char_offset );
 
   // Determine 4th Information Field byte ( h+28 )
 
-  
-
-  info[3] = uint8_t( gps_data.lon_hh + 28 );
+  info[h_28] = uint8_t( gps_data.lon_hh + 28 );
 
 }  
 
 
-
-void compute_info_spd_crs()
+void compute_Info_Spd_Crs()
 {
 
   uint8_t speed_10 = uint8_t( gps_data.speed / 10 );
@@ -127,21 +122,20 @@ void compute_info_spd_crs()
   
   // Determine 5th Information Field byte ( SP+28 )
 
-  info[4] = speed_10 + 28;
+  info[SP_28] = speed_10 + 28;
 
   // Determine 6th Information Field byte ( DC+28 )
 
-  info[5] = 10 * uint8_t( gps_data.speed % 10 ) +  uint8_t( gps_data.course / 100 ) + 32;  // +32 allows for more ASCII readble characters
+  info[DC_28] = 10 * uint8_t( gps_data.speed % 10 ) +  uint8_t( gps_data.course / 100 ) + 32;  // +32 allows for more ASCII readble characters
 
   // Determine 7h Information Field byte ( SE+28 )
 
-  info[6] = uint8_t( gps_data.course % 100 ) + 28;
+  info[SE_28] = uint8_t( gps_data.course % 100 ) + 28;
   
 } 
 
 
-
-void compute_info_alt()
+void compute_Info_Alt()
 {
   uint16_t alt_abv_datum = 10000 + gps_data.altitude;
 
@@ -156,17 +150,16 @@ void compute_info_alt()
 }
 
 
-
-void compute_Mic_E_data( uint8_t mic_e_message )
+void compute_Mic_E_Data( uint8_t mic_e_message )
 
 {
 
-  compute_dest_address( mic_e_message );
+  compute_Dest_Address( mic_e_message );
 
-  compute_info_longitude();
+  compute_Info_Longitude();
 
-  compute_info_spd_crs();
+  compute_Info_Spd_Crs();
 
-  compute_info_alt();
+  compute_Info_Alt();
 
 }

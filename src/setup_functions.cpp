@@ -1,5 +1,19 @@
 #include"setup_functions.h"
 
+void disable_Peripherals()
+{
+
+  ADCSRA &= ~(1 << ADEN); // Clear ADEN bit to 0. Disables ADC for power savings.
+
+  
+  ACSR |= (1 << ACD);  // Disable the Analog Comparator by setting the ACD bit in ACSR. Set ACD bit to 1. 
+                       // ACSR &= ~(1 << ACD) would enable it if it's already disabled
+  
+  ACSR &= ~(1 << ACIE);  // Ensure the Analog Comparator Interrupt is also disabled (ACIE bit in ACSR). Clear ACIE bit to 0
+
+
+}
+
 
 void setup_Pins()
 {

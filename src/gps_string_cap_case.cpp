@@ -16,6 +16,8 @@ void get_GPS_data()
   while ( GGA_not_cap || GSA_not_cap || RMC_not_cap )
   {
 
+    wdt_enable( WDTO_2S );  // Set watchdog timer for 2 seconds
+    
     get_NMEA_sentence ( NMEA_data );
 
     // Check that proper NMEA sentences have been captured
@@ -45,6 +47,9 @@ void get_GPS_data()
         oled.clearToEOP();  // Erase old data
       }
     }
+
+     wdt_reset();  // Reset WDT
+
   }
 } 
 
@@ -107,7 +112,7 @@ void get_NMEA_sentence( char* NMEA_data )
 
 
 //------------------Start of process for getting GPGGA sentence-----------------------
-//strcpy(NMEA_data,"$GPGGA,161229.487,3723.2475,N,12158.3416,W,1,07,1.0,9.0,M,,,,0000*18");
+// strcpy(NMEA_data,"$GPGGA,161229.487,3723.2475,N,12158.3416,W,1,07,1.0,9.0,M,,,,0000*18");
 
 bool parse_GGA( char* NMEA_data )
 {
@@ -164,7 +169,7 @@ bool parse_GGA( char* NMEA_data )
 
 
 //------------------Start of process for getting GPRMC sentence-----------------------
-// = {"$GPRMC,161229.487,A,3723.2475,N,12158.3416,W,0.13,309.62,120598,,*10"};
+//  strcpy( NMEA_data, "$GPRMC,161229.487,A,3723.2475,N,12158.3416,W,0.13,309.62,120598,,*10" );
 
 bool parse_RMC( char* NMEA_data )
 {
