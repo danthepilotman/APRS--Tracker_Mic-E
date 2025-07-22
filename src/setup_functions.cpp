@@ -28,7 +28,7 @@ void setup_Pins()
   
     digitalWrite( GPS_VALID_PIN, LOW );  // Set GPS_VALID_PIN to be off by default
 
-    attachInterrupt( digitalPinToInterrupt( DISP_MODE_PIN ) , disp_mode_btn, FALLING );
+    attachInterrupt( digitalPinToInterrupt( DISP_MODE_PIN ) , disp_Mode_Btn, FALLING );
 
 }
 
@@ -83,7 +83,7 @@ void setup_OLED()
 }
 
 
-void disp_mode_btn()
+void disp_Mode_Btn()
 {
   
   static uint32_t last_interrupt_time;

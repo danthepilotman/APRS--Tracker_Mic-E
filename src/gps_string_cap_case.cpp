@@ -1,7 +1,7 @@
 #include"gps_string_cap_case.h"
 
 
-void get_GPS_data() 
+void get_GPS_Data() 
 {
 
   char NMEA_data[NMEA_DATA_MAX_SIZE];  // Char array to store captured NMEA sentences
@@ -18,7 +18,7 @@ void get_GPS_data()
 
     wdt_enable( WDTO_2S );  // Set watchdog timer for 2 seconds
     
-    get_NMEA_sentence ( NMEA_data );
+    get_NMEA_Sentence ( NMEA_data );
 
     // Check that proper NMEA sentences have been captured
 
@@ -55,7 +55,7 @@ void get_GPS_data()
 
 
 
-void get_NMEA_sentence( char* NMEA_data )
+void get_NMEA_Sentence( char* NMEA_data )
 {
 
   get_NMEA_data:
@@ -96,7 +96,7 @@ void get_NMEA_sentence( char* NMEA_data )
     
   // Get another NMEA sentence if Check Sums don't match
 
-  if ( xsum_check( NMEA_data) )   // Negated logic on checksum_check 
+  if ( xsum_Check( NMEA_data) )   // Negated logic on checksum_check 
   {
 
 #if DEBUG
@@ -131,7 +131,7 @@ bool parse_GGA( char* NMEA_data )
   ptr = strchr( ptr, ',' ) + 1;  // Skip lon
   ptr = strchr( ptr, ',' ) + 1;  // Skip E/W
     
-  if ( isEmpty( ptr ) == false ) 
+  if ( is_Empty( ptr ) == false ) 
   { 
                
     gps_data.fixquality = atoi( ptr );  // Needs additional processing
@@ -151,14 +151,14 @@ bool parse_GGA( char* NMEA_data )
   
   // Most can just be parsed with atoi() or atof(), then move on to the next.
   
-  if ( isEmpty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )
     gps_data.satellites = atoi( ptr );
     
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
    
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
 
-  if ( isEmpty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )
     gps_data.altitude = int16_t( round( atof( ptr ) ) );
     
   // Skip the rest
@@ -180,18 +180,18 @@ bool parse_RMC( char* NMEA_data )
 
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 1st comma
 
-  parseTime( ptr );              // Get the time info
+  parse_Time( ptr );              // Get the time info
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 2nd comma
     
-  parseFix( ptr ); // Status
+  parse_Fix( ptr ); // Status
 
   if( gps_data.fix == false )
     return true;  // Go back and capture another NMEA sentence 
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 3rd comma 
 
-  parseCoord( ptr ); // Latitude
+  parse_Coord( ptr ); // Latitude
  
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 4th comma 
 
@@ -199,7 +199,7 @@ bool parse_RMC( char* NMEA_data )
 
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 5th comma 
 
-  parseCoord( ptr );
+  parse_Coord( ptr );
 
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 6th comma 
 
@@ -207,17 +207,17 @@ bool parse_RMC( char* NMEA_data )
 
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 7th comma 
 
-  if ( isEmpty ( ptr ) == false )
+  if ( is_Empty ( ptr ) == false )
     gps_data.speed = ( unsigned int ) ( round( atof ( ptr ) ) );
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 8th comma 
 
-  if ( isEmpty ( ptr ) == false )
+  if ( is_Empty ( ptr ) == false )
     gps_data.course = ( unsigned int ) ( round( atof ( ptr ) ) );
     
   ptr = strchr( ptr, ',' ) + 1;  // Skip the 9th comma 
 
-  if ( isEmpty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )
   {
 
     unsigned long fulldate = atol( ptr );  // ddmmyy
@@ -249,7 +249,7 @@ bool parse_GSA( char* NMEA_data )
 
   ptr = strchr( ptr, ',' ) + 1;  // Move to the next field
 
-  if ( isEmpty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )
     gps_data.fixquality_3d = atoi( ptr );
 
   return false;
@@ -266,7 +266,7 @@ bool parse_GSA( char* NMEA_data )
     @return true if successful, false otherwise
 */
 /**************************************************************************/
-bool isEmpty( const char* pStart ) 
+bool is_Empty( const char* pStart ) 
 {
   
   if ( ',' != *pStart && '*' != *pStart && pStart != NULL )
@@ -278,10 +278,10 @@ bool isEmpty( const char* pStart )
 }
 
 
-bool parseTime( const char* ptr ) 
+bool parse_Time( const char* ptr ) 
 {
   
-  if ( isEmpty( ptr ) == false) 
+  if ( is_Empty( ptr ) == false) 
   { 
     
     unsigned long time = atol( ptr );
@@ -308,10 +308,10 @@ bool parseTime( const char* ptr )
     @return True if we parsed it, false if it has invalid data
 */
 /**************************************************************************/
-bool parseFix( const char* ptr ) 
+bool parse_Fix( const char* ptr ) 
 {
   
-  if ( isEmpty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )
   {
     
     if ( ptr[0] == 'A' ) 
@@ -338,12 +338,12 @@ bool parseFix( const char* ptr )
     @return true if successful, false if failed or no value
 */
 /**************************************************************************/
-bool parseCoord( char* coord )
+bool parse_Coord( char* coord )
 {
   
   const char* ptr = coord;
   
-  if ( isEmpty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )
   {
     
     char* e = strchr( ptr, '.' );
@@ -410,7 +410,7 @@ bool parseCoord( char* coord )
 
 
 
-uint8_t hex_str_to_int( const char* chk_sum_in )
+uint8_t hex_Str_To_Int( const char* chk_sum_in )
 {
 
   uint8_t integer = 0;
@@ -442,7 +442,7 @@ uint8_t hex_str_to_int( const char* chk_sum_in )
 
 
 
-bool xsum_check( char* NMEA_data )
+bool xsum_Check( char* NMEA_data )
 {
 
   uint8_t xsum = 0x00;
@@ -455,7 +455,7 @@ bool xsum_check( char* NMEA_data )
   ptr = strchr( ptr, '*' ) + 1; // Find the location of the *, then go one more index over
 
   // Get NMEA sentence Check Sum value
-  chk_sum = hex_str_to_int( ptr );
+  chk_sum = hex_Str_To_Int( ptr );
 
   /* Calculate NMEA sentence Check Sum value
      Note that the checksum calculation does NOT include the $ character at the start of the NMEA sentence.

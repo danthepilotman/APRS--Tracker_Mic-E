@@ -2,7 +2,7 @@
 
 
 
-void display_data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
+void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {  
  
   static uint8_t current_disp_mode;

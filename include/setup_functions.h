@@ -11,6 +11,6 @@ void disable_Peripherals();
 void setup_Pins();
 void setup_Timers();
 void setup_OLED();
-void disp_mode_btn();
+void disp_Mode_Btn();
 
 #endif

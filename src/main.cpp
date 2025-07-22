@@ -43,14 +43,14 @@ void loop()
 
 #if DEBUG == false    
   
-  get_GPS_data();  // Get data from GPS unit
+  get_GPS_Data();  // Get data from GPS unit
 
 #endif
 
 
   secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
-  display_data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD 
+  display_Data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD 
 
 
 /* ---------------------- Compress data for transmission and send packet  ----------------------- */
