@@ -124,9 +124,9 @@ void send_Packet()
     send_Byte( FLAG, true, stuff_ctr );                 
   
   // Disable Timer interrupts
-  WAVE_GEN_TMR_TIMSK &= ( 0 << WAVE_GEN_TMR_OCIEA );
+  WAVE_GEN_TMR_TIMSK &= ~( 1 << WAVE_GEN_TMR_OCIEA );
   
-  BAUD_TMR_TIMSK &= ( 0 << BAUD_TMR_OCIEA );
+  BAUD_TMR_TIMSK &= ~( 1 << BAUD_TMR_OCIEA );
 
   WAVE_PORT = 0;  // Reset output port to 0s (low)
   //*reinterpret_cast<volatile unsigned char* > ( 0x05 + 0x20 ) = 0;
