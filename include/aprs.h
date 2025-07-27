@@ -142,9 +142,11 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 /********** Global Variables **********/
 
-extern volatile uint8_t smp_num;  // Stores current sine array sample to put onto output port pins
+//extern volatile uint8_t smp_num;  // Stores current sine array sample to put onto output port pins
 
-extern volatile bool baud_tmr_isr_busy;  // Timer 1 used for 1200 baud timing
+extern volatile bool wave_gen_tmr_isr;  // Timer used for DAC timing
+
+extern volatile bool baud_tmr_isr;  // Timer used for 1200 baud timing
 
 extern volatile uint8_t disp_mode;  // Store the display mode
 

@@ -1,8 +1,10 @@
 #include"setup_functions.h"
 
-void disable_Peripherals()
+void setup_Peripherals()
 {
 
+  wdt_enable( WDTO_4S );  // Set watchdog timer for 2 seconds
+  
   ADCSRA &= ~(1 << ADEN); // Clear ADEN bit to 0. Disables ADC for power savings.
 
   
@@ -10,7 +12,6 @@ void disable_Peripherals()
                        // ACSR &= ~(1 << ACD) would enable it if it's already disabled
   
   ACSR &= ~(1 << ACIE);  // Ensure the Analog Comparator Interrupt is also disabled (ACIE bit in ACSR). Clear ACIE bit to 0
-
 
 }
 

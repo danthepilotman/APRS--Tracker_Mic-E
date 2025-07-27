@@ -10,10 +10,10 @@
 void setup() 
 {  
   
+  setup_Peripherals();  // Disable unneeded peripherals to save power
+  
   gpsSerial.begin( GPS_BAUD_RATE );  // Used for GPS interface
 
-  disable_Peripherals();  // Disable unneeded peripherals to save power
-  
   setup_Pins();  // Pins for buttons and LEDs
 
   setup_Timers();  // Timers for baud and DAC transmission rate

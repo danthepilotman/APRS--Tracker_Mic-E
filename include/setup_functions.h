@@ -3,11 +3,12 @@
 
 
 #include"display_OLED.h"
+#include <avr/wdt.h>
 
 
 /******** Function prototypes ***********/
 
-void disable_Peripherals();
+void setup_Peripherals();
 void setup_Pins();
 void setup_Timers();
 void setup_OLED();

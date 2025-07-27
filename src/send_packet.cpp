@@ -4,33 +4,52 @@
 void send_Tone( bool afsk_tone )
 {         
   
-  baud_tmr_isr_busy = true;  /* Reset timer 5 interrupt flag */ 
+  volatile uint8_t smp_num = 0;  // Store and remember SINE array sample number
   
-  WAVE_GEN_TMR_TCNT  = 0x0000;  /* Initialize Timer4 counter value to 0 */
+  baud_tmr_isr = true;  /* Reset baud timer interrupt busy flag */ 
+
+  wave_gen_tmr_isr = false;  /* Reset wave generator timer interrupt flag */ 
   
-  BAUD_TMR_TCNT  = 0x0000;  /* Initialize Timer5 counter value to 0 */
+  WAVE_GEN_TMR_TCNT = 0x0000;  // Initialize wave generator counter value to 0
+  
+  BAUD_TMR_TCNT = 0x0000;  // Initialize baud timer counter value to 0
  
   afsk_tone ? WAVE_GEN_TMR_OCRA = MRK_TMR_CMP: WAVE_GEN_TMR_OCRA = SPC_TMR_CMP;  // Set timer compare value based on SPACE or MARK
 
-  while( baud_tmr_isr_busy );  // Wait until the BAUD timer ISR is triggered to move on to the next tone 
+  while( baud_tmr_isr )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
+  {
+
+    if( wave_gen_tmr_isr )  // If DAC timer ISR is triggered
+    {
+      
+      wave_gen_tmr_isr = false;  // Clear DAC timer ISR flag
+      
+      WAVE_PORT =  pgm_read_byte( &SIN_ARRAY[smp_num] );  // Update DAC value
+
+      smp_num++;  // Increment sample number by one
+    
+      if ( smp_num == WAVE_ARRY_SIZE )  // Handle wrap around
+        smp_num = 0;  // Reset sample to zero after one complete SINE array period
+
+    }
+
+  } 
 
 }
 
 
 
-void send_Byte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
+void send_Byte ( uint8_t inbyte )
 {
   
   static bool afsk_tone;
+
+  static uint8_t stuff_ctr = 0;  // Reset stuff counter
   
   for ( uint8_t i = 0; i < 8; i++ )
   {
     
-    uint8_t bt;
-
-    bt = inbyte & 0x01;  // Strip off the rightmost bit
-          
-    if ( bt == 0 )  // If this bit is a zero,
+    if ( bitRead( inbyte, i ) == SPACE )  // If this bit is a zero,
     {  
 
       afsk_tone = ! afsk_tone;  //  Flip the output state
@@ -44,9 +63,9 @@ void send_Byte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
     else
     {
       
-      stuff_ctr++;    // Increment 1's count
+      stuff_ctr++;    // Increment sequential 1's count
       
-      if ( ( ! flag_in ) && ( stuff_ctr == 5 ) )  // Stuff an extra 0, if five 1's in a row
+      if ( ( inbyte != FLAG ) && ( stuff_ctr == 5 ) )  // Stuff an extra 0, if five 1's in a row
       {   
         
         send_Tone( afsk_tone );  // Send the 1
@@ -64,8 +83,6 @@ void send_Byte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
 
     }
     
-    inbyte = inbyte >> 1;  // Shift one to the right to look at the next bit                    
-    
   }
 
 }
@@ -75,20 +92,13 @@ void send_Byte ( uint8_t inbyte, bool flag_in, uint8_t &stuff_ctr )
 void send_Packet()
 {
 
-  uint16_t crc_value;
+  uint16_t crc_value = calc_CRC();   // Calculate CRC
 
-  uint8_t crc_lo_byte, crc_hi_byte;
+  uint8_t crc_lo_byte = crc_value & 0xFF;  // Strip off low byte portion
+  
+  uint8_t crc_hi_byte = crc_value >> 8;  // Shift down high byte portion
 
-  static uint8_t stuff_ctr = 0;  // Reset stuff counter
-     
-
-  //crc_value = crc16(pkt_data, sizeof(pkt_data),0x1021,0xFFFF,0xFFFF,true,true); 
-  crc_value = calc_CRC();   // Calculate CRC
-  
-  crc_lo_byte = crc_value & 0xFF;
-  
-  crc_hi_byte = crc_value >> 8;
-  
+ 
   digitalWrite( PTT_PIN, HIGH );  // Key the Transmitter
   
   delay( TX_POWERUP_DLY );  // Wait for Transmitter to power up
@@ -100,28 +110,28 @@ void send_Packet()
    
   // Send Start FLAGS
   for ( uint8_t i = 0; i < NUM_START_FLAGS; i++ ) 
-    send_Byte( FLAG, true, stuff_ctr );                   
+    send_Byte( FLAG );                   
    
   // send Destination Address 
   for( uint8_t i = 0; i < sizeof( dest_address ); i++ )
-    send_Byte( dest_address[i], false, stuff_ctr );
+    send_Byte( dest_address[i] );
 
   // send Source, Digipeater Addresses / Control, PID Fields 
-  for( uint8_t i = 0; i <SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN; i++ )
-    send_Byte( src_digi_addrs_ctl_pid_flds[i], false, stuff_ctr );
+  for( uint8_t i = 0; i < SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN; i++ )
+    send_Byte( src_digi_addrs_ctl_pid_flds[i] );
 
   // send Information Field
-  for( uint8_t i = 0; i <INFO_LEN; i++ )
-    send_Byte( info[i], false, stuff_ctr );
+  for( uint8_t i = 0; i < INFO_LEN; i++ )
+    send_Byte( info[i] );
 
   // Send FCS
-  send_Byte( crc_lo_byte, false, stuff_ctr );  // Send the low byte of crc
+  send_Byte( crc_lo_byte );  // Send the low byte of crc
  
-  send_Byte( crc_hi_byte, false, stuff_ctr );  // Send the high byte of crc
+  send_Byte( crc_hi_byte );  // Send the high byte of crc
       
   //Send End FLAGS
   for ( uint8_t i = 0; i < NUM_END_FLAGS; i++ ) 
-    send_Byte( FLAG, true, stuff_ctr );                 
+    send_Byte( FLAG );                 
   
   // Disable Timer interrupts
   WAVE_GEN_TMR_TIMSK &= ~( 1 << WAVE_GEN_TMR_OCIEA );

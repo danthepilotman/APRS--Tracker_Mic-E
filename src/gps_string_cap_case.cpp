@@ -16,8 +16,6 @@ void get_GPS_Data()
   while ( GGA_not_cap || GSA_not_cap || RMC_not_cap )
   {
 
-    wdt_enable( WDTO_2S );  // Set watchdog timer for 2 seconds
-    
     get_NMEA_Sentence ( NMEA_data );
 
     // Check that proper NMEA sentences have been captured
@@ -48,9 +46,10 @@ void get_GPS_Data()
       }
     }
 
-     wdt_reset();  // Reset WDT
+    wdt_reset();  // Reset WDT
 
   }
+
 } 
 
 
