@@ -10,6 +10,13 @@ volatile uint8_t disp_mode = 0;  // Used to store display mode
 
 GPS_data gps_data; // GPS data structure
 
+const char* GPS_data::pos_fix[4] = {
+    "Not available",
+    "GPS SPS Mode",
+    "Differential GPS",
+    "GPS PPS Mode"
+};
+
 
 uint8_t dest_address[DEST_ADDR_SIZE];  // APRS Destination address
 

@@ -1,9 +1,15 @@
 #include"setup_functions.h"
+#include"display_OLED.h"
+
 
 void setup_Peripherals()
 {
 
+#if DEBUG == false
+
   wdt_enable( WDTO_4S );  // Set watchdog timer for 2 seconds
+
+#endif
   
   ADCSRA &= ~(1 << ADEN); // Clear ADEN bit to 0. Disables ADC for power savings.
 
@@ -78,7 +84,7 @@ void setup_OLED()
 
 
 #if DEBUG
-  display_timers_setup();
+  display_Timers_Setup();
 #endif 
 
 }

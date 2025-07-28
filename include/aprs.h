@@ -5,7 +5,7 @@
 #include <math.h>
 
 
-#define DEBUG false  // Set to 'true' to enable debugging serial prints
+#define DEBUG true  // Set to 'true' to enable debugging serial prints
 
 /********** Smart Beaconing Parameters **********/
 
@@ -64,7 +64,7 @@
  constexpr uint8_t NUM_START_FLAGS = 30;  // Number of FLAGS to  send before data portion of packet
  constexpr uint8_t NUM_END_FLAGS = 10;    // Number of FLAGS to send at end of packet
 
- constexpr uint32_t TX_POWERUP_DLY = 30;    // Wait time between TX keying and begining of transmission. [ms]
+ constexpr uint32_t TX_POWERUP_DLY = 300;    // Wait time between TX keying and begining of transmission. [ms]
 
  constexpr uint32_t CPU_FREQ = 16E6;  // MCU clock frequency
  constexpr uint8_t PRE_SCLR = 1;     // Timer Pre-scaler value
@@ -206,6 +206,8 @@ extern struct GPS_data
   uint8_t fixquality_3d = 3;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites = 12;     //  Number of satellites in use
 
+  static const char* pos_fix[4];
+
 } gps_data;
 
 #else
@@ -263,6 +265,9 @@ struct GPS_data
   uint8_t fixquality;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;     //  Number of satellites in use
+
+  
+  static const char* pos_fix[4];
 
 };
 

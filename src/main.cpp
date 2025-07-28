@@ -60,10 +60,10 @@ void loop()
 
 #if DEBUG
 
-  Serial.print( "\r\nSince bkn: " );
+  Serial.print( F( "\r\nSince bkn: " ) );
   Serial.println( secs_since_beacon );
   
-  Serial.print( "bkn rate: " );
+  Serial.print( F( "bkn rate: " ) );
   Serial.println( beacon_period );
   
 #endif
