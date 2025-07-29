@@ -5,7 +5,7 @@
 void setup_Peripherals()
 {
 
-#if DEBUG == false
+#ifndef DEBUG
 
   wdt_enable( WDTO_4S );  // Set watchdog timer for 2 seconds
 
@@ -83,8 +83,10 @@ void setup_OLED()
   oled.on();
 
 
-#if DEBUG
+#ifdef DEBUG
+
   display_Timers_Setup();
+  
 #endif 
 
 }

@@ -4,8 +4,6 @@ volatile uint8_t smp_num = 0;  // Stores current sine array sample to put onto o
 
 volatile bool baud_tmr_isr;  // Baud timer interrupt active flag
 
-volatile bool wave_gen_tmr_isr;  // DAC timer interrupt active flag
- 
 volatile uint8_t disp_mode = 0;  // Used to store display mode
 
 GPS_data gps_data; // GPS data structure

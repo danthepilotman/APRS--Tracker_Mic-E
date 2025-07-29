@@ -5,7 +5,7 @@
 #include"aprs.h"
 
 
-#if DEBUG == false
+#ifndef BIT_BY_BIT_CRC_CALC
 
 #include <CRC16.h>
 

@@ -1,7 +1,8 @@
 #include"crc_calc.h"
 
 
-#if DEBUG == false
+#ifndef BIT_BY_BIT_CRC_CALC
+
 
 CRC16 crc( CRC16_X_25_POLYNOME, CRC16_X_25_INITIAL , CRC16_X_25_XOR_OUT , CRC16_X_25_REV_IN , CRC16_X_25_REV_OUT );
 
@@ -11,13 +12,10 @@ uint16_t calc_CRC()
 
   crc.restart();  // Reset internal state
   
-
   crc.add( dest_address, DEST_ADDR_SIZE );  // Feed dest
   
-
   crc.add( src_digi_addrs_ctl_pid_flds, SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN );  // Feed src/digi
   
-
   crc.add( info, INFO_LEN );  // Feed info
   
   return crc.calc();  // Calculate CRC and return value
@@ -26,6 +24,7 @@ uint16_t calc_CRC()
 
 
 #else
+
 
 void crc_Bit ( uint8_t tbyte, uint16_t &crc_value ) 
 {
@@ -37,7 +36,7 @@ void crc_Bit ( uint8_t tbyte, uint16_t &crc_value )
   crc_value = crc_value >> 1;
 
   if ( ( carry ^ tbyte ) == 0x01 ) 
-    crc_value = crc_value ^ 0x8408; // 0x8408 = 0x1021 with bits reversed (CRC-CCITT reversed)
+    crc_value ^= 0x8408; // 0x8408 = 0x1021 with bits reversed (CRC-CCITT reversed)
 
 }
 
@@ -63,5 +62,6 @@ uint16_t calc_CRC()
   return crc_value; 
 
 }
+
 
 #endif

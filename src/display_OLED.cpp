@@ -129,7 +129,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
   } // end switch
 
 /*----------------- Display GPS data on the serial terminal for debugging -----------------  */
-#if DEBUG
+#ifdef DEBUG
 
   print_OLED_Debug();
   
@@ -148,7 +148,7 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 }
 
 
-#if DEBUG
+#ifdef DEBUG
 
 
 void display_Timers_Setup() 

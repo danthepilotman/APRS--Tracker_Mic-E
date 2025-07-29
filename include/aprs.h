@@ -5,7 +5,8 @@
 #include <math.h>
 
 
-#define DEBUG true  // Set to 'true' to enable debugging serial prints
+#define DEBUG // Enable debugging serial prints. Comment out to disable
+// #define BIT_BY_BIT_CRC_CALC  // Comment in to use original, bit-by-bit version of CRC calculation
 
 /********** Smart Beaconing Parameters **********/
 
@@ -13,7 +14,7 @@
  constexpr uint16_t FAST_RATE = 60;         // seconds  
  constexpr uint16_t SLOW_SPEED  = 5;         // mph
 
-#if DEBUG
+#ifdef DEBUG
 
  constexpr uint16_t SLOW_RATE = 30;       // seconds 
 
@@ -142,15 +143,13 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 /********** Global Variables **********/
 
-//extern volatile uint8_t smp_num;  // Stores current sine array sample to put onto output port pins
-
-extern volatile bool wave_gen_tmr_isr;  // Timer used for DAC timing
+extern volatile uint8_t smp_num;  // Stores current sine array sample to put onto output port pins
 
 extern volatile bool baud_tmr_isr;  // Timer used for 1200 baud timing
 
 extern volatile uint8_t disp_mode;  // Store the display mode
 
-#if DEBUG
+#ifdef DEBUG
 
 extern struct GPS_data
 {

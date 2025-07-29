@@ -4,37 +4,17 @@
 void send_Tone( bool afsk_tone )
 {         
   
-  volatile uint8_t smp_num = 0;  // Store and remember SINE array sample number
-  
+
   baud_tmr_isr = true;  /* Reset baud timer interrupt busy flag */ 
 
-  wave_gen_tmr_isr = false;  /* Reset wave generator timer interrupt flag */ 
-  
   WAVE_GEN_TMR_TCNT = 0x0000;  // Initialize wave generator counter value to 0
   
   BAUD_TMR_TCNT = 0x0000;  // Initialize baud timer counter value to 0
  
   afsk_tone ? WAVE_GEN_TMR_OCRA = MRK_TMR_CMP: WAVE_GEN_TMR_OCRA = SPC_TMR_CMP;  // Set timer compare value based on SPACE or MARK
 
-  while( baud_tmr_isr )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
-  {
-
-    if( wave_gen_tmr_isr )  // If DAC timer ISR is triggered
-    {
-      
-      wave_gen_tmr_isr = false;  // Clear DAC timer ISR flag
-      
-      WAVE_PORT =  pgm_read_byte( &SIN_ARRAY[smp_num] );  // Update DAC value
-
-      smp_num++;  // Increment sample number by one
-    
-      if ( smp_num == WAVE_ARRY_SIZE )  // Handle wrap around
-        smp_num = 0;  // Reset sample to zero after one complete SINE array period
-
-    }
-
-  } 
-
+  while( baud_tmr_isr );  // Wait until the BAUD timer ISR is triggered to move on to the next tone
+  
 }
 
 

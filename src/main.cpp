@@ -41,7 +41,7 @@ void loop()
     oled.print( F( "Waiting for GPS signal" ) );
 
 
-#if DEBUG == false    
+#ifndef DEBUG    
   
   get_GPS_Data();  // Get data from GPS unit
 
@@ -58,7 +58,7 @@ void loop()
   if ( smart_Beaconing( beacon_period, secs_since_beacon, mic_e_message ) ) 
   {
 
-#if DEBUG
+#ifdef DEBUG
 
   Serial.print( F( "\r\nSince bkn: " ) );
   Serial.println( secs_since_beacon );
