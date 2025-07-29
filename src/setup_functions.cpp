@@ -6,7 +6,7 @@
 void setup_Peripherals()
 {
 
-#ifndef DEBUG
+#ifdef USE_WDT
 
   wdt_enable( WDTO_4S );  // Set watchdog timer for 2 seconds
 
@@ -40,7 +40,7 @@ void setup_Pins()
 
 #ifdef DEBUG
 
-  DDRD |= _BV(PD7);  // Set PD7 (digital pin 7) as output
+  // DDRD |= _BV(PD7);  // Set PD7 (digital pin 7) as output
 
 #endif
 
@@ -76,6 +76,8 @@ void setup_Timers()
 }
 
 
+#ifdef USE_OLED
+
 
 void setup_OLED()
 {
@@ -88,12 +90,10 @@ void setup_OLED()
 
   oled.on();
 
-
-#ifdef DEBUG
-  display_Timers_Setup();
-#endif 
-
 }
+
+
+#endif 
 
 
 void disp_Mode_Btn()

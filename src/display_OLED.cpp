@@ -23,25 +23,18 @@ void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon 
 
 }
 
-#else
+#endif
+
+#ifdef USE_OLED
 
 void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {  
  
   enum{ POSITION, SATS_INFO, DATE_TIME };
 
-
-
   static uint8_t current_disp_mode;
 
-  
-
-  
-  const char *pos_fix[] = { "Not available", "GPS SPS Mode",
-                    "Differential GPS" , "GPS PPS Mode" };
-  
   char oled_row[ OLED_COLS + 1 ];  // Used to create character string for display on OLED
-
 
 /* --- Clear OLED display if OLED display mode is changed --- */
 
@@ -55,20 +48,10 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
   }
 
 
-
-
- disp_mode =  DATE_TIME;
- 
-
-
-
-
 /*----- Display relevant data to OLED screen based on page selection ------- */
 
   switch ( disp_mode )
   {
-
-
 
     case POSITION:
 
@@ -106,7 +89,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
       
       oled.setCursor( 0, FIRST_ROW );  // Fix quality
-      oled.print( pos_fix[gps_data.fixquality] );
+      oled.print( gps_data.pos_fix[gps_data.fixquality] );
       oled.clearToEOL();
 
 
@@ -115,13 +98,13 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
       oled.print( oled_row );
       oled.clearToEOL();
       
+
       oled.setCursor( 0, THIRD_ROW ); // Numer of satellites being tracked
       sprintf( oled_row, "Sats: %u", gps_data.satellites );
       oled.print( oled_row );
       oled.clearToEOL();
         
     break;    
-
 
 
     case DATE_TIME: 
@@ -132,21 +115,11 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
       if ( next_tx < 0 )
         next_tx = 0;
       
-
       uint8_t bkn_min = beacon_period / 60;
       uint8_t bkn_sec = beacon_period % 60;
 
-
+      uint8_t nxt_min = next_tx / 60;
       uint8_t nxt_sec = next_tx % 60;
-
-
-    
-      Serial.print( F(" Next Tx:" ) );
-      Serial.println( nxt_sec );
-      delay(500);
-
-
-
 
       oled.setCursor( 0, FIRST_ROW );  // Beacon period
       sprintf( oled_row, "Bkn prd: %02u:%02u", bkn_min, bkn_sec );
@@ -171,19 +144,11 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
       oled.print ( oled_row );
       oled.clearToEOL();
 
-
     }
 
     break;
 
   } // end switch
-
-/*----------------- Display GPS data on the serial terminal for debugging -----------------  */
-#ifdef DEBUG
-
-  //print_oled_debug();
-  
-#endif  
 
 }
 
@@ -191,8 +156,8 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 #endif
 
 
+#ifdef USE_OLED
 
-#ifndef DEBUG
 
 void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 {
@@ -203,8 +168,8 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
   oled.clear();
 }
 
-#endif
 
+#endif
 
 
 #ifdef DEBUG
@@ -245,49 +210,43 @@ void display_Timers_Setup()
 
 
 
-/* void print_oled_debug()
+void print_GPS_Data()
 {
 
-  char gps_time[50];
+  char gps_str[50];
 
-  sprintf( gps_time,"%02d:%02d:%02d UTC %d/%02d/%02d", hour, minute, seconds, month, day, year ) ;          
+  sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", gps_data.hour, gps_data.minute, gps_data.seconds, gps_data.month, gps_data.day, gps_data.year ) ;          
 
   Serial.println( F("\r\n---------GPS Data--------") );
   Serial.print( F("Time: ") );
-  Serial.println( gps_time );
+  Serial.println( gps_str );
  
   Serial.print( F("Pos: ") );
-  Serial.print( lat_degreebuff );
-  Serial.print( F(" ") );
-  Serial.print ( NorS );
-  Serial.print( F(", ") );
-  Serial.print( lon_degreebuff );
-  Serial.print( F(" ") );
-  Serial.println ( EorW );
-
+  sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", gps_data.NorS, gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm,
+                                                                  gps_data.EorW, gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm ) ; 
+  Serial.println( gps_str );
+  
   Serial.print(F ("Speed: ") );
-  Serial.print( speed, 0 );
+  Serial.print( KTS_to_MPH * gps_data.speed, 0 );
   Serial.println( F(" mph" ) );
 
   Serial.print( F("course: ") );
-  Serial.print(course, 0);
-  Serial.println( F("°" ) );
+  Serial.print( gps_data.course );
+  Serial.println( F("\xC2\xB0" ) );
 
   Serial.print( F("Altitude: ") );
-  Serial.print( altitude, 0 );
+  Serial.print( M_to_F * gps_data.altitude, 0 );
   Serial.println( F(" ft" ) );
 
   Serial.print( F("Sats in use: ") );
-  Serial.println( satellites );
+  Serial.println( gps_data.satellites );
 
   Serial.print( F("Pos Fix Indicator: ") );
-  Serial.println( pos_fix[fixquality] );
+  Serial.println( gps_data.pos_fix[gps_data.fixquality] );
 
   Serial.print( F("Fix type [none/2D/3D]: ") );
-  Serial.println( fixquality_3d );
+  Serial.println( gps_data.fixquality_3d );
   
-  Serial.println( F("\r\n") );
-
-} */
+}
 
 #endif 

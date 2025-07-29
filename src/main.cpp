@@ -18,13 +18,20 @@ void setup()
 
   setup_Timers();  // Timers for baud and DAC transmission rate
 
-#ifndef DEBUG
-
   setup_OLED();  // OLED setup
+
+#ifdef USE_OLED
 
   show_SPLASH_SCRN( SPLASH_SCRN_DLY );  // Show splash screen message for a certain amount of time
 
 #endif
+
+#ifdef DEBUG
+
+  display_Timers_Setup();
+
+#endif
+
 
 }
 
@@ -41,13 +48,19 @@ void loop()
   uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
   
 
-  #ifndef DEBUG  
+#ifdef USE_GPS  
 
   if ( gps_data.fix == false )
     oled.print( F( "Waiting for GPS signal" ) );
 
   get_GPS_Data();  // Get data from GPS unit
 
+#endif
+
+
+#ifdef DEBUG
+
+    print_GPS_Data();
 
 #endif
 
@@ -55,7 +68,7 @@ void loop()
   secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
 
-#ifndef DEBUG 
+#ifdef USE_OLED
 
   display_Data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD 
 
@@ -76,7 +89,7 @@ void loop()
   Serial.print( F( "\r\nSince bkn: " ) );
   Serial.println( secs_since_beacon );
   
-  Serial.print( F( "\r\nBkn rate: " ) );
+  Serial.print( F( "Bkn rate: " ) );
   Serial.println( beacon_period );
   
 #endif
