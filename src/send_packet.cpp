@@ -3,18 +3,15 @@
 
 void send_Tone( bool afsk_tone )
 {         
-  
 
   baud_tmr_isr = true;  /* Reset baud timer interrupt busy flag */ 
 
-  WAVE_GEN_TMR_TCNT = 0x0000;  // Initialize wave generator counter value to 0
-  
-  BAUD_TMR_TCNT = 0x0000;  // Initialize baud timer counter value to 0
- 
-  afsk_tone ? WAVE_GEN_TMR_OCRA = MRK_TMR_CMP: WAVE_GEN_TMR_OCRA = SPC_TMR_CMP;  // Set timer compare value based on SPACE or MARK
+  afsk_tone ? current_phase_step = MRK_PHASE_STEP: current_phase_step = SPC_PHASE_STEP;  // Set timer compare value based on SPACE or MARK
 
-  while( baud_tmr_isr );  // Wait until the BAUD timer ISR is triggered to move on to the next tone
-  
+  while( baud_tmr_isr )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
+  {
+  }
+
 }
 
 
@@ -32,7 +29,7 @@ void send_Byte ( uint8_t inbyte )
     if ( bitRead( inbyte, i ) == SPACE )  // If this bit is a zero,
     {  
 
-      afsk_tone = ! afsk_tone;  //  Flip the output state
+      afsk_tone = !afsk_tone;  //  Flip the output state
 
       send_Tone( afsk_tone ); // Then send the new tone
 
@@ -84,10 +81,11 @@ void send_Packet()
   delay( TX_POWERUP_DLY );  // Wait for Transmitter to power up
    
   // Enable Timer interrupts
-  WAVE_GEN_TMR_TIMSK |= ( 1 << WAVE_GEN_TMR_OCIEA );
+  WAVE_GEN_TMR_TIMSK |= _BV( WAVE_GEN_TMR_OCIEA );
   
-  BAUD_TMR_TIMSK |= ( 1 << BAUD_TMR_OCIEA );
+  BAUD_TMR_TIMSK |= _BV( BAUD_TMR_OCIEA );
    
+  
   // Send Start FLAGS
   for ( uint8_t i = 0; i < NUM_START_FLAGS; i++ ) 
     send_Byte( FLAG );                   
@@ -119,7 +117,6 @@ void send_Packet()
   BAUD_TMR_TIMSK &= ~( 1 << BAUD_TMR_OCIEA );
 
   WAVE_PORT = 0;  // Reset output port to 0s (low)
-  //*reinterpret_cast<volatile unsigned char* > ( 0x05 + 0x20 ) = 0;
 
   digitalWrite( PTT_PIN, LOW );  //unkey PTT     
 

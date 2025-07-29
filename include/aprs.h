@@ -5,7 +5,7 @@
 #include <math.h>
 
 
-#define DEBUG // Enable debugging serial prints. Comment out to disable
+#define DEBUG  // Set to 'true' to enable debugging serial prints
 // #define BIT_BY_BIT_CRC_CALC  // Comment in to use original, bit-by-bit version of CRC calculation
 
 /********** Smart Beaconing Parameters **********/
@@ -65,39 +65,43 @@
  constexpr uint8_t NUM_START_FLAGS = 30;  // Number of FLAGS to  send before data portion of packet
  constexpr uint8_t NUM_END_FLAGS = 10;    // Number of FLAGS to send at end of packet
 
- constexpr uint32_t TX_POWERUP_DLY = 300;    // Wait time between TX keying and begining of transmission. [ms]
-
- constexpr uint32_t CPU_FREQ = 16E6;  // MCU clock frequency
- constexpr uint8_t PRE_SCLR = 1;     // Timer Pre-scaler value
+ constexpr uint32_t TX_POWERUP_DLY = 30;    // Wait time between TX keying and begining of transmission. [ms]
 
 
   const PROGMEM uint8_t SIN_ARRAY[] = {
-  8,8,9,10,10,11,12,12,
-  13,13,14,14,14,15,15,15,
-  15,15,15,15,14,14,14,13,
-  13,12,12,11,10,10,9,8,
-  8,7,6,5,5,4,3,3,
-  2,2,1,1,1,0,0,0,
-  0,0,0,0,1,1,1,2,
-  2,3,3,4,5,5,6,7
+  32, 36, 36, 42, 46, 46, 50, 54,
+  54, 58, 58, 63, 63, 63, 63, 63,
+  63, 63, 63, 63, 58, 58, 54, 54,
+  50, 46, 46, 42, 36, 36, 32, 28,
+  28, 25, 21, 21, 17, 13, 13, 8,
+  8, 4, 4, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 4, 4, 8, 8,
+  13, 13, 17, 21, 21, 25, 28, 28
   };
 
-  constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
+ constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );
 
 
- constexpr uint16_t BAUD_FREQ = 1200;  // Transmit baud rate [Hz]
+ constexpr uint32_t CPU_FREQ = 16E6;  // MCU clock frequency
+ constexpr uint8_t BAUD_PRE_SCLR = 1;  // Baud timer Pre-scaler value
+ constexpr uint8_t TONE_PRE_SCLR = 8;  // Wave generator DAC timer Pre-scaler value
+
+
+ constexpr uint16_t  BAUD_FREQ = 1200;  // Transmit baud rate [symbols/sec]
  constexpr uint16_t  MRK_FREQ = 1200;   // Mark (1) waveform frequency [Hz]
  constexpr uint16_t  SPC_FREQ = 2200;   // Space (0) waveform frequency [Hz]
+ constexpr uint32_t  SAMPLE_RATE = 32000;  // 32 kHz fixed sample rate
 
- constexpr uint8_t MRK_NUM_SAMP  = uint8_t( round ( float( MRK_FREQ )  / float( BAUD_FREQ ) * float( WAVE_ARRY_SIZE ) ) );
- constexpr uint8_t SPC_NUM_SAMP =  uint8_t( round ( float( SPC_FREQ ) /  float( BAUD_FREQ ) * float( WAVE_ARRY_SIZE ) ) );
+constexpr uint32_t MRK_PHASE_STEP = uint32_t( ( double( MRK_FREQ ) / SAMPLE_RATE ) * double( 1ULL << 32 ) );  // 1ULL << 32 = 2^32
+constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE ) * double( 1ULL << 32 ) );
 
- constexpr uint8_t MRK_TMR_CMP = uint8_t( round( float( CPU_FREQ ) / ( float( PRE_SCLR ) * float( BAUD_FREQ ) * float( MRK_NUM_SAMP ) ) ) - 1 );
- constexpr uint8_t SPC_TMR_CMP = uint8_t( round( float( CPU_FREQ ) / ( float( PRE_SCLR ) * float( BAUD_FREQ ) * float( SPC_NUM_SAMP ) ) ) - 1  );
- constexpr uint16_t BAUD_TIMER_CMP = uint16_t( round(  float( CPU_FREQ )  / ( float( PRE_SCLR ) * float( BAUD_FREQ ) ) ) - 1  );
+ constexpr uint8_t  TONE_TIMER_CMP = uint8_t ( double( CPU_FREQ ) / ( TONE_PRE_SCLR  * SAMPLE_RATE ) - 1 );
+
+ constexpr uint16_t BAUD_TIMER_CMP = uint16_t( double( CPU_FREQ ) / ( BAUD_PRE_SCLR * BAUD_FREQ )  - 1 );
 
 #define WAVE_PORT PORTB     // MCU port used to output waveform
 #define WAVE_PORT_DDR DDRB  // MCU port used to output waveform data direction register
+#define R2R_MASK 0b00111111  // bits PB0–PB3
 
 //* Define timer register & ISR values for the Baud Rate Timer */
 #define BAUD_TMR_ISR_VECT TIMER1_COMPA_vect
@@ -143,7 +147,9 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 /********** Global Variables **********/
 
-extern volatile uint8_t smp_num;  // Stores current sine array sample to put onto output port pins
+extern volatile uint32_t phase_accumulator;  // Stores current sine array sample to put onto output port pins
+
+extern volatile uint32_t current_phase_step;  // Stores current sine array sample to put onto output port pins
 
 extern volatile bool baud_tmr_isr;  // Timer used for 1200 baud timing
 
@@ -205,8 +211,6 @@ extern struct GPS_data
   uint8_t fixquality_3d = 3;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites = 12;     //  Number of satellites in use
 
-  static const char* pos_fix[4];
-
 } gps_data;
 
 #else
@@ -264,9 +268,6 @@ struct GPS_data
   uint8_t fixquality;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
   uint8_t fixquality_3d;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
   uint8_t satellites;     //  Number of satellites in use
-
-  
-  static const char* pos_fix[4];
 
 };
 

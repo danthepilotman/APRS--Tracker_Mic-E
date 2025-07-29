@@ -9,7 +9,7 @@
 
 void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon );
 void show_SPLASH_SCRN( uint32_t splash_screen_delay );
-void display_Timers_Setup();
-void print_OLED_Debug(); 
+void display_Timers_Setup(); 
+void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon ); 
 
 #endif

@@ -1,19 +1,14 @@
 #include"aprs.h"
 
-volatile uint8_t smp_num = 0;  // Stores current sine array sample to put onto output port pins
+volatile uint32_t phase_accumulator = 0;  // Stores current sine array sample to put onto output port pins
+
+volatile uint32_t current_phase_step = MRK_PHASE_STEP;  // Stores current sine array sample to put onto output port pins
 
 volatile bool baud_tmr_isr;  // Baud timer interrupt active flag
 
 volatile uint8_t disp_mode = 0;  // Used to store display mode
 
 GPS_data gps_data; // GPS data structure
-
-const char* GPS_data::pos_fix[4] = {
-    "Not available",
-    "GPS SPS Mode",
-    "Differential GPS",
-    "GPS PPS Mode"
-};
 
 
 uint8_t dest_address[DEST_ADDR_SIZE];  // APRS Destination address

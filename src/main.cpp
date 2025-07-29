@@ -18,9 +18,13 @@ void setup()
 
   setup_Timers();  // Timers for baud and DAC transmission rate
 
+#ifndef DEBUG
+
   setup_OLED();  // OLED setup
 
   show_SPLASH_SCRN( SPLASH_SCRN_DLY );  // Show splash screen message for a certain amount of time
+
+#endif
 
 }
 
@@ -28,7 +32,7 @@ void setup()
 void loop() 
 {
 
-  static uint16_t beacon_period;  // Time in seconds until next packet transmission
+  static uint16_t beacon_period = SLOW_RATE;  // Time in seconds until next packet transmission
 
   static uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
 
@@ -37,23 +41,32 @@ void loop()
   uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
   
 
+  #ifndef DEBUG  
+
   if ( gps_data.fix == false )
     oled.print( F( "Waiting for GPS signal" ) );
 
-
-#ifndef DEBUG    
-  
   get_GPS_Data();  // Get data from GPS unit
+
 
 #endif
 
 
   secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
+
+#ifndef DEBUG 
+
   display_Data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD 
 
+#else
+
+  display_Beacon_Timing( beacon_period, secs_since_beacon );
+
+#endif
 
 /* ---------------------- Compress data for transmission and send packet  ----------------------- */
+
 
   if ( smart_Beaconing( beacon_period, secs_since_beacon, mic_e_message ) ) 
   {
@@ -63,7 +76,7 @@ void loop()
   Serial.print( F( "\r\nSince bkn: " ) );
   Serial.println( secs_since_beacon );
   
-  Serial.print( F( "bkn rate: " ) );
+  Serial.print( F( "\r\nBkn rate: " ) );
   Serial.println( beacon_period );
   
 #endif

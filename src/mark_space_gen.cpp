@@ -5,13 +5,28 @@
 
 ISR ( WAVE_GEN_TMR_ISR_VECT )
 {
-  WAVE_PORT =  pgm_read_byte( &SIN_ARRAY[smp_num] );  // Update DAC value
+ 
+#ifdef DEBUG
 
-  smp_num++;  // Increment sample number by one
-    
-  if ( smp_num == WAVE_ARRY_SIZE )  // Handle wrap around
-    smp_num = 0;  // Reset sample to zero after one complete SINE array period
+  //PORTD |= _BV(PD7);  // Set PD7 HIGH to mark ISR entry
 
+  //PIND |= _BV(PD7);
+  
+#endif
+
+  phase_accumulator += current_phase_step;  // Increment the phase by the proper amount each cycle
+
+  uint8_t sample_index = uint8_t( phase_accumulator >> (32 - 6) );  // 32-bit integer shifted down to a 6-bit number for the 64 = log(2,64) element array index
+
+  uint8_t sample = pgm_read_byte( &SIN_ARRAY[sample_index] );   // Get current sine sample:
+
+  WAVE_PORT =  sample;  // Drive output port value
+
+#ifdef DEBUG
+
+  //PORTD &= ~_BV(PD7); // Set PD7 LOW to mark ISR exit
+
+#endif
 
 }
 
