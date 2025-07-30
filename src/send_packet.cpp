@@ -15,29 +15,28 @@ void send_Tone( bool afsk_tone )
 }
 
 
-
 void send_Byte ( uint8_t inbyte )
 {
   
-  static bool afsk_tone;
+  static bool afsk_tone;  // Remember previous tone used
 
   static uint8_t stuff_ctr = 0;  // Reset stuff counter
   
-  for ( uint8_t i = 0; i < 8; i++ )
+  for ( uint8_t i = 0; i < 8; i++ )  // Loop through all 8 bits of each byte
   {
     
-    if ( bitRead( inbyte, i ) == SPACE )  // If this bit is a zero,
+    if ( bitRead( inbyte, i ) == SPACE )  // If this bit is a zero (SPACE)
     {  
 
-      afsk_tone = !afsk_tone;  //  Flip the output state
+      afsk_tone = !afsk_tone;  //  Flip the tone for a SPACE
 
       send_Tone( afsk_tone ); // Then send the new tone
 
-      stuff_ctr = 0;
+      stuff_ctr = 0;  // Reset stuff counter
        
     }
      
-    else
+    else  // If the bit is a 1 (MARK)
     {
       
       stuff_ctr++;    // Increment sequential 1's count
@@ -56,7 +55,7 @@ void send_Byte ( uint8_t inbyte )
       }   
 
       else
-        send_Tone( afsk_tone );
+        send_Tone( afsk_tone );  // Send previous tone for a MARK
 
     }
     

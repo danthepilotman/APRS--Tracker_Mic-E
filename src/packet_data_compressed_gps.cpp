@@ -4,7 +4,7 @@
 void compute_Dest_Address( uint8_t mic_e_message )
 {
 
-  uint8_t char_offset;
+  uint8_t char_offset;  // Store offset value used for MIC-E encoding
   
   // Determine 1st Destination Address byte ( Lat Digit 1 + Message Bit A )
 
@@ -77,7 +77,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
 void compute_Info_Longitude()
 {
 
-  int char_offset = 0;
+  int char_offset = 0;  // Store offset value used for MIC-E encoding. Note that offset can be a negative value.
   
   // Determine 2nd Information Field byte ( d+28 )
 
@@ -115,7 +115,7 @@ void compute_Info_Longitude()
 void compute_Info_Spd_Crs()
 {
 
-  uint8_t speed_10 = uint8_t( gps_data.speed / 10 );
+  uint8_t speed_10 = uint8_t( gps_data.speed / 10 );  // Parse out speed's 10's digit
   
   if( gps_data.course == 0 )
     gps_data.course = 360;  // Only 360 allowed for Mic-E encoding
@@ -137,15 +137,15 @@ void compute_Info_Spd_Crs()
 
 void compute_Info_Alt()
 {
-  uint16_t alt_abv_datum = 10000 + gps_data.altitude;
+  uint16_t alt_abv_datum = 10000 + gps_data.altitude;  // Adjust altitude for datum reference
 
-  info[ALT_INDX] = uint8_t( alt_abv_datum / 8281 ) + 33;
+  info[ALT_INDX] = uint8_t( alt_abv_datum / 8281 ) + 33;  // Encode first altitude value
   
-  uint16_t remainder =  uint16_t( alt_abv_datum % 8281 );
+  uint16_t remainder =  uint16_t( alt_abv_datum % 8281 );  // Altitude encoding computation for Mic-E
 
-  info[ALT_INDX + 1] = uint8_t( remainder / 91 ) + 33;
+  info[ALT_INDX + 1] = uint8_t( remainder / 91 ) + 33;  // Encode second altitude value
 
-  info[ALT_INDX + 2] = uint8_t( remainder % 91) + 33;
+  info[ALT_INDX + 2] = uint8_t( remainder % 91) + 33;  // Encode third altitude value
 
 }
 
@@ -154,12 +154,12 @@ void compute_Mic_E_Data( uint8_t mic_e_message )
 
 {
 
-  compute_Dest_Address( mic_e_message );
+  compute_Dest_Address( mic_e_message );  // Encode destination address
 
-  compute_Info_Longitude();
+  compute_Info_Longitude();  // Encode longitude
 
-  compute_Info_Spd_Crs();
+  compute_Info_Spd_Crs();  // Encode speed and course
 
-  compute_Info_Alt();
+  compute_Info_Alt();  // Encode altitude
 
 }

@@ -12,6 +12,6 @@ void setup_Peripherals();
 void setup_Pins();
 void setup_Timers();
 void setup_OLED();
-void disp_Mode_Btn();
+void disp_Mode_Btn();  // Button press ISR called function
 
 #endif

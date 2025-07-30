@@ -82,13 +82,13 @@ void setup_Timers()
 void setup_OLED()
 {
 
-  oled.begin( width, height, sizeof( tiny4koled_init_128x64br), tiny4koled_init_128x64br );
+  oled.begin( width, height, sizeof( tiny4koled_init_128x64br), tiny4koled_init_128x64br );  // Set OLED parameters at start up
   
-  oled.setFont( FONT8X16 );
+  oled.setFont( FONT8X16 );  // Set OLED font
   
-  oled.clear();
+  oled.clear();  // Clear the display
 
-  oled.on();
+  oled.on();  // Activate the display
 
 }
 
@@ -99,21 +99,21 @@ void setup_OLED()
 void disp_Mode_Btn()
 {
   
-  static uint32_t last_interrupt_time;
+  static uint32_t last_interrupt_time;  // Timestamp of when button was last pressed
   
-  uint32_t interrupt_time = millis();
+  uint32_t interrupt_time = millis();  // Current time
   
   // If interrupts come faster than  BTN_DBOUCE_TIME, assume it's a bounce and ignore
   if ( interrupt_time - last_interrupt_time > BTN_DBOUCE_TIME ) 
   {
 
-    disp_mode++;
+    disp_mode++;  // Go to the next display mode, i.e. page
   
-    if( disp_mode == NUM_OF_DISP_SCREENS )
+    if( disp_mode == NUM_OF_DISP_SCREENS )  // Circular loop
       disp_mode = 0;
 
   }
 
-  last_interrupt_time = interrupt_time;
+  last_interrupt_time = interrupt_time;  // Update timestamp of last button press
 
 }

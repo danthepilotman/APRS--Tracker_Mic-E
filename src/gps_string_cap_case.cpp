@@ -6,11 +6,11 @@ void get_GPS_Data()
 
   char NMEA_data[NMEA_DATA_MAX_SIZE];  // Char array to store captured NMEA sentences
 
-  bool GGA_not_cap = true;
+  bool GGA_good = false;  // Start off with assuming no valid NMEA sentences have been received
 
-  bool GSA_not_cap = true;
+  bool GSA_good = false;  // Start off with assuming no valid NMEA sentences have been received
 
-  bool RMC_not_cap = true;
+  bool RMC_good = false;  // Start off with assuming no valid NMEA sentences have been received
 
 
 #ifndef DEBUG
@@ -20,35 +20,37 @@ void get_GPS_Data()
 #endif
 
 
-  while ( GGA_not_cap || GSA_not_cap || RMC_not_cap )
+  while ( GGA_good == false || GSA_good == false || RMC_good == false )  // Loop until all valid NMEA sentences have been received
   {
 
-    get_NMEA_Sentence ( NMEA_data );
+    get_NMEA_Sentence ( NMEA_data );  // Capture serial stream that contains NMEA sentences
 
     // Check that proper NMEA sentences have been captured
 
-    if ( strncmp( NMEA_data, "$GPGGA", 6 ) == 0  &&  GGA_not_cap )
+    if ( strncmp( NMEA_data, "$GPGGA", 6 ) == 0  &&  GGA_good == false )  // Check for desired NMEA sentence if not already captured
     {
 
-      GGA_not_cap = parse_GGA( NMEA_data );
+      GGA_good = parse_GGA( NMEA_data );  // Parse sentence and if good set flag
       
-      continue;
+      continue;  // Move to the next loop once good sentence has been captured and parsed
     
     }
 
       
-    if ( strncmp( NMEA_data, "$GPGSA", 6 ) == 0  &&  GSA_not_cap )
+    if ( strncmp( NMEA_data, "$GPGSA", 6 ) == 0  &&  GSA_good == false )  // Check for desired NMEA sentence if not already captured
     {
 
-      GSA_not_cap = parse_GSA( NMEA_data );
+      GSA_good = parse_GSA( NMEA_data );  // Parse sentence and if good set flag
 
-      continue;
+      continue;  // Move to the next loop once good sentence has been captured and parsed
 
     }
 
-    if ( strncmp( NMEA_data, "$GPRMC", 6 ) == 0  &&  RMC_not_cap )
+    if ( strncmp( NMEA_data, "$GPRMC", 6 ) == 0  &&  RMC_good == false )  // Check for desired NMEA sentence if not already captured
     {
-      RMC_not_cap = parse_RMC( NMEA_data );
+      RMC_good = parse_RMC( NMEA_data );   // Parse sentence and if good set flag
+
+#ifdef USE_OLED
 
       if( gps_data.fix == false )  // Check if valid GPS data has been received
       {
@@ -59,9 +61,16 @@ void get_GPS_Data()
 
         oled.clearToEOP();  // Erase old data
       }
+
+#endif
+
     }
 
+#if USE_WDT
+
     wdt_reset();  // Reset WDT
+
+#endif
 
   }
 
@@ -72,7 +81,7 @@ void get_GPS_Data()
 void get_NMEA_Sentence( char* NMEA_data )
 {
 
-  while (true) 
+  while ( true )  // Keep looping until sentence is capture and checksum is verified
   {
 
     digitalWrite( GPS_VALID_PIN, HIGH );  // Blink LED to indicate activity
@@ -104,21 +113,23 @@ void get_NMEA_Sentence( char* NMEA_data )
     digitalWrite( GPS_VALID_PIN, LOW );  // Blink LED to indicate activity
 
 #ifdef DEBUG
-      Serial.print( "NMEA_data: " );
-      Serial.println( NMEA_data );
+      Serial.print( "NMEA_data: " );  // Print label
+      Serial.println( NMEA_data );  // Print raw NMEA sentence
 #endif   
 
       
     // Get another NMEA sentence if Check Sums don't match
 
-    if ( xsum_Check( NMEA_data) )   // Negated logic on checksum_check 
+    if ( xsum_Check( NMEA_data) )   // Verify checksum
     {
 
 #ifdef DEBUG
-        Serial.println("Failed Xsum");
+
+        Serial.println( F( "Good checksum" ) );  // Print checksum verified
+
 #endif 
-        // continue;  // Returns to the begining of the while loop 
-      break;  // Go back to the begining of the sentence capture sequence
+
+      break;  // Break out of loop if checksum is verified
 
     }   
 
@@ -134,9 +145,9 @@ void get_NMEA_Sentence( char* NMEA_data )
 bool parse_GGA( const char* NMEA_data )
 {
 
-  const char* ptr;
+  const char* ptr;  // Local pointer used to sequence through the NMEA sentence
   
-  ptr = NMEA_data;
+  ptr = NMEA_data;  // Point to NMEA_data array
   
   ptr = next_field(ptr); // Skip over first ','
   
@@ -148,39 +159,38 @@ bool parse_GGA( const char* NMEA_data )
   ptr = next_field(ptr);  // Skip lon
   ptr = next_field(ptr);  // Skip E/W
     
-  if ( is_Empty( ptr ) == false ) 
+  if ( is_Empty( ptr ) == false )  // CHeck for errors
   { 
                
     gps_data.fixquality = atoi( ptr );  // Needs additional processing
       
-    if ( gps_data.fixquality > 0 ) 
-      gps_data.fix = true;       
+    if ( gps_data.fixquality > 0 )  // Check fix quality value 
+      gps_data.fix = true;   // Set fix paramater       
     
     else
-      gps_data.fix = false;
+      gps_data.fix = false;  // Clear fix parameter
                      
   }
 
   if( gps_data.fix == false )
-    return true;  // Go back and capture another NMEA sentence
+    return false;  // Go back and capture another GGA NMEA sentence
                        
-  ptr = next_field(ptr); // Then move on to the next data field
+  ptr = next_field(ptr); // Move on to the next data field
   
-  // Most can just be parsed with atoi() or atof(), then move on to the next.
-  
-  if ( is_Empty( ptr ) == false )
-    gps_data.satellites = atoi( ptr );
+
+  if ( is_Empty( ptr ) == false )  // Check for errors
+    gps_data.satellites = atoi( ptr );  // Capture number of satellites in use paramater
     
   ptr = next_field(ptr);  // Move to the next field
    
   ptr = next_field(ptr);  // Move to the next field
 
-  if ( is_Empty( ptr ) == false )
-    gps_data.altitude = int16_t( round( atof( ptr ) ) );
+  if ( is_Empty( ptr ) == false )  // Check for errors
+    gps_data.altitude = int16_t( round( atof( ptr ) ) );  // Capture altitude paramater
     
   // Skip the rest
 
-  return false;
+  return true;  // If you made it this far, all is good
 
 }
 
@@ -191,20 +201,20 @@ bool parse_GGA( const char* NMEA_data )
 bool parse_RMC( const char* NMEA_data )
 {
 
-  const char* ptr;
+  const char* ptr;  // Local pointer used to sequence through the NMEA sentence
 
-  ptr = NMEA_data;
+  ptr = NMEA_data;  // Point to NMEA_data array
 
   ptr = next_field(ptr);  // Skip the 1st comma
 
-  parse_Time( ptr );              // Get the time info
+  parse_Time( ptr );  // Get the time info
     
   ptr = next_field(ptr);  // Skip the 2nd comma
     
-  parse_Fix( ptr ); // Status
+  parse_Fix( ptr );  // Capture fix paramater
 
   if( gps_data.fix == false )
-    return true;  // Go back and capture another NMEA sentence 
+    return false;  // Go back and capture another NMEA sentence 
     
   ptr = next_field(ptr);  // Skip the 3rd comma 
 
@@ -212,42 +222,42 @@ bool parse_RMC( const char* NMEA_data )
  
   ptr = next_field(ptr);  // Skip the 4th comma 
 
-  gps_data.NorS = *ptr; // Field is not empty
+  gps_data.NorS = *ptr; // Capture hemisphere paramater
 
   ptr = next_field(ptr);  // Skip the 5th comma 
 
-  parse_Coord( ptr );
+  parse_Coord( ptr );  // Longitude
 
   ptr = next_field(ptr);  // Skip the 6th comma 
 
-  gps_data.EorW = *ptr; // Field is not empty
+  gps_data.EorW = *ptr;  // Capture hemisphere paramater
 
   ptr = next_field(ptr);  // Skip the 7th comma 
 
-  if ( is_Empty ( ptr ) == false )
-    gps_data.speed = ( unsigned int ) ( round( atof ( ptr ) ) );
+  if ( is_Empty ( ptr ) == false )  // Check for errors
+    gps_data.speed = ( unsigned int ) ( round( atof ( ptr ) ) );  // Capture speed paramater
     
   ptr = next_field(ptr);  // Skip the 8th comma 
 
-  if ( is_Empty ( ptr ) == false )
-    gps_data.course = ( unsigned int ) ( round( atof ( ptr ) ) );
+  if ( is_Empty ( ptr ) == false )  // Check for errors
+    gps_data.course = ( unsigned int ) ( round( atof ( ptr ) ) );  // Capture course paramater
     
   ptr = next_field(ptr);  // Skip the 9th comma 
 
-  if ( is_Empty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )  // Check for errors
   {
 
-    unsigned long fulldate = atol( ptr );  // ddmmyy
+    unsigned long fulldate = atol( ptr );  // Date for mat is  ddmmyy
     
-    gps_data.day = fulldate / 10000;
+    gps_data.day = fulldate / 10000;  // Capture day paramater
     
-    gps_data.month = ( fulldate % 10000 ) / 100;
+    gps_data.month = ( fulldate % 10000 ) / 100;  // Capture month paramater
     
-    gps_data.year = ( fulldate % 100 );
+    gps_data.year = ( fulldate % 100 );  // Capture year paramater
     
   }
 
-  return false;
+  return true;  // If you made it this far, all is good
 
 }
 
@@ -258,18 +268,23 @@ bool parse_RMC( const char* NMEA_data )
 bool parse_GSA( const char* NMEA_data )
 {
 
-  const char* ptr;
+  const char* ptr;  // Create local pointer
 
-  ptr = NMEA_data;
+  ptr = NMEA_data; // Point it to the start of the NMEA_data array
 
-  ptr = next_field(ptr);  // Move to the next field
+  ptr = next_field(ptr);  // Move to the 2nd field
 
-  ptr = next_field(ptr);  // Move to the next field
+  ptr = next_field(ptr);  // Move to the 3rd field
 
-  if ( is_Empty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )  // Check for errors
+  {
     gps_data.fixquality_3d = atoi( ptr );
 
-  return false;
+    return true;  // If you made it this far, all is good
+  }
+
+  else
+    return false;  // If empty return false
 
 }
 
@@ -286,9 +301,9 @@ bool parse_GSA( const char* NMEA_data )
 char* next_field( const char* ptr )
 {
   
-  char* next = strchr( ptr, ',' );
+  char* next = strchr( ptr, ',' );  // Pointer to the location of the next comma
   
-  return ( next != NULL ) ? ( next + 1 ) : NULL;
+  return ( next != NULL ) ? ( next + 1 ) : NULL;  // If the pointer is not NULL, return the location right after the comma, otherwise return NULL
 
 }
 
@@ -305,7 +320,7 @@ char* next_field( const char* ptr )
 bool is_Empty( const char* pStart ) 
 {
   
-  return ( pStart == NULL || *pStart == ',' || *pStart == '*' );
+  return ( pStart == NULL || *pStart == ',' || *pStart == '*' );  // Check that it is not empty, nor another comma, nor the '*' for the checksum field
 
 }
 
@@ -313,22 +328,23 @@ bool is_Empty( const char* pStart )
 bool parse_Time( const char* ptr ) 
 {
   
-  if ( is_Empty( ptr ) == false) 
+  if ( is_Empty( ptr ) == false)  // Check for empty field 
   { 
     
-    unsigned long time = atol( ptr );
+    unsigned long time = atol( ptr );  // Convert string to 32-bit integer
     
-    gps_data.hour = time / 10000;
+    gps_data.hour = time / 10000;  // Hour is located 4 digits from the right (10^4 = 10000)
     
-    gps_data.minute = ( time % 10000 ) / 100;
+    gps_data.minute = ( time % 10000 ) / 100;  // Seconds is the first two digits (10^2 = 100) on the last 4 digits on the right (10^4=10000)
     
-    gps_data.seconds = ( time % 100 );
+    gps_data.seconds = ( time % 100 );  // Seconds is the last two digits on the right (10^2)
     
-    return true; 
+    return true; // Return true after computing time
 
   }
   
-  return false;
+  else
+   return false;  // If field is empty report failure
 
 }
 
@@ -343,23 +359,23 @@ bool parse_Time( const char* ptr )
 bool parse_Fix( const char* ptr ) 
 {
   
-  if ( is_Empty( ptr ) == false )
+  if ( is_Empty( ptr ) == false )  // Check for empty field
   {
     
     if ( ptr[0] == 'A' ) 
-      gps_data.fix = true;    
+      gps_data.fix = true;  // 'A' represents a good fix    
     
     else if ( ptr[0] == 'V' )
-      gps_data.fix = false;
+      gps_data.fix = false;  // 'V' represents lack of a valid fix 
     
     else
-      return false;
+      return false;  // Return false if character is not an 'A' or a 'V'
      
-    return true;
+    return true;  // If you made it this far down everything checked out okay
 
   }
 
-  return false;
+  return false;  // Return false if field is empty
 
 }
 
@@ -414,41 +430,41 @@ bool parse_Coord( const char* coord )
   if ( int_len == 5 )
   {
     // Longitude
-    gps_data.lon_DD_100 = digits[0];
-    gps_data.lon_DD_10  = digits[1];
-    gps_data.lon_DD_01  = digits[2];
-    gps_data.lon_MM_10  = digits[3];
-    gps_data.lon_MM_01  = digits[4];
-    gps_data.lon_hh_10  = digits[5];
-    gps_data.lon_hh_01  = digits[6];
-    gps_data.lon_mm_10  = digits[7];
-    gps_data.lon_mm_01  = digits[8];
+    gps_data.lon_DD_100 = digits[0];  // Capture lat/lon 100's digit
+    gps_data.lon_DD_10  = digits[1];  // Capture lat/lon 10's digit
+    gps_data.lon_DD_01  = digits[2];  // Capture lat/lon 1's digit
+    gps_data.lon_MM_10  = digits[3];  // Capture lat/lon 10's digit
+    gps_data.lon_MM_01  = digits[4];  // Capture lat/lon 1's digit
+    gps_data.lon_hh_10  = digits[5];  // Capture lat/lon 10's digit
+    gps_data.lon_hh_01  = digits[6];  // Capture lat/lon 1's digit
+    gps_data.lon_mm_10  = digits[7];  // Capture lat/lon 10's digit
+    gps_data.lon_mm_01  = digits[8];  // Capture lat/lon 1's digit
 
-    gps_data.lon_DD = 100 * gps_data.lon_DD_100 + 10 * gps_data.lon_DD_10 + gps_data.lon_DD_01;
-    gps_data.lon_MM = 10 * gps_data.lon_MM_10 + gps_data.lon_MM_01;
-    gps_data.lon_hh = 10 * gps_data.lon_hh_10 + gps_data.lon_hh_01;
-    gps_data.lon_mm = 10 * gps_data.lon_mm_10 + gps_data.lon_mm_01;
+    gps_data.lon_DD = 100 * gps_data.lon_DD_100 + 10 * gps_data.lon_DD_10 + gps_data.lon_DD_01;  // Compute integer value from 100's 10's and 1's components
+    gps_data.lon_MM = 10 * gps_data.lon_MM_10 + gps_data.lon_MM_01;  // Compute integer value from tens and ones components
+    gps_data.lon_hh = 10 * gps_data.lon_hh_10 + gps_data.lon_hh_01;  // Compute integer value from tens and ones components
+    gps_data.lon_mm = 10 * gps_data.lon_mm_10 + gps_data.lon_mm_01;  // Compute integer value from tens and ones components
   } 
   
   else
   {
     // Latitude
-    gps_data.lat_DD_10 = digits[1];
-    gps_data.lat_DD_01 = digits[2];
-    gps_data.lat_MM_10 = digits[3];
-    gps_data.lat_MM_01 = digits[4];
-    gps_data.lat_hh_10 = digits[5];
-    gps_data.lat_hh_01 = digits[6];
-    gps_data.lat_mm_10 = digits[7];
-    gps_data.lat_mm_01 = digits[8];
+    gps_data.lat_DD_10 = digits[1];  // Capture lat/lon 10's digit
+    gps_data.lat_DD_01 = digits[2];  // Capture lat/lon 1's digit
+    gps_data.lat_MM_10 = digits[3];  // Capture lat/lon 10's digit
+    gps_data.lat_MM_01 = digits[4];  // Capture lat/lon 1's digit
+    gps_data.lat_hh_10 = digits[5];  // Capture lat/lon 10's digit
+    gps_data.lat_hh_01 = digits[6];  // Capture lat/lon 1's digit
+    gps_data.lat_mm_10 = digits[7];  // Capture lat/lon 10's digit
+    gps_data.lat_mm_01 = digits[8];  // Capture lat/lon 1's digit
 
-    gps_data.lat_DD = 10 * gps_data.lat_DD_10 + gps_data.lat_DD_01;
-    gps_data.lat_MM = 10 * gps_data.lat_MM_10 + gps_data.lat_MM_01;
-    gps_data.lat_hh = 10 * gps_data.lat_hh_10 + gps_data.lat_hh_01;
-    gps_data.lat_mm = 10 * gps_data.lat_mm_10 + gps_data.lat_mm_01;
+    gps_data.lat_DD = 10 * gps_data.lat_DD_10 + gps_data.lat_DD_01;  // Compute integer value from tens and ones components
+    gps_data.lat_MM = 10 * gps_data.lat_MM_10 + gps_data.lat_MM_01;  // Compute integer value from tens and ones components
+    gps_data.lat_hh = 10 * gps_data.lat_hh_10 + gps_data.lat_hh_01;  // Compute integer value from tens and ones components
+    gps_data.lat_mm = 10 * gps_data.lat_mm_10 + gps_data.lat_mm_01;  // Compute integer value from tens and ones components
   }
 
-  return true;
+  return true;  // If you made it this far down, everything checked out okay
   
 }
 
@@ -456,30 +472,30 @@ bool parse_Coord( const char* coord )
 uint8_t hex_Str_To_Int( const char* chk_sum_in )
 {
 
-  uint8_t integer = 0;
+  uint8_t integer;  // Store integer value of converted checksum
   
-  uint8_t delta;
+  uint8_t delta;  // Determine if checksum character is a letter or a digit
 
 
   if( isalpha( chk_sum_in[0] ) )  // If first character is a letter
       delta = 'A' - 0xA;  // ( ASCII letter A = 0x41 ) - 0xA = 0x37
 
   else
-    delta = '0';
+    delta = '0';  // ASCII table offset for the 0 digit
   
-  integer = ( chk_sum_in[0] - delta ) << 4;  // Shift first character to MSB position
+  integer = ( chk_sum_in[0] - delta ) << 4;  // Subtract the delta to convert to numerical value, then shift to MSB position
 
 
   if( isalpha( chk_sum_in[1] ) )  // If second character is a letter
     delta = 'A' - 0xA;  // ( ASCII letter A = 0x41 ) - 0xA = 0x37
 
   else
-    delta = '0';
+    delta = '0';  // ASCII table offset for the 0 digit
 
-  integer = integer | ( chk_sum_in[1] - delta );  // Combine converted first & second characters 
+  integer = integer | ( chk_sum_in[1] - delta );  // Subtract the delta to convert to numerical value, then combine converted characters 
                            
 
-  return( integer );
+  return( integer );  // Return the numerical value of the converted ASCII character string hex number representation
 
 }
 
@@ -488,9 +504,9 @@ uint8_t hex_Str_To_Int( const char* chk_sum_in )
 bool xsum_Check( const char* NMEA_data )
 {
 
-  uint8_t xsum = 0x00;
+  uint8_t computed_check_sum;  // Store computed checksum value 
 
-  uint8_t chk_sum = 0x00;
+  uint8_t received_check_sum;  // Store received NMEA sentence checksum value
 
   char* ptr = strchr( NMEA_data, '*' ); // Find the location of the *, then go one more index over
 
@@ -500,18 +516,17 @@ bool xsum_Check( const char* NMEA_data )
   
   ptr++;  // Increment pointer to first digit in checksum field
   
-  chk_sum = hex_Str_To_Int( ptr );  // Get NMEA sentence Check Sum value
+  received_check_sum = hex_Str_To_Int( ptr );  // Get NMEA sentence Check Sum value
+
 
   /* Calculate NMEA sentence Check Sum value
      Note that the checksum calculation does NOT include the $ character at the start of the NMEA sentence.
      Therefore we start the index at 1 instead of 0.
   */
-
   for( uint8_t i = 1; i < NMEA_DATA_MAX_SIZE && NMEA_data[i] != '*'; i++ )
-    xsum ^= NMEA_data[i];
+    computed_check_sum ^= NMEA_data[i];
   
  
-  // Determine if checksums match and return result
-  return xsum == chk_sum; 
+  return computed_check_sum == received_check_sum;  // Determine if checksums match and return result
 
 }

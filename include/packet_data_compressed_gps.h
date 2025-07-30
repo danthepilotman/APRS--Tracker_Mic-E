@@ -11,6 +11,6 @@ void compute_Dest_Address( uint8_t mic_e_message );
 void compute_Info_Longitude();
 void compute_Info_Spd_Srs();
 void compute_Info_Alt();
-void compute_Mic_E_Data( uint8_t mic_e_message );
+void compute_Mic_E_Data( uint8_t mic_e_message );  // Top level Mic-E function that calls the others
 
 #endif

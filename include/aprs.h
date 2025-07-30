@@ -15,23 +15,23 @@
 
 /**************** Smart Beaconing Parameters ****************/
 
- constexpr uint16_t FAST_SPEED = 60;        // mph
- constexpr uint16_t FAST_RATE = 60;         // seconds  
- constexpr uint16_t SLOW_SPEED  = 5;         // mph
+ constexpr uint16_t FAST_SPEED = 60;  // mph
+ constexpr uint16_t FAST_RATE  = 60;  // seconds  
+ constexpr uint16_t SLOW_SPEED  = 5;  // mph
 
 #ifdef DEBUG
 
- constexpr uint16_t SLOW_RATE = 30;       // seconds 
+ constexpr uint16_t SLOW_RATE = 30;  // seconds 
 
 #else
 
- constexpr uint16_t SLOW_RATE = 600;       // seconds 
+ constexpr uint16_t SLOW_RATE = 600;  // seconds 
  
 #endif
 
  constexpr uint16_t MIN_TURN_TIME = 7;    // seconds
- constexpr uint16_t MIN_TURN_ANGLE = 30;   // degrees
- constexpr uint16_t TURN_SLOPE = 255;       // unitless
+ constexpr uint16_t MIN_TURN_ANGLE = 30;  // degrees
+ constexpr uint16_t TURN_SLOPE = 255;     // unitless
 
 /******************************* OLED Parameters *******************************/
 
@@ -47,8 +47,8 @@
 
 /********** Serial Port Parameters **********/
 
-#define gpsSerial Serial
- constexpr unsigned long GPS_BAUD_RATE = 9600;
+#define gpsSerial Serial  // Define what serial port to use for GPS serial communication
+ constexpr unsigned long GPS_BAUD_RATE = 9600;  // Set to your GPS module's actual baud rate
 
 /******************************************** Digital Pin Parameters********************************************/
 
@@ -70,10 +70,10 @@
  constexpr uint8_t NUM_START_FLAGS = 30;  // Number of FLAGS to  send before data portion of packet
  constexpr uint8_t NUM_END_FLAGS = 10;    // Number of FLAGS to send at end of packet
 
- constexpr uint32_t TX_POWERUP_DLY = 30;    // Wait time between TX keying and begining of transmission. [ms]
+ constexpr uint32_t TX_POWERUP_DLY = 30;  // Wait time between TX keying and begining of transmission. [ms]
 
 
-  const PROGMEM uint8_t SIN_ARRAY[] = {  // Sample size integer array
+  const PROGMEM uint8_t SIN_ARRAY[] = {  // Sampled sine integer array
   32, 36, 36, 42, 46, 46, 50, 54,
   54, 58, 58, 63, 63, 63, 63, 63,
   63, 63, 63, 63, 58, 58, 54, 54,
@@ -87,7 +87,7 @@
  constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );  // Store size of sampled sine array
 
 
- constexpr uint32_t CPU_FREQ = 16E6;  // MCU clock frequency
+ constexpr uint32_t CPU_FREQ = 16E6;   // MCU clock frequency [Hz]
  constexpr uint8_t BAUD_PRE_SCLR = 1;  // Baud timer Pre-scaler value
  constexpr uint8_t TONE_PRE_SCLR = 8;  // Wave generator DAC timer Pre-scaler value
 
@@ -104,8 +104,8 @@ constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE
 
  constexpr uint16_t BAUD_TIMER_CMP = uint16_t( double( CPU_FREQ ) / ( BAUD_PRE_SCLR * BAUD_FREQ )  - 1 );  // Timer compare value for baud rate ISR
 
-#define WAVE_PORT PORTB     // MCU port used to output waveform
-#define WAVE_PORT_DDR DDRB  // MCU port used to output waveform data direction register
+#define WAVE_PORT PORTB      // MCU port used to output waveform
+#define WAVE_PORT_DDR DDRB   // MCU port used to output waveform data direction register
 #define R2R_MASK 0b00111111  // bits PB0–PB6, PB7 & PB8 are for the quartz crystal
 
 //* Define timer register & ISR values for the Baud Rate Timer */
@@ -133,7 +133,7 @@ constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE
 
 /***************************************** NMEA-0183 Sentence Fields Parameters *****************************************/
 
-constexpr uint8_t NMEA_DATA_MAX_SIZE = 80;  // Define maximum size of NMEA character array for storing NMEA sentences
+constexpr uint8_t NMEA_DATA_MAX_SIZE = 83;  // Define maximum size of NMEA character array for storing NMEA sentences
 
 /*********************************************************************** APRS AX.25 Parameters ***********************************************************************/
 
@@ -141,9 +141,12 @@ const char CALL_SIGN[] = "AI4QX 1";  // Set call sign here
 
 enum DIGI_PATH : uint8_t { VIA, WIDE_1_1, WIDE2_2, WIDE3_3, WIDE4_4, WIDE5_5, WIDE6_6, WIDE7_7, NORTH, SOUTH, EAST, WEST, NORTH_WIDE, SOUTH_WIDE, EAST_WIDE, WEST_WIDE};
 
-enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4, LAT_DIG_5, LAT_DIG_6, DIGI_PATH, DEST_ADDR_SIZE };
+enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4, LAT_DIG_5, LAT_DIG_6, DIGI_PATH, DEST_ADDR_SIZE };  
+// DES_ADDR_SIZE is not part of the destination field.
+// It's used to determine the size of the destination field by adding one more elemnet to the enum. This captures the size of the enum since it is zero indexed by default.
 
 enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, SE_28, SYMBOL_CODE, SYMBOL_TABLE, ALT_INDX, MSG_INDX = ALT_INDX + 4 };
+// The message field begins comes right after the altitude field which is 4 bytes long.
 
 /*************************** Unit Conversion Factors***************************/
 
@@ -286,7 +289,7 @@ extern GPS_data gps_data;
 
 /********** APRS packet field arrays **********/
 
-extern uint8_t dest_address[7];  // Destination address portion of APRS packet
+extern uint8_t dest_address[DEST_ADDR_SIZE];  // Destination address portion of APRS packet
 extern const uint8_t src_digi_addrs_ctl_pid_flds[];    // Source address, Control and PID portion of APRS packet
 extern const uint8_t SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN;  // Used to store length of src_digi_addrs_ctl_pid_flds[] array
 extern uint8_t info[];  // Infomation portion of APRS packet

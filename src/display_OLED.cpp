@@ -3,29 +3,37 @@
 
 #ifdef DEBUG
 
+
 void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {
-  int16_t next_tx = beacon_period - secs_since_beacon;  
+  int16_t next_tx = beacon_period - secs_since_beacon; // Compute time until next beacon
 
-  static int16_t prev_sec = 0;
+  static int16_t prev_sec = 0;  // Remember previous timestamp form when beacon data was printed
 
-  if ( next_tx < 0 )
+  if ( next_tx < 0 )  // Handle possible negative values
     next_tx = 0;
       
-  uint8_t nxt_sec = next_tx % 60;
+  uint8_t nxt_sec = next_tx % 60; // Compute seconds until next beacon.
 
-  if ( nxt_sec != prev_sec )
+  if ( nxt_sec != prev_sec )  // Check if one seconds has passed since last beacon timing printing
   {
-    Serial.print( F("Next Tx:" ) );
-    Serial.println( nxt_sec );
-    prev_sec = nxt_sec;
+
+    Serial.print( F("Next Tx:" ) );  // Print label
+
+    Serial.println( nxt_sec );  // Print number of seconds until next beacon
+
+    prev_sec = nxt_sec;  // Update previous printing timestamp
+
   }
 
 }
 
+
 #endif
 
+
 #ifdef USE_OLED
+
 
 void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {  
@@ -209,44 +217,62 @@ void display_Timers_Setup()
 }  // End display_timers_setup()
 
 
+#if USE_GPS
+
 
 void print_GPS_Data()
 {
 
-  char gps_str[50];
+  char gps_str[32];  // Character array to store formatted data for printing
 
-  sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", gps_data.hour, gps_data.minute, gps_data.seconds, gps_data.month, gps_data.day, gps_data.year ) ;          
+  static uint32_t prev_timestamp = 0;  // Store timestamp when previous printing occurred
 
-  Serial.println( F("\r\n---------GPS Data--------") );
-  Serial.print( F("Time: ") );
-  Serial.println( gps_str );
- 
-  Serial.print( F("Pos: ") );
-  sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", gps_data.NorS, gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm,
-                                                                  gps_data.EorW, gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm ) ; 
-  Serial.println( gps_str );
+  uint32_t current_timestamp = millis();  // Get the current timestamp
+
+
+  if ( current_timestamp - prev_timestamp > 1000 )  // Check if enough time has elapsed in order to print again
+  {
+
+    prev_timestamp = current_timestamp;  // Remember when printing started the last time
+    
+    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", gps_data.hour, gps_data.minute, gps_data.seconds, gps_data.month, gps_data.day, gps_data.year ) ;          
+
+    Serial.println( F("\r\n---------GPS Data--------") );
+    Serial.print( F("Time: ") );
+    Serial.println( gps_str );
   
-  Serial.print(F ("Speed: ") );
-  Serial.print( KTS_to_MPH * gps_data.speed, 0 );
-  Serial.println( F(" mph" ) );
+    Serial.print( F("Pos: ") );
+    sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", gps_data.NorS, gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm,
+                                                                    gps_data.EorW, gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm ) ; 
+    Serial.println( gps_str );
+    
+    Serial.print(F ("Speed: ") );
+    Serial.print( KTS_to_MPH * gps_data.speed, 0 );
+    Serial.println( F(" mph" ) );
 
-  Serial.print( F("course: ") );
-  Serial.print( gps_data.course );
-  Serial.println( F("\xC2\xB0" ) );
+    Serial.print( F("course: ") );
+    Serial.print( gps_data.course );
+    Serial.println( F("\xC2\xB0" ) );
 
-  Serial.print( F("Altitude: ") );
-  Serial.print( M_to_F * gps_data.altitude, 0 );
-  Serial.println( F(" ft" ) );
+    Serial.print( F("Altitude: ") );
+    Serial.print( M_to_F * gps_data.altitude, 0 );
+    Serial.println( F(" ft" ) );
 
-  Serial.print( F("Sats in use: ") );
-  Serial.println( gps_data.satellites );
+    Serial.print( F("Sats in use: ") );
+    Serial.println( gps_data.satellites );
 
-  Serial.print( F("Pos Fix Indicator: ") );
-  Serial.println( gps_data.pos_fix[gps_data.fixquality] );
+    Serial.print( F("Pos Fix Indicator: ") );
+    Serial.println( gps_data.pos_fix[gps_data.fixquality] );
 
-  Serial.print( F("Fix type [none/2D/3D]: ") );
-  Serial.println( gps_data.fixquality_3d );
+    Serial.print( F("Fix type [none/2D/3D]: ") );
+    Serial.println( gps_data.fixquality_3d );
+
+  }
   
 }
+
+
+#endif
+
 
 #endif 

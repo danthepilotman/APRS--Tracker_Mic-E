@@ -18,9 +18,10 @@ void setup()
 
   setup_Timers();  // Timers for baud and DAC transmission rate
 
-  setup_OLED();  // OLED setup
 
 #ifdef USE_OLED
+
+  setup_OLED();  // OLED setup
 
   show_SPLASH_SCRN( SPLASH_SCRN_DLY );  // Show splash screen message for a certain amount of time
 
@@ -28,7 +29,7 @@ void setup()
 
 #ifdef DEBUG
 
-  display_Timers_Setup();
+  display_Timers_Setup();  // Show baud and DAC timer settings
 
 #endif
 
@@ -74,7 +75,7 @@ void loop()
 
 #else
 
-  display_Beacon_Timing( beacon_period, secs_since_beacon );
+  display_Beacon_Timing( beacon_period, secs_since_beacon );  // Print beaconing timing data
 
 #endif
 
@@ -83,16 +84,6 @@ void loop()
 
   if ( smart_Beaconing( beacon_period, secs_since_beacon, mic_e_message ) ) 
   {
-
-#ifdef DEBUG
-
-  Serial.print( F( "\r\nSince bkn: " ) );
-  Serial.println( secs_since_beacon );
-  
-  Serial.print( F( "Bkn rate: " ) );
-  Serial.println( beacon_period );
-  
-#endif
 
     compute_Mic_E_Data( mic_e_message );  // Compress data using Mic-E encoding
     
