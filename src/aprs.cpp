@@ -8,7 +8,6 @@ volatile bool baud_tmr_isr;  // Baud timer interrupt active flag
 
 volatile uint8_t disp_mode = 0;  // Used to store display mode
 
-GPS_data gps_data; // GPS data structure
 
 
 uint8_t dest_address[DEST_ADDR_SIZE];  // APRS Destination address

@@ -10,6 +10,7 @@ void send_Tone( bool afsk_tone )
 
   while( baud_tmr_isr )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
   {
+    // Wave generator timer ISR free runs during this while loop, generating sampled sine DAC values
   }
 
 }
@@ -44,11 +45,11 @@ void send_Byte ( uint8_t inbyte )
       if ( ( inbyte != FLAG ) && ( stuff_ctr == 5 ) )  // Stuff an extra 0, if five 1's in a row
       {   
         
-        send_Tone( afsk_tone );  // Send the 1
+        send_Tone( afsk_tone );  // Send the previous tone for a MARK
         
-        afsk_tone = ! afsk_tone;  // Flip tone for sending 0
+        afsk_tone = ! afsk_tone;  // Flip tone for a SPACE
        
-        send_Tone( afsk_tone );  // Send 0
+        send_Tone( afsk_tone );  // Send the tone for a SPACE
         
         stuff_ctr = 0;  // Reset stuff counter
                                     
@@ -62,7 +63,6 @@ void send_Byte ( uint8_t inbyte )
   }
 
 }
-
 
 
 void send_Packet()
@@ -90,7 +90,7 @@ void send_Packet()
     send_Byte( FLAG );                   
    
   // send Destination Address 
-  for( uint8_t i = 0; i < sizeof( dest_address ); i++ )
+  for( uint8_t i = 0; i < DEST_ADDR_SIZE; i++ )
     send_Byte( dest_address[i] );
 
   // send Source, Digipeater Addresses / Control, PID Fields 
@@ -115,7 +115,7 @@ void send_Packet()
   
   BAUD_TMR_TIMSK &= ~( 1 << BAUD_TMR_OCIEA );
 
-  WAVE_PORT = 0;  // Reset output port to 0s (low)
+  WAVE_PORT = 8;  // Reset output port to 0s (low)
 
   digitalWrite( PTT_PIN, LOW );  //unkey PTT     
 
@@ -128,20 +128,20 @@ bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
 
   static uint16_t prev_course;  // Retain the previous course for corner pegging comparison
   
-  uint16_t delta_course;
+  uint16_t delta_course;  // Store the difference between the previous course and the present course
 
   enum mic_E_msg{ emergency, priority, special, commited, returning, in_service, en_route, off_duty };
      
-  delta_course = abs( gps_data.course - prev_course );    // Compute course angle change since last packet transmission
+  delta_course = abs( my_gps.gps_data.course - prev_course );    // Compute course angle change since last packet transmission
 
-  prev_course = gps_data.course;  // Capture course for future comparison
+  prev_course = my_gps.gps_data.course;  // Capture course for future comparison
 
 
-  if( delta_course > 180 )
+  if( delta_course > 180 )  // Handle cross over 0/360 course
     delta_course = 360 - delta_course;
  
    
-  if ( gps_data.speed < SLOW_SPEED )  // "Stop" threshold
+  if ( my_gps.gps_data.speed < SLOW_SPEED )  // "Stop" threshold
   {
 
     beacon_period = SLOW_RATE;
@@ -150,20 +150,20 @@ bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
 
   }
 
-  else  // We're moving; adjust beacon period to speed, and peg corners 
+  else  // We're moving; adjust beacon period based on speed, and peg corners 
   { 
     
     mic_e_message = en_route;  // En route if we are moving
     
-    uint16_t turn_threshold = MIN_TURN_ANGLE + uint16_t( float( TURN_SLOPE ) / float( gps_data.speed ) );  // Adjust turn threshold according to speed
+    uint16_t turn_threshold = MIN_TURN_ANGLE + uint16_t( float( TURN_SLOPE ) / float( my_gps.gps_data.speed ) );  // Adjust turn threshold according to speed
 
     // Adjust beacon rate according to speed
 
-    if ( gps_data.speed > FAST_SPEED )  
+    if ( my_gps.gps_data.speed > FAST_SPEED )  
       beacon_period = FAST_RATE;
     
     else
-      beacon_period = uint16_t( round( float( FAST_RATE ) * float( FAST_SPEED ) / float( gps_data.speed ) ) );
+      beacon_period = uint16_t( round( float( FAST_RATE ) * float( FAST_SPEED ) / float( my_gps.gps_data.speed ) ) );
 
     // Corner pegging
 
@@ -179,6 +179,6 @@ bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
   
 
 
-  return false;    // Otherwise return false
+  return false;  // If you made it this far, you haven't turned a corner and the beacon period has not expired
 
 }

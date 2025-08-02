@@ -17,6 +17,7 @@
 
  constexpr uint16_t FAST_SPEED = 60;  // mph
  constexpr uint16_t FAST_RATE  = 60;  // seconds  
+ 
  constexpr uint16_t SLOW_SPEED  = 5;  // mph
 
 #ifdef DEBUG
@@ -45,10 +46,9 @@
  constexpr uint8_t FOURTH_ROW = 6;
  constexpr uint8_t NUM_OF_DISP_SCREENS = 3;  // Number of unique display screen options
 
-/********** Serial Port Parameters **********/
+ /****************************** Splash Screen Parameters ******************************/
 
-#define gpsSerial Serial  // Define what serial port to use for GPS serial communication
- constexpr unsigned long GPS_BAUD_RATE = 9600;  // Set to your GPS module's actual baud rate
+ constexpr uint32_t SPLASH_SCRN_DLY = 2000;  // How long to display splash screen [ms]
 
 /******************************************** Digital Pin Parameters********************************************/
 
@@ -57,10 +57,6 @@
 
  constexpr uint8_t PTT_PIN = A0;  // Transmitter Push To Talk pin
  constexpr uint8_t GPS_VALID_PIN = LED_BUILTIN;  // LED for indicating valid GPS position
-
-/********** Splash Screen Parameters **********/
-
- constexpr uint32_t SPLASH_SCRN_DLY = 2000;  // How long to display splash screen [ms]
 
 /************************************************** APRS Transmission Parameters **************************************************/
 
@@ -72,8 +68,19 @@
 
  constexpr uint32_t TX_POWERUP_DLY = 30;  // Wait time between TX keying and begining of transmission. [ms]
 
-
-  const PROGMEM uint8_t SIN_ARRAY[] = {  // Sampled sine integer array
+ const PROGMEM uint8_t SIN_ARRAY[] = {
+  8,  9,  9, 10, 11, 11, 12, 13,
+  13, 14, 14, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 14, 14, 13, 13,
+  12, 11, 11, 10,  9,  9,  8,  7,
+   7,  6,  5,  5,  4,  3,  3,  2,
+   2,  1,  1,  0,  0,  0,  0,  0,
+   0,  0,  0,  0,  1,  1,  2,  2,
+   3,  3,  4,  5,  5,  6,  7,  7
+};
+  
+#if 0
+ const PROGMEM uint8_t SIN_ARRAY[] = {  // Sampled sine integer array
   32, 36, 36, 42, 46, 46, 50, 54,
   54, 58, 58, 63, 63, 63, 63, 63,
   63, 63, 63, 63, 58, 58, 54, 54,
@@ -83,6 +90,9 @@
   0, 0, 0, 0, 4, 4, 8, 8,
   13, 13, 17, 21, 21, 25, 28, 28
   };
+
+#endif
+
 
  constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );  // Store size of sampled sine array
 
@@ -106,7 +116,7 @@ constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE
 
 #define WAVE_PORT PORTB      // MCU port used to output waveform
 #define WAVE_PORT_DDR DDRB   // MCU port used to output waveform data direction register
-#define R2R_MASK 0b00111111  // bits PB0–PB6, PB7 & PB8 are for the quartz crystal
+#define R2R_MASK 0b00001111  // bits PB0–PB3, PB7 & PB8 are for the quartz crystal
 
 //* Define timer register & ISR values for the Baud Rate Timer */
 #define BAUD_TMR_ISR_VECT TIMER1_COMPA_vect
@@ -130,11 +140,6 @@ constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE
 #define WAVE_GEN_TMR_WGM1 WGM21
 #define WAVE_GEN_TMR_CS0 CS20
 
-
-/***************************************** NMEA-0183 Sentence Fields Parameters *****************************************/
-
-constexpr uint8_t NMEA_DATA_MAX_SIZE = 83;  // Define maximum size of NMEA character array for storing NMEA sentences
-
 /*********************************************************************** APRS AX.25 Parameters ***********************************************************************/
 
 const char CALL_SIGN[] = "AI4QX 1";  // Set call sign here
@@ -148,7 +153,7 @@ enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4,
 enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, SE_28, SYMBOL_CODE, SYMBOL_TABLE, ALT_INDX, MSG_INDX = ALT_INDX + 4 };
 // The message field begins comes right after the altitude field which is 4 bytes long.
 
-/*************************** Unit Conversion Factors***************************/
+/*************************** Unit Conversion Factors ***************************/
 
  constexpr float M_to_F = 3.28084;  // Conversion factor between meters to feet
  constexpr float KTS_to_MPH = 1.15078;  // Conversion factor between kts to mph
@@ -162,130 +167,6 @@ extern volatile uint32_t current_phase_step;  // Stores current phase steep need
 extern volatile bool baud_tmr_isr;  // Timer used for 1200 baud timing
 
 extern volatile uint8_t disp_mode;  // Store the display mode
-
-#ifdef DEBUG
-
-extern struct GPS_data
-{
-   
-  uint8_t hour = 20;          // GMT hours
-  uint8_t minute = 00;        // GMT minutes
-  uint8_t seconds = 15;       // GMT seconds
-  uint8_t year = 25;          // GMT year
-  uint8_t month = 7;          // GMT month
-  uint8_t day = 29;           // GMT day
-
-
-  uint8_t lat_DD_10 = 2;
-  uint8_t lat_DD_01 = 8;
-  uint8_t lat_MM_10 = 0;
-  uint8_t lat_MM_01 = 1;
-  uint8_t lat_hh_10 = 6;
-  uint8_t lat_hh_01 = 2;
-  uint8_t lat_mm_10 = 0;
-  uint8_t lat_mm_01 = 0;
-
-
-  uint8_t lat_DD = 28;
-  uint8_t lat_MM = 01;
-  uint8_t lat_hh = 62;
-  uint8_t lat_mm = 00;
-  
-  char NorS = 'N';
-
-  uint8_t lon_DD_100 = 0;
-  uint8_t lon_DD_10 = 8;
-  uint8_t lon_DD_01 = 0;
-  uint8_t lon_MM_10 = 3;
-  uint8_t lon_MM_01 = 7;
-  uint8_t lon_hh_10 = 8;
-  uint8_t lon_hh_01 = 9;
-  uint8_t lon_mm_10 = 0;
-  uint8_t lon_mm_01 = 0;
-
-  uint8_t lon_DD = 80;
-  uint8_t lon_MM = 37;
-  uint8_t lon_hh = 89;
-  uint8_t lon_mm = 00;
-
-  char EorW = 'W';
-    
-  int16_t altitude = 5;   // Altitude in meters above MSL (32 bits)
-  uint16_t speed = 0;     // Current speed over ground in knots (16 bits)
-  uint16_t course = 234;  // Course in degrees from true north (16 bits )
-  
-  bool fix = true;            //  Have a fix?
-  uint8_t fixquality = 1;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
-  uint8_t fixquality_3d = 3;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
-  uint8_t satellites = 12;    //  Number of satellites in use
-
-  const char *pos_fix[4] = { "Not available", "GPS SPS Mode",
-                    "Differential GPS" , "GPS PPS Mode" };
-
-} gps_data;
-
-#else
-
-struct GPS_data
-{
-   
-  uint8_t hour;          // GMT hours
-  uint8_t minute;        // GMT minutes
-  uint8_t seconds;       // GMT seconds
-  uint8_t year;          // GMT year
-  uint8_t month;         // GMT month
-  uint8_t day;           // GMT day
-
-
-  uint8_t lat_DD_10;
-  uint8_t lat_DD_01;
-  uint8_t lat_MM_10;
-  uint8_t lat_MM_01;
-  uint8_t lat_hh_10;
-  uint8_t lat_hh_01;
-  uint8_t lat_mm_10;
-  uint8_t lat_mm_01;
-
-
-  uint8_t lat_DD;
-  uint8_t lat_MM;
-  uint8_t lat_hh;
-  uint8_t lat_mm;
-  
-  char NorS;
-
-  uint8_t lon_DD_100;
-  uint8_t lon_DD_10;
-  uint8_t lon_DD_01;
-  uint8_t lon_MM_10;
-  uint8_t lon_MM_01;
-  uint8_t lon_hh_10;
-  uint8_t lon_hh_01;
-  uint8_t lon_mm_10;
-  uint8_t lon_mm_01;
-
-  uint8_t lon_DD;
-  uint8_t lon_MM;
-  uint8_t lon_hh;
-  uint8_t lon_mm;
-
-  char EorW;
-    
-  int16_t altitude;  // Altitude in meters above MSL (32 bits)
-  uint16_t speed;    // Current speed over ground in knots (16 bits)
-  uint16_t course;   // Course in degrees from true north (16 bits )
-  
-  bool fix;               //  Have a fix?
-  uint8_t fixquality;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
-  uint8_t fixquality_3d;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
-  uint8_t satellites;     //  Number of satellites in use
-
-};
-
-extern GPS_data gps_data;
-
-#endif
-
 
 /********** APRS packet field arrays **********/
 

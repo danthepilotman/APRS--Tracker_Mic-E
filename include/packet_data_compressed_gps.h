@@ -3,6 +3,7 @@
 
 
 #include "aprs.h"
+#include"gps_string_cap_case.h"
 
 
 /******** Function prototypes ***********/

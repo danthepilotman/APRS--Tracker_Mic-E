@@ -4,6 +4,7 @@
 
 #include"aprs.h"
 #include"crc_calc.h"
+#include"gps_string_cap_case.h"
 
 
 /******** Function prototypes ***********/

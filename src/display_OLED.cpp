@@ -18,9 +18,9 @@ void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon 
   if ( nxt_sec != prev_sec )  // Check if one seconds has passed since last beacon timing printing
   {
 
-    Serial.print( F("Next Tx:" ) );  // Print label
+    my_gps.gpsSerial.print( F("Next Tx:" ) );  // Print label
 
-    Serial.println( nxt_sec );  // Print number of seconds until next beacon
+    my_gps.gpsSerial.println( nxt_sec );  // Print number of seconds until next beacon
 
     prev_sec = nxt_sec;  // Update previous printing timestamp
 
@@ -64,29 +64,29 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
     case POSITION:
 
       oled.setCursor( 0, FIRST_ROW ); // Latitude
-      sprintf( oled_row, "%02u %02u.%02u%02u %c", gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm, gps_data.NorS );
+      sprintf( oled_row, "%02u %02u.%02u%02u %c", my_gps.gps_data.lat_DD, my_gps.gps_data.lat_MM, my_gps.gps_data.lat_hh, my_gps.gps_data.lat_mm, my_gps.gps_data.NorS );
       oled.print ( oled_row );
       //oled.bitmap( 16, FIRST_ROW, 8 + 16, FIRST_ROW + 2, degree_symbol_bitmap );
       oled.clearToEOL();
 
 
       oled.setCursor( 0, SECOND_ROW ); // Longitude
-      sprintf( oled_row, "%03u %02u.%02u%02u %c", gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm, gps_data.EorW );
+      sprintf( oled_row, "%03u %02u.%02u%02u %c", my_gps.gps_data.lon_DD, my_gps.gps_data.lon_MM, my_gps.gps_data.lon_hh, my_gps.gps_data.lon_mm, my_gps.gps_data.EorW );
       oled.print( oled_row );
       //oled.bitmap( 24, SECOND_ROW, 8 + 24, SECOND_ROW + 2, degree_symbol_bitmap );
       oled.clearToEOL();
 
 
       oled.setCursor( 0, THIRD_ROW );  // Course
-      sprintf( oled_row, "%03u  ", gps_data.course );
+      sprintf( oled_row, "%03u  ", my_gps.gps_data.course );
       oled.print( oled_row );
-      oled.print( KTS_to_MPH * float( gps_data.speed ), 0 );
+      oled.print( KTS_to_MPH * float( my_gps.gps_data.speed ), 0 );
       oled.print( " mph");
       oled.clearToEOL();
 
       
       oled.setCursor( 0, FOURTH_ROW );  // Altitude
-      oled.print( M_to_F * float( gps_data.altitude ), 0 );
+      oled.print( M_to_F * float( my_gps.gps_data.altitude ), 0 );
       oled.print( " ft" );
       oled.clearToEOL();
 
@@ -97,18 +97,18 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
       
       oled.setCursor( 0, FIRST_ROW );  // Fix quality
-      oled.print( gps_data.pos_fix[gps_data.fixquality] );
+      oled.print( my_gps.gps_data.pos_fix[my_gps.gps_data.fixquality] );
       oled.clearToEOL();
 
 
       oled.setCursor( 0, SECOND_ROW ); // Fix type
-      sprintf( oled_row, "Fix type: %uD", gps_data.fixquality_3d );
+      sprintf( oled_row, "Fix type: %uD", my_gps.gps_data.fixquality_3d );
       oled.print( oled_row );
       oled.clearToEOL();
       
 
       oled.setCursor( 0, THIRD_ROW ); // Numer of satellites being tracked
-      sprintf( oled_row, "Sats: %u", gps_data.satellites );
+      sprintf( oled_row, "Sats: %u", my_gps.gps_data.satellites );
       oled.print( oled_row );
       oled.clearToEOL();
         
@@ -142,13 +142,13 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
 
       oled.setCursor( 0, THIRD_ROW );  // Time
-      sprintf( oled_row, "Time: %0u:%02u:%02u", gps_data.hour, gps_data.minute, gps_data.seconds );
+      sprintf( oled_row, "Time: %0u:%02u:%02u", my_gps.gps_data.hour, my_gps.gps_data.minute, my_gps.gps_data.seconds );
       oled.print ( oled_row );
       oled.clearToEOL();
 
 
       oled.setCursor( 0, FOURTH_ROW );  // Date
-      sprintf( oled_row, "Date: %02u-%02u-%02u", gps_data.month, gps_data.day, gps_data.year );
+      sprintf( oled_row, "Date: %02u-%02u-%02u", my_gps.gps_data.month, my_gps.gps_data.day, my_gps.gps_data.year );
       oled.print ( oled_row );
       oled.clearToEOL();
 
@@ -186,38 +186,38 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 void display_Timers_Setup() 
 {
 
-  Serial.println( F("\r\n-----WAVE_GEN_TMR Settings-----") );
-  Serial.print( F("WAVE_ARRY_SIZE: ") );
-  Serial.println( WAVE_ARRY_SIZE );
-  Serial.print( F("WAVE_GEN_TIMER_CMP: ") );
-  Serial.println(TONE_TIMER_CMP );
-  Serial.print( F("WAVE_GEN_TMR_TCCRA = ") );
-  Serial.println( WAVE_GEN_TMR_TCCRA, BIN );
-  Serial.print( F("WAVE_GEN_TMR_TCCRB = ") );
-  Serial.println( WAVE_GEN_TMR_TCCRB, BIN );
-  Serial.print( F("WAVE_GEN_TMR_OCRA = ") );
-  Serial.println( WAVE_GEN_TMR_OCRA, BIN );
-  Serial.print( F("WAVE_GEN_TMR_TIMSK = ") );
-  Serial.println( WAVE_GEN_TMR_TIMSK, BIN );
+  my_gps.gpsSerial.println( F("\r\n-----WAVE_GEN_TMR Settings-----") );
+  my_gps.gpsSerial.print( F("WAVE_ARRY_SIZE: ") );
+  my_gps.gpsSerial.println( WAVE_ARRY_SIZE );
+  my_gps.gpsSerial.print( F("WAVE_GEN_TIMER_CMP: ") );
+  my_gps.gpsSerial.println(TONE_TIMER_CMP );
+  my_gps.gpsSerial.print( F("WAVE_GEN_TMR_TCCRA = ") );
+  my_gps.gpsSerial.println( WAVE_GEN_TMR_TCCRA, BIN );
+  my_gps.gpsSerial.print( F("WAVE_GEN_TMR_TCCRB = ") );
+  my_gps.gpsSerial.println( WAVE_GEN_TMR_TCCRB, BIN );
+  my_gps.gpsSerial.print( F("WAVE_GEN_TMR_OCRA = ") );
+  my_gps.gpsSerial.println( WAVE_GEN_TMR_OCRA, BIN );
+  my_gps.gpsSerial.print( F("WAVE_GEN_TMR_TIMSK = ") );
+  my_gps.gpsSerial.println( WAVE_GEN_TMR_TIMSK, BIN );
   
 
-  Serial.println( F("\r\n-----BAUD_TMR Settings-----") );
-  Serial.print( F("BAUD_TIMER_CMP: ") );
-  Serial.println( BAUD_TIMER_CMP );
-  Serial.print( F("BAUD_TMR_TCCRA = ") );
-  Serial.println( BAUD_TMR_TCCRA, BIN );
-  Serial.print( F("BAUD_TMR_TCCRB = ") );
-  Serial.println( BAUD_TMR_TCCRB, BIN );
-  Serial.print( F("BAUD_TMR_OCRA = ") );
-  Serial.println( BAUD_TMR_OCRA, BIN );
-  Serial.print( F("BAUD_TMR_TIMSK = ") );
-  Serial.println( BAUD_TMR_TIMSK, BIN );
-  Serial.println( "" );
+  my_gps.gpsSerial.println( F("\r\n-----BAUD_TMR Settings-----") );
+  my_gps.gpsSerial.print( F("BAUD_TIMER_CMP: ") );
+  my_gps.gpsSerial.println( BAUD_TIMER_CMP );
+  my_gps.gpsSerial.print( F("BAUD_TMR_TCCRA = ") );
+  my_gps.gpsSerial.println( BAUD_TMR_TCCRA, BIN );
+  my_gps.gpsSerial.print( F("BAUD_TMR_TCCRB = ") );
+  my_gps.gpsSerial.println( BAUD_TMR_TCCRB, BIN );
+  my_gps.gpsSerial.print( F("BAUD_TMR_OCRA = ") );
+  my_gps.gpsSerial.println( BAUD_TMR_OCRA, BIN );
+  my_gps.gpsSerial.print( F("BAUD_TMR_TIMSK = ") );
+  my_gps.gpsSerial.println( BAUD_TMR_TIMSK, BIN );
+  my_gps.gpsSerial.println( "" );
    
 }  // End display_timers_setup()
 
 
-#if USE_GPS
+#ifdef DEBUG
 
 
 void print_GPS_Data()
@@ -235,37 +235,38 @@ void print_GPS_Data()
 
     prev_timestamp = current_timestamp;  // Remember when printing started the last time
     
-    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", gps_data.hour, gps_data.minute, gps_data.seconds, gps_data.month, gps_data.day, gps_data.year ) ;          
+    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", my_gps.gps_data.hour, my_gps.gps_data.minute, my_gps.gps_data.seconds, 
+                                                        my_gps.gps_data.month, my_gps.gps_data.day, my_gps.gps_data.year ) ;          
 
-    Serial.println( F("\r\n---------GPS Data--------") );
-    Serial.print( F("Time: ") );
-    Serial.println( gps_str );
+    my_gps.gpsSerial.println( F("\r\n---------GPS Data--------") );
+    my_gps.gpsSerial.print( F("Time: ") );
+    my_gps.gpsSerial.println( gps_str );
   
-    Serial.print( F("Pos: ") );
-    sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", gps_data.NorS, gps_data.lat_DD, gps_data.lat_MM, gps_data.lat_hh, gps_data.lat_mm,
-                                                                    gps_data.EorW, gps_data.lon_DD, gps_data.lon_MM, gps_data.lon_hh, gps_data.lon_mm ) ; 
-    Serial.println( gps_str );
+    my_gps.gpsSerial.print( F("Pos: ") );
+    sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", my_gps.gps_data.NorS, my_gps.gps_data.lat_DD, my_gps.gps_data.lat_MM, my_gps.gps_data.lat_hh, my_gps.gps_data.lat_mm,
+                                                                                    my_gps.gps_data.EorW, my_gps.gps_data.lon_DD, my_gps.gps_data.lon_MM, my_gps.gps_data.lon_hh, my_gps.gps_data.lon_mm ) ; 
+    my_gps.gpsSerial.println( gps_str );
     
-    Serial.print(F ("Speed: ") );
-    Serial.print( KTS_to_MPH * gps_data.speed, 0 );
-    Serial.println( F(" mph" ) );
+    my_gps.gpsSerial.print(F ("Speed: ") );
+    my_gps.gpsSerial.print( KTS_to_MPH *my_gps.gps_data.speed, 0 );
+    my_gps.gpsSerial.println( F(" mph" ) );
 
-    Serial.print( F("course: ") );
-    Serial.print( gps_data.course );
-    Serial.println( F("\xC2\xB0" ) );
+    my_gps.gpsSerial.print( F("course: ") );
+    my_gps.gpsSerial.print( my_gps.gps_data.course );
+    my_gps.gpsSerial.println( F("\xC2\xB0" ) );
 
-    Serial.print( F("Altitude: ") );
-    Serial.print( M_to_F * gps_data.altitude, 0 );
-    Serial.println( F(" ft" ) );
+    my_gps.gpsSerial.print( F("Altitude: ") );
+    my_gps.gpsSerial.print( M_to_F *my_gps.gps_data.altitude, 0 );
+    my_gps.gpsSerial.println( F(" ft" ) );
 
-    Serial.print( F("Sats in use: ") );
-    Serial.println( gps_data.satellites );
+    my_gps.gpsSerial.print( F("Sats in use: ") );
+    my_gps.gpsSerial.println( my_gps.gps_data.satellites );
 
-    Serial.print( F("Pos Fix Indicator: ") );
-    Serial.println( gps_data.pos_fix[gps_data.fixquality] );
+    my_gps.gpsSerial.print( F("Pos Fix Indicator: ") );
+    my_gps.gpsSerial.println( my_gps.gps_data.pos_fix[my_gps.gps_data.fixquality] );
 
-    Serial.print( F("Fix type [none/2D/3D]: ") );
-    Serial.println( gps_data.fixquality_3d );
+    my_gps.gpsSerial.print( F("Fix type [none/2D/3D]: ") );
+    my_gps.gpsSerial.println( my_gps.gps_data.fixquality_3d );
 
   }
   

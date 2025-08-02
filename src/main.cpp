@@ -7,13 +7,14 @@
 #include"send_packet.h"
 
 
+
 void setup() 
 {  
   
   setup_Peripherals();  // Disable unneeded peripherals to save power
-  
-  gpsSerial.begin( GPS_BAUD_RATE );  // Used for GPS interface
 
+  my_gps.gpsSerial.begin( 9600 );  // Start serial UART and set baud rate
+  
   setup_Pins();  // Pins for buttons and LEDs
 
   setup_Timers();  // Timers for baud and DAC transmission rate
@@ -51,17 +52,17 @@ void loop()
 
 #ifdef USE_GPS  
 
-  if ( gps_data.fix == false )
+  if ( my_gps.gps_data.fix == false )
     oled.print( F( "Waiting for GPS signal" ) );
 
-  get_GPS_Data();  // Get data from GPS unit
+  my_gps.get_GPS_Data();  // Get data from GPS unit
 
 #endif
 
 
 #ifdef DEBUG
 
-    print_GPS_Data();
+    //print_GPS_Data();
 
 #endif
 
