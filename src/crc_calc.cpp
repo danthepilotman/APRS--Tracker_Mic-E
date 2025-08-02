@@ -15,7 +15,7 @@ uint16_t calc_CRC()
   crc.add( dest_address, DEST_ADDR_SIZE );  // Feed dest
   
 
-  crc.add( src_digi_addrs_ctl_pid_flds, SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN );  // Feed src/digi
+  crc.add( src_digi_addrs_ctrl_pid_flds, SRC_DIGI_ADDRS_CTRL_PID_FLDS_LEN );  // Feed src/digi
   
 
   crc.add( info, INFO_LEN );  // Feed info

@@ -38,20 +38,21 @@ void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon 
 void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {  
  
-  enum{ POSITION, SATS_INFO, DATE_TIME };
+  enum{ POSITION, SATS_INFO, DATE_TIME };  // Enumerated display modes (pages)
 
-  static uint8_t current_disp_mode;
+  static uint8_t current_disp_mode;  // Store and remember the current display mode
 
-  char oled_row[ OLED_COLS + 1 ];  // Used to create character string for display on OLED
+  char oled_row[ OLED_COLS + 1 ];  // Used to create character array for display on OLED
+
 
 /* --- Clear OLED display if OLED display mode is changed --- */
 
   if ( current_disp_mode != disp_mode )
   {
 
-    oled.clear();
+    oled.clear();  // Erase all contest on the display
 
-    current_disp_mode = disp_mode; 
+    current_disp_mode = disp_mode;  // Update the current display mode 
     
   }
 

@@ -69,7 +69,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
 
   // Determine APRS Digi Path Code
 
-  dest_address[DIGI_PATH] = WIDE2_2 << 1; 
+  dest_address[DIGI_PATH] =  Digi_Path << 1; 
 
 }
 
@@ -158,6 +158,10 @@ void compute_Mic_E_Data( uint8_t mic_e_message )
 
   compute_Info_Spd_Crs();  // Encode speed and course
 
+#ifdef SEND_ALTITUDE
+
   compute_Info_Alt();  // Encode altitude
+
+#endif
 
 }

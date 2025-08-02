@@ -8,6 +8,11 @@
 /******************************************* Option Flags *******************************************/
 
 #define DEBUG  // Set to 'true' to enable debugging serial prints
+
+#define SEND_ALTITUDE  // Telemetry and Altitude are mutually exclusive
+//#define SEND_TELEMETRY  // Telemetry and Altitude are mutually exclusive
+#define SEND_COMMENT
+
 #define USE_OLED
 // #define USE_WDT
 // #define USE_GPS
@@ -142,13 +147,13 @@ constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE
 
 /*********************************************************************** APRS AX.25 Parameters ***********************************************************************/
 
-const char CALL_SIGN[] = "AI4QX 1";  // Set call sign here
-
-enum DIGI_PATH : uint8_t { VIA, WIDE_1_1, WIDE2_2, WIDE3_3, WIDE4_4, WIDE5_5, WIDE6_6, WIDE7_7, NORTH, SOUTH, EAST, WEST, NORTH_WIDE, SOUTH_WIDE, EAST_WIDE, WEST_WIDE};
-
 enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4, LAT_DIG_5, LAT_DIG_6, DIGI_PATH, DEST_ADDR_SIZE };  
-// DES_ADDR_SIZE is not part of the destination field.
+// DES_ADDR_SIZE is not a valid destination field.
 // It's used to determine the size of the destination field by adding one more elemnet to the enum. This captures the size of the enum since it is zero indexed by default.
+
+enum MIC_E_MSG{ emergency, priority, special, commited, returning, in_service, en_route, off_duty };  // Enumerated Mic-E status messages
+
+enum DIGI_PATH_CODE : uint8_t { VIA, WIDE_1_1, WIDE2_2, WIDE3_3, WIDE4_4, WIDE5_5, WIDE6_6, WIDE7_7, NORTH, SOUTH, EAST, WEST, NORTH_WIDE, SOUTH_WIDE, EAST_WIDE, WEST_WIDE };
 
 enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, SE_28, SYMBOL_CODE, SYMBOL_TABLE, ALT_INDX, MSG_INDX = ALT_INDX + 4 };
 // The message field begins comes right after the altitude field which is 4 bytes long.
@@ -160,19 +165,23 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 /************************************************ Global Variables ************************************************/
 
+const char Call_Sign[] = "AI4QX 1";  // Set call sign here
+
+constexpr uint8_t Digi_Path = WIDE2_2; 
+
 extern volatile uint32_t phase_accumulator;  // Stores current sine array sample to put onto output port pins
 
 extern volatile uint32_t current_phase_step;  // Stores current phase steep need for either Space or Mark tone sampling
 
-extern volatile bool baud_tmr_isr;  // Timer used for 1200 baud timing
+extern volatile bool baud_tmr_isr_running;  // Timer used for 1200 baud timing
 
 extern volatile uint8_t disp_mode;  // Store the display mode
 
-/********** APRS packet field arrays **********/
-
 extern uint8_t dest_address[DEST_ADDR_SIZE];  // Destination address portion of APRS packet
-extern const uint8_t src_digi_addrs_ctl_pid_flds[];    // Source address, Control and PID portion of APRS packet
-extern const uint8_t SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN;  // Used to store length of src_digi_addrs_ctl_pid_flds[] array
+
+extern const uint8_t src_digi_addrs_ctrl_pid_flds[];    // Source address, Control and PID portion of APRS packet
+extern const uint8_t SRC_DIGI_ADDRS_CTRL_PID_FLDS_LEN;  // Used to store length of src_digi_addrs_ctl_pid_flds[] array
+
 extern uint8_t info[];  // Infomation portion of APRS packet
 extern const uint8_t INFO_LEN;  // Used to store length of info[] array
 

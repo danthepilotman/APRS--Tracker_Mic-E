@@ -36,6 +36,6 @@ ISR ( WAVE_GEN_TMR_ISR_VECT )
 ISR ( BAUD_TMR_ISR_VECT )
 {
 
-  baud_tmr_isr = false;  // Sets flag to false to allow baud while loop to exit
+  baud_tmr_isr_running = false;  // Sets flag to false to allow baud while loop to exit
 
 }

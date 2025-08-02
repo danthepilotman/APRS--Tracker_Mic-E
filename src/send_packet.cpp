@@ -4,11 +4,11 @@
 void send_Tone( bool afsk_tone )
 {         
 
-  baud_tmr_isr = true;  /* Reset baud timer interrupt busy flag */ 
+  baud_tmr_isr_running = true;  /* Reset baud timer interrupt busy flag */ 
 
   afsk_tone ? current_phase_step = MRK_PHASE_STEP: current_phase_step = SPC_PHASE_STEP;  // Set timer compare value based on SPACE or MARK
 
-  while( baud_tmr_isr )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
+  while( baud_tmr_isr_running )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
   {
     // Wave generator timer ISR free runs during this while loop, generating sampled sine DAC values
   }
@@ -94,8 +94,8 @@ void send_Packet()
     send_Byte( dest_address[i] );
 
   // send Source, Digipeater Addresses / Control, PID Fields 
-  for( uint8_t i = 0; i < SRC_DIGI_ADDRS_CTL_PID_FLDS_LEN; i++ )
-    send_Byte( src_digi_addrs_ctl_pid_flds[i] );
+  for( uint8_t i = 0; i < SRC_DIGI_ADDRS_CTRL_PID_FLDS_LEN; i++ )
+    send_Byte( src_digi_addrs_ctrl_pid_flds[i] );
 
   // send Information Field
   for( uint8_t i = 0; i < INFO_LEN; i++ )
@@ -126,25 +126,19 @@ void send_Packet()
 bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint8_t &mic_e_message )
 {
 
-  static uint16_t prev_course;  // Retain the previous course for corner pegging comparison
-  
-  uint16_t delta_course;  // Store the difference between the previous course and the present course
+  static uint16_t prev_course = my_gps.gps_data.course;  // Retain the previous course for corner pegging comparison
 
-  enum mic_E_msg{ emergency, priority, special, commited, returning, in_service, en_route, off_duty };
-     
-  delta_course = abs( my_gps.gps_data.course - prev_course );    // Compute course angle change since last packet transmission
-
-  prev_course = my_gps.gps_data.course;  // Capture course for future comparison
+  uint16_t delta_course = abs( my_gps.gps_data.course - prev_course );    // Compute course angle change since last packet transmission
 
 
-  if( delta_course > 180 )  // Handle cross over 0/360 course
-    delta_course = 360 - delta_course;
+  if( delta_course > 180 )  // Handle course changes greater than 180°
+    delta_course = 360 - delta_course;  // Compute "short way round" angular change
  
    
-  if ( my_gps.gps_data.speed < SLOW_SPEED )  // "Stop" threshold
+  if ( my_gps.gps_data.speed < SLOW_SPEED )  // Determine if our speed is below the "slow" threshold
   {
 
-    beacon_period = SLOW_RATE;
+    beacon_period = SLOW_RATE;  // Set beacon period to slow rate if we're moving slow or stopped
 
     mic_e_message = in_service;  // In service if we are NOT moving
 
@@ -157,27 +151,26 @@ bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
     
     uint16_t turn_threshold = MIN_TURN_ANGLE + uint16_t( float( TURN_SLOPE ) / float( my_gps.gps_data.speed ) );  // Adjust turn threshold according to speed
 
-    // Adjust beacon rate according to speed
+    /************************************ Adjust beacon rate according to speed ************************************/
 
-    if ( my_gps.gps_data.speed > FAST_SPEED )  
-      beacon_period = FAST_RATE;
+    if ( my_gps.gps_data.speed > FAST_SPEED )   // Determine if our speed is below the "fast" threshold
+      beacon_period = FAST_RATE;  // Limit beacon period to avoid overly frequent transmissions
     
     else
-      beacon_period = uint16_t( round( float( FAST_RATE ) * float( FAST_SPEED ) / float( my_gps.gps_data.speed ) ) );
+      beacon_period = uint16_t( round( float( FAST_RATE ) * float( FAST_SPEED ) / float( my_gps.gps_data.speed ) ) );  // Compute beacon period based on speed
 
-    // Corner pegging
+    /******************************** Corner pegging ********************************/
 
     if ( ( delta_course > turn_threshold ) && ( secs_since_beacon > MIN_TURN_TIME ) )
      return true;     
    
   }
   
-  // Beacon period exceeded
+  /******* Beacon period exceeded *******/ 
 
   if ( secs_since_beacon > beacon_period )
     return true;
   
-
 
   return false;  // If you made it this far, you haven't turned a corner and the beacon period has not expired
 
