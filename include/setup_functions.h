@@ -4,6 +4,7 @@
 
 #include"display_OLED.h"
 #include <avr/wdt.h>
+#include"menu_control.h"
 
 
 /******** Function prototypes ***********/
@@ -12,6 +13,5 @@ void setup_Peripherals();
 void setup_Pins();
 void setup_Timers();
 void setup_OLED();
-void disp_Mode_Btn();  // Button press ISR called function
 
 #endif

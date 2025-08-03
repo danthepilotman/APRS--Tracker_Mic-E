@@ -6,7 +6,11 @@ volatile uint32_t current_phase_step = MRK_PHASE_STEP;  // Stores current sine a
 
 volatile bool baud_tmr_isr_running;  // Baud timer interrupt active flag
 
-volatile uint8_t disp_mode = 0;  // Used to store display mode
+uint16_t beacon_period = SLOW_RATE;  // Time in seconds until next packet transmission
+
+uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
+
+
 
 
 

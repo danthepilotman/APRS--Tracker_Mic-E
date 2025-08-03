@@ -49,15 +49,15 @@
  constexpr uint8_t SECOND_ROW = 2;  // 2 pages per font height
  constexpr uint8_t THIRD_ROW = 4;
  constexpr uint8_t FOURTH_ROW = 6;
- constexpr uint8_t NUM_OF_DISP_SCREENS = 3;  // Number of unique display screen options
-
+ 
  /****************************** Splash Screen Parameters ******************************/
 
  constexpr uint32_t SPLASH_SCRN_DLY = 2000;  // How long to display splash screen [ms]
 
 /******************************************** Digital Pin Parameters********************************************/
 
- constexpr uint8_t DISP_MODE_PIN = 2;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
+ constexpr uint8_t SCROLL_PIN = 2;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
+ constexpr uint8_t SELECT_PIN = 3;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
  constexpr unsigned long  BTN_DBOUCE_TIME = 200;  // ms
 
  constexpr uint8_t PTT_PIN = A0;  // Transmitter Push To Talk pin
@@ -165,9 +165,18 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 /************************************************ Global Variables ************************************************/
 
+// ARPS parameters
+
 const char Call_Sign[] = "AI4QX 1";  // Set call sign here
 
 constexpr uint8_t Digi_Path = WIDE2_2; 
+
+extern uint16_t beacon_period;  // Time in seconds until next packet transmission
+
+extern uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
+
+
+// Timers
 
 extern volatile uint32_t phase_accumulator;  // Stores current sine array sample to put onto output port pins
 
@@ -175,7 +184,8 @@ extern volatile uint32_t current_phase_step;  // Stores current phase steep need
 
 extern volatile bool baud_tmr_isr_running;  // Timer used for 1200 baud timing
 
-extern volatile uint8_t disp_mode;  // Store the display mode
+
+// APRS packet fields
 
 extern uint8_t dest_address[DEST_ADDR_SIZE];  // Destination address portion of APRS packet
 

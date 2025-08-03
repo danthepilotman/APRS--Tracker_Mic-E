@@ -4,7 +4,7 @@
 #ifdef DEBUG
 
 
-void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
+void display_Beacon_Timing() 
 {
   int16_t next_tx = beacon_period - secs_since_beacon; // Compute time until next beacon
 
@@ -35,25 +35,20 @@ void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon 
 #ifdef USE_OLED
 
 
-void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
+void display_Data() 
 {  
  
-  enum{ POSITION, SATS_INFO, DATE_TIME };  // Enumerated display modes (pages)
-
-  static uint8_t current_disp_mode;  // Store and remember the current display mode
-
   char oled_row[ OLED_COLS + 1 ];  // Used to create character array for display on OLED
 
-
-/* --- Clear OLED display if OLED display mode is changed --- */
-
+  static uint8_t current_disp_mode;
+  
   if ( current_disp_mode != disp_mode )
   {
+  
+  oled.clear();  // Erase all content on the display
 
-    oled.clear();  // Erase all contest on the display
+  current_disp_mode = disp_mode;
 
-    current_disp_mode = disp_mode;  // Update the current display mode 
-    
   }
 
 
@@ -112,6 +107,8 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
       sprintf( oled_row, "Sats: %u", my_gps.gps_data.satellites );
       oled.print( oled_row );
       oled.clearToEOL();
+
+      oled.clearToEOP();
         
     break;    
 
@@ -162,10 +159,70 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 }
 
 
-#endif
+void setup_Menu()
+{
+
+  static uint8_t prev_setup_mode;
 
 
-#ifdef USE_OLED
+  if ( setup_mode != prev_setup_mode )
+  {
+     
+    oled.clear();
+
+    prev_setup_mode = setup_mode;
+
+  }
+
+
+  if ( setup_mode == SYMB_AND_TBL )
+    oled.invertOutput( true );
+
+  oled.setCursor( 0, FIRST_ROW );  // Symbol and Table
+  oled.print( F( "Sym & Tbl" ) );
+  oled.clearToEOL();
+
+  oled.invertOutput( false );
+
+
+  if ( setup_mode == MIC_MSG )
+    oled.invertOutput( true );
+
+
+  oled.setCursor( 0, SECOND_ROW );  // Mic-E message
+  oled.print( F( "Mic Msg" ) );
+  oled.clearToEOL();
+
+  oled.invertOutput( false );
+
+
+  if ( setup_mode == TX_DLY )
+    oled.invertOutput( true );
+
+  oled.setCursor( 0, THIRD_ROW );  // Transmit Delay
+  oled.print( F( "TX Dly: " ) );
+  oled.print( tx_delay );
+  oled.clearToEOL();
+
+  oled.invertOutput( false );
+
+
+  if ( setup_mode == SEND_ALT )
+    oled.invertOutput( true );
+
+  oled.setCursor( 0, FOURTH_ROW );  // Send Altitude
+  oled.print( F( "Send Alt: " ) );
+
+  if ( send_alt )
+    oled.print( F( "Y" ) );
+  else
+    oled.print( F( "N" ) );
+
+  oled.clearToEOL();
+
+  oled.invertOutput( false );
+
+}
 
 
 void show_SPLASH_SCRN( uint32_t splash_screen_delay )

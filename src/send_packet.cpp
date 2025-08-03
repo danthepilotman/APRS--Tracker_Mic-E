@@ -6,7 +6,9 @@ void send_Tone( bool afsk_tone )
 
   baud_tmr_isr_running = true;  /* Reset baud timer interrupt busy flag */ 
 
-  afsk_tone ? current_phase_step = MRK_PHASE_STEP: current_phase_step = SPC_PHASE_STEP;  // Set timer compare value based on SPACE or MARK
+ 
+  afsk_tone ? current_phase_step = MRK_PHASE_STEP: current_phase_step = SPC_PHASE_STEP;  // Set phase step value based on SPACE or MARK
+
 
   while( baud_tmr_isr_running )  // Wait until the BAUD timer ISR is triggered to move on to the next tone
   {
@@ -122,8 +124,7 @@ void send_Packet()
 }
 
 
-
-bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint8_t &mic_e_message )
+bool smart_Beaconing ( uint8_t &mic_e_message )
 {
 
   static uint16_t prev_course = my_gps.gps_data.course;  // Retain the previous course for corner pegging comparison
@@ -173,5 +174,59 @@ bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint
   
 
   return false;  // If you made it this far, you haven't turned a corner and the beacon period has not expired
+
+}
+
+
+void mic_E_Beacon()
+{
+
+  static uint32_t last_TX_time;  // Timestamp in seconds of last packet transmission  
+
+  uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
+ 
+
+#ifdef USE_GPS  
+
+  if ( my_gps.gps_data.fix == false )
+    oled.print( F( "Waiting for GPS signal" ) );
+
+  my_gps.get_GPS_Data();  // Get data from GPS unit
+
+#endif
+
+
+#ifdef DEBUG
+
+  //print_GPS_Data();
+
+#endif
+
+  secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
+
+#ifdef USE_OLED
+
+   
+  display_Data();  // Displays captured GPS data to LCD
+
+#else
+
+  display_Beacon_Timing( beacon_period, secs_since_beacon );  // Print beaconing timing data
+
+#endif
+
+/* ---------------------- Compress data for transmission and send packet  ----------------------- */
+
+
+  if ( smart_Beaconing( mic_e_message ) ) 
+  {
+
+    compute_Mic_E_Data( mic_e_message );  // Compress data using Mic-E encoding
+      
+    send_Packet();  // Send APRS data packet 
+      
+    last_TX_time = millis();  // Update last_TX_time with current time
+                                                            
+  }
 
 }
