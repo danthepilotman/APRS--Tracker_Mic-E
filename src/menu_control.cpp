@@ -1,11 +1,11 @@
 #include"menu_control.h"
 
 
-volatile uint8_t disp_mode = POSITION;  // Used to store display mode
+uint8_t disp_mode = POSITION;  // Used to store display mode
 
-volatile uint8_t setup_mode = SYMB_AND_TBL;  // Store the setup mode
+uint8_t setup_mode = SYMB_AND_TBL;  // Store the setup mode
 
-volatile uint8_t operating_mode = RUN;  // Used to store display mode
+uint8_t operating_mode = RUN;  // Used to store display mode
 
 volatile bool select_pressed = false;  // Store the display mode
 
@@ -83,16 +83,13 @@ void handleScroll()
 
     break;
     
+    
     case SETUP:
       
         setup_mode++;
         
         if( setup_mode == NUM_OF_SETUP_SCREENS )
-        {
           setup_mode = SYMB_AND_TBL;
-
-          //setup_Menu();
-        }
 
     break;
     
@@ -129,14 +126,17 @@ void handleSelect()
 
         case TX_DLY:
 
-          set_TX_Delay();
+          tx_delay +=  100;  // Increase by 100
+
+          if ( tx_delay == 1000 )  // Circular loop from 100 to 10000
+            tx_delay = 100;
 
         break;
         
 
         case SEND_ALT:
 
-          toggle_send_Altitude();  
+           send_alt = !send_alt;  
 
         break;
 
@@ -146,23 +146,4 @@ void handleSelect()
 
   }
 
-}
-
-
-void toggle_send_Altitude()
-{
-
-  send_alt = !send_alt;
-  
-}
-
-
-void set_TX_Delay()
-{
-
-  tx_delay +=  100;  // Increase by 100
-
-  if ( tx_delay == 1000 )  // Circular loop from 100 to 10000
-    tx_delay = 100;
-  
 }

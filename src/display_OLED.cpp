@@ -4,7 +4,7 @@
 #ifdef DEBUG
 
 
-void display_Beacon_Timing() 
+void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {
   int16_t next_tx = beacon_period - secs_since_beacon; // Compute time until next beacon
 
@@ -35,7 +35,7 @@ void display_Beacon_Timing()
 #ifdef USE_OLED
 
 
-void display_Data() 
+void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
 {  
  
   char oled_row[ OLED_COLS + 1 ];  // Used to create character array for display on OLED

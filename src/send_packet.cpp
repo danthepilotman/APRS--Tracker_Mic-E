@@ -124,7 +124,7 @@ void send_Packet()
 }
 
 
-bool smart_Beaconing ( uint8_t &mic_e_message )
+bool smart_Beaconing ( uint16_t &beacon_period, uint16_t secs_since_beacon, uint8_t &mic_e_message )
 {
 
   static uint16_t prev_course = my_gps.gps_data.course;  // Retain the previous course for corner pegging comparison
@@ -181,6 +181,10 @@ bool smart_Beaconing ( uint8_t &mic_e_message )
 void mic_E_Beacon()
 {
 
+  static uint16_t beacon_period;  // Time in seconds until next packet transmission
+
+  static uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
+
   static uint32_t last_TX_time;  // Timestamp in seconds of last packet transmission  
 
   uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
@@ -207,7 +211,7 @@ void mic_E_Beacon()
 #ifdef USE_OLED
 
    
-  display_Data();  // Displays captured GPS data to LCD
+  display_Data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD
 
 #else
 
@@ -218,7 +222,7 @@ void mic_E_Beacon()
 /* ---------------------- Compress data for transmission and send packet  ----------------------- */
 
 
-  if ( smart_Beaconing( mic_e_message ) ) 
+  if ( smart_Beaconing( beacon_period, secs_since_beacon, mic_e_message ) )
   {
 
     compute_Mic_E_Data( mic_e_message );  // Compress data using Mic-E encoding

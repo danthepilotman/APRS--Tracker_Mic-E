@@ -6,14 +6,6 @@ volatile uint32_t current_phase_step = MRK_PHASE_STEP;  // Stores current sine a
 
 volatile bool baud_tmr_isr_running;  // Baud timer interrupt active flag
 
-uint16_t beacon_period = SLOW_RATE;  // Time in seconds until next packet transmission
-
-uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
-
-
-
-
-
 uint8_t dest_address[DEST_ADDR_SIZE];  // APRS Destination address
 
 

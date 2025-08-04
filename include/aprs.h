@@ -171,11 +171,6 @@ const char Call_Sign[] = "AI4QX 1";  // Set call sign here
 
 constexpr uint8_t Digi_Path = WIDE2_2; 
 
-extern uint16_t beacon_period;  // Time in seconds until next packet transmission
-
-extern uint16_t secs_since_beacon;  // Time in seconds since last packet transmission
-
-
 // Timers
 
 extern volatile uint32_t phase_accumulator;  // Stores current sine array sample to put onto output port pins
