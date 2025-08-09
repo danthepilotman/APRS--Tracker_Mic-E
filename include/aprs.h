@@ -7,15 +7,15 @@
 
 /******************************************* Option Flags *******************************************/
 
-#define DEBUG  // Set to 'true' to enable debugging serial prints
+//#define DEBUG  // Set to 'true' to enable debugging serial prints
 
 #define SEND_ALTITUDE  // Telemetry and Altitude are mutually exclusive
 //#define SEND_TELEMETRY  // Telemetry and Altitude are mutually exclusive
 #define SEND_COMMENT
 
 #define USE_OLED
-// #define USE_WDT
-// #define USE_GPS
+#define USE_WDT
+#define USE_GPS
 // #define BIT_BY_BIT_CRC_CALC  // Comment in to use original, bit-by-bit version of CRC calculation
 
 /**************** Smart Beaconing Parameters ****************/

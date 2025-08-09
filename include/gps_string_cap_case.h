@@ -2,8 +2,16 @@
 #define GPS_NMEA_H
 
 #include <Arduino.h>
+#include"aprs.h"
 #include <Tiny4kOLED.h>
+
+#ifdef USE_WDT
+
 #include <avr/wdt.h>
+
+#endif
+
+
 #include <stdlib.h>
 #include <string.h>
 #include "aprs.h"
@@ -37,11 +45,6 @@ class gps_NMEA {
     uint8_t lat_mm_01 = 0;
 
 
-    uint8_t lat_DD = 28;
-    uint8_t lat_MM = 01;
-    uint8_t lat_hh = 62;
-    uint8_t lat_mm = 00;
-    
     char NorS = 'N';
 
     uint8_t lon_DD_100 = 0;
@@ -57,7 +60,6 @@ class gps_NMEA {
     uint8_t lon_DD = 80;
     uint8_t lon_MM = 37;
     uint8_t lon_hh = 89;
-    uint8_t lon_mm = 00;
 
     char EorW = 'W';
         
@@ -70,12 +72,9 @@ class gps_NMEA {
     uint8_t fixquality_3d = 3;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
     uint8_t satellites = 12;    //  Number of satellites in use
 
-    const char *pos_fix[4] = { "Not available", "GPS SPS Mode",
-                        "Differential GPS" , "GPS PPS Mode" };
-
     };
 
-  
+    
     #else
 
     struct GPS_data
@@ -99,11 +98,6 @@ class gps_NMEA {
     uint8_t lat_mm_01;
 
 
-    uint8_t lat_DD;
-    uint8_t lat_MM;
-    uint8_t lat_hh;
-    uint8_t lat_mm;
-    
     char NorS;
 
     uint8_t lon_DD_100;
@@ -116,10 +110,9 @@ class gps_NMEA {
     uint8_t lon_mm_10;
     uint8_t lon_mm_01;
 
-    uint8_t lon_DD;
-    uint8_t lon_MM;
-    uint8_t lon_hh;
-    uint8_t lon_mm;
+    uint8_t lon_DD;  // Needed for MIC-E encoding
+    uint8_t lon_MM;  // Needed for MIC-E encoding
+    uint8_t lon_hh;  // Needed for MIC-E encoding
 
     char EorW;
         
@@ -132,28 +125,24 @@ class gps_NMEA {
     uint8_t fixquality_3d;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
     uint8_t satellites;     //  Number of satellites in use
 
-    const char *pos_fix[4] = { "Not available", "GPS SPS Mode",
-                                "Differential GPS" , "GPS PPS Mode" };
+   
 
     };
 
-  
+
 #endif
 
     GPS_data gps_data;
 
+    const char *pos_fix[4] = { "Not available", "GPS SPS Mode",
+                               "Differential GPS" , "GPS PPS Mode" };
+
     HardwareSerial& gpsSerial;     // Reference to the passed-in serial port
-    uint8_t txPin;
-    uint8_t rxPin;
     uint32_t baudRate;
     
     
   gps_NMEA( HardwareSerial& serialPort, uint32_t baudRate):
-  gpsSerial(serialPort), baudRate(baudRate) {
-
-
-    //gpsSerial.begin( baudRate );
-}
+  gpsSerial(serialPort), baudRate(baudRate) {}
 
 void get_GPS_Data();
 

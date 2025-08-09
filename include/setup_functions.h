@@ -3,7 +3,15 @@
 
 
 #include"display_OLED.h"
+
+
+#ifdef USE_WDT
+
 #include <avr/wdt.h>
+
+#endif
+
+
 #include"menu_control.h"
 
 

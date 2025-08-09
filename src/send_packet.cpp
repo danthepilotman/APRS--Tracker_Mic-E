@@ -72,7 +72,7 @@ void send_Packet()
 
   uint16_t crc_value = calc_CRC();   // Calculate CRC
 
-  uint8_t crc_lo_byte = crc_value & 0xFF;  // Strip off low byte portion
+  uint8_t crc_lo_byte = crc_value & 0x00FF;  // Strip off low byte portion
   
   uint8_t crc_hi_byte = crc_value >> 8;  // Shift down high byte portion
 

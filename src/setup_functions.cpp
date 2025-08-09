@@ -6,12 +6,14 @@
 void setup_Peripherals()
 {
 
+  
 #ifdef USE_WDT
 
   wdt_enable( WDTO_4S );  // Set watchdog timer for 2 seconds
 
 #endif
   
+
   ADCSRA &= ~(1 << ADEN); // Clear ADEN bit to 0. Disables ADC for power savings.
 
   

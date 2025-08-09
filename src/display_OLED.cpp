@@ -60,14 +60,22 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
     case POSITION:
 
       oled.setCursor( 0, FIRST_ROW ); // Latitude
-      sprintf( oled_row, "%02u %02u.%02u%02u %c", my_gps.gps_data.lat_DD, my_gps.gps_data.lat_MM, my_gps.gps_data.lat_hh, my_gps.gps_data.lat_mm, my_gps.gps_data.NorS );
+      sprintf( oled_row, " %u%u %u%u.%u%u%u%u %c", my_gps.gps_data.lat_DD_10, my_gps.gps_data.lat_DD_01, 
+                                                  my_gps.gps_data.lat_MM_10, my_gps.gps_data.lat_MM_01,
+                                                  my_gps.gps_data.lat_hh_10, my_gps.gps_data.lat_hh_01, 
+                                                  my_gps.gps_data.lat_mm_10, my_gps.gps_data.lat_mm_01, 
+                                                  my_gps.gps_data.NorS );
       oled.print ( oled_row );
       //oled.bitmap( 16, FIRST_ROW, 8 + 16, FIRST_ROW + 2, degree_symbol_bitmap );
       oled.clearToEOL();
 
 
       oled.setCursor( 0, SECOND_ROW ); // Longitude
-      sprintf( oled_row, "%03u %02u.%02u%02u %c", my_gps.gps_data.lon_DD, my_gps.gps_data.lon_MM, my_gps.gps_data.lon_hh, my_gps.gps_data.lon_mm, my_gps.gps_data.EorW );
+      sprintf( oled_row, "%03u %02u.%02u%u%u %c", my_gps.gps_data.lon_DD, 
+                                                  my_gps.gps_data.lon_MM,
+                                                  my_gps.gps_data.lon_hh, 
+                                                  my_gps.gps_data.lon_mm_10, my_gps.gps_data.lon_mm_01,
+                                                  my_gps.gps_data.EorW );
       oled.print( oled_row );
       //oled.bitmap( 24, SECOND_ROW, 8 + 24, SECOND_ROW + 2, degree_symbol_bitmap );
       oled.clearToEOL();
@@ -93,7 +101,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
       
       oled.setCursor( 0, FIRST_ROW );  // Fix quality
-      oled.print( my_gps.gps_data.pos_fix[my_gps.gps_data.fixquality] );
+      oled.print( my_gps.pos_fix[my_gps.gps_data.fixquality] );
       oled.clearToEOL();
 
 
@@ -114,7 +122,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
 
     case DATE_TIME: 
-    {
+    
       
       short next_tx = beacon_period - secs_since_beacon;  
 
@@ -150,7 +158,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
       oled.print ( oled_row );
       oled.clearToEOL();
 
-    }
+    
 
     break;
 
