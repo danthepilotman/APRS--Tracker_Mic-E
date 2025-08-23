@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include"aprs.h"
 #include <Tiny4kOLED.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef USE_WDT
 
@@ -12,9 +14,6 @@
 #endif
 
 
-#include <stdlib.h>
-#include <string.h>
-#include "aprs.h"
 
 class gps_NMEA {
   
@@ -141,8 +140,8 @@ class gps_NMEA {
     uint32_t baudRate;
     
     
-  gps_NMEA( HardwareSerial& serialPort, uint32_t baudRate):
-  gpsSerial(serialPort), baudRate(baudRate) {}
+  gps_NMEA( HardwareSerial& serialPort, uint32_t baudRate ):
+  gpsSerial( serialPort ), baudRate( baudRate ) {}
 
 void get_GPS_Data();
 
@@ -158,7 +157,7 @@ void get_GPS_Data();
     bool parse_Time(const char* ptr);
     bool parse_Fix(const char* ptr);
     bool parse_Coord(const char* coord);
-    uint8_t hex_Str_To_Int(const char* chk_sum);
+    uint8_t hex_Str_To_Int( const char* chk_sum);
     bool xsum_Check(const char* NMEA_data);
 
  
