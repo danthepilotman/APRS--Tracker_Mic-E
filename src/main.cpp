@@ -1,67 +1,61 @@
-#include "aprs.h"  // Header file with definitions and global variables, 
+#include<Tiny4kOLED.h>
+#include"aprs.h"
+#include"display_OLED.h"
+#include"setup_functions.h"
+#include"gps_string_cap_case.h"
+#include"packet_data_compressed_gps.h"
+#include"send_packet.h"
 
 
-void setup() 
-{  
-  
-  gpsSerial.begin( GPS_BAUD_RATE );  // Used for GPS interface
-  
-  setup_Pins();
 
-  setup_Timers();
+void setup()
+{
 
-  setup_LCD();
+  setup_Peripherals();  // Disable unneeded peripherals to save power
+
+  my_gps.gpsSerial.begin( 9600 );  // Start serial UART and set baud rate
+
+  setup_Pins();  // Pins for buttons and LEDs
+
+  setup_Timers();  // Timers for baud and DAC transmission rate
+
+
+#ifdef USE_OLED
+
+  setup_OLED();  // OLED setup
+
+  show_SPLASH_SCRN( SPLASH_SCRN_DLY );  // Show splash screen message for a certain amount of time
+
+#endif
+
+#ifdef DEBUG
+
+  display_Timers_Setup();  // Show baud and DAC timer settings
+
+#endif
 
 }
 
 
-
-void loop() 
+void loop()
 {
 
-  static unsigned short beacon_period;
+  check_Buttons();  // Check if buttons have been pressed
 
-  static unsigned short secs_since_beacon;
-
-  static unsigned long last_TX_time;
-
-  byte mic_e_message;
-  
-  
-  if ( gps_data.fix == false )
-    lcd.print( F( "Waiting for GPS signal" ) );
-
-  get_GPS_data();  // Get data from GPS unit
-
-  secs_since_beacon = ( unsigned short ) ( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
-
-  display_data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD 
-
-
-/* ---------------------- Compress data for transmission and send packet  ----------------------- */
-
-  if ( smart_beaconing( beacon_period, secs_since_beacon, mic_e_message ) ) 
+  switch ( operating_mode )
   {
 
-#if DEBUG
+    case RUN:
+      mic_E_Beacon();
+    break;
 
-  Serial.print( "\r\nSince bkn: " );
-  Serial.println( secs_since_beacon );
-  
-  Serial.print( "bkn rate: " );
-  Serial.println( beacon_period );
-  
-  Serial.print( "corner: " );
-  Serial.println( corner_Peg );
+    case SETUP:
+      setup_Menu();
+    break;
 
-#endif
+    default:
+      mic_E_Beacon();
 
-    compute_Mic_E_data( mic_e_message );  // Compress data using Mic-E encoding
-    
-    send_packet();  // Send APRS data packet 
-    
-    last_TX_time = millis();  // Update last_TX_time with current time
-                                                          
   }
 
 }

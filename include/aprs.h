@@ -1,80 +1,127 @@
-/*  Moved PTT and DISP MODE pins to A0,3
- *  IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
-*/
+#ifndef APRS_H
+#define APRS_H
 
 #include <Arduino.h>
-#include <LiquidCrystal_I2C.h>
 #include <math.h>
 
-#define DEBUG false  // Set to 'true' to enable debugging serial prints
 
-#define BTN_DBOUCE_TIME 200            // ms
+/******************************************* Option Flags *******************************************/
 
-/********** Smart Beaconing Parameters **********/
+//#define DEBUG  // Set to 'true' to enable debugging serial prints
 
-#define FAST_SPEED (float) 60.0        // mph
-#define FAST_RATE (float) 60.0         // seconds  
-#define SLOW_SPEED (float) 5.0         // mph
-#define SLOW_RATE (uint16_t) 600       // seconds  
-#define MIN_TURN_TIME (uint16_t) 7    // seconds
-#define MIN_TURN_ANGLE (float ) 30.0   // degrees
-#define TURN_SLOPE (float) 255.0       // unitless
+#define SEND_ALTITUDE  // Telemetry and Altitude are mutually exclusive
+//#define SEND_TELEMETRY  // Telemetry and Altitude are mutually exclusive
+#define SEND_COMMENT
 
-/********** LCD Parameters **********/
+#define USE_OLED
+#define USE_WDT
+#define USE_GPS
+// #define BIT_BY_BIT_CRC_CALC  // Comment in to use original, bit-by-bit version of CRC calculation
 
-#define LCD_I2C_ADDR 0x27
-#define LCD_COL 16
-#define LCD_ROW 2
-#define TOP_ROW 0
-#define BOT_ROW 1
-#define SPD_FLD_OFFSET 0  // LCD display x-axis offset for speed
-#define ALT_FLD_OFFSET 4  // LCD display x-axis offset for altitude
-#define TRK_FLD_OFFSET 8  // LCD display x-axis offset for course
-#define SAT_FLD_OFFSET 14  // LCD display x-axis offset for # of satellites
-#define NUM_OF_DISP_SCREENS 6  // Number of unique display screen options
+/**************** Smart Beaconing Parameters ****************/
 
-/********** Serial Port Parameters **********/
+ constexpr uint16_t FAST_SPEED = 60;  // mph
+ constexpr uint16_t FAST_RATE  = 60;  // seconds
+ 
+ constexpr uint16_t SLOW_SPEED  = 5;  // mph
 
-#define gpsSerial Serial
-#define GPS_BAUD_RATE 9600
+#ifdef DEBUG
 
-/********** Digital Pin Parameters **********/
+ constexpr uint16_t SLOW_RATE = 30;  // seconds
 
-#define DISP_MODE_PIN 3
-#define PTT_PIN A0  // Transmitter Push To Talk pin
-#define GPS_VALID_PIN LED_BUILTIN  // LED for indicating valid GPS position
+#else
 
-/********** Splash Screen Parameters **********/
+ constexpr uint16_t SLOW_RATE = 600;  // seconds
 
-#define SPLASH_SCRN_DLY 2000
+#endif
 
-/********** APRS Transmission Parameters **********/
+ constexpr uint16_t MIN_TURN_TIME = 7;    // seconds
+ constexpr uint16_t MIN_TURN_ANGLE = 30;  // degrees
+ constexpr uint16_t TURN_SLOPE = 255;     // unitless
 
-#define MARK 1
-#define SPACE 0
-#define FLAG 0x7E           // Start/end FLAG(s) sent before and after data portion of packet
-#define NUM_START_FLAGS 30  // Number of FLAGS to  send before data portion of packet
-#define NUM_END_FLAGS 10    // Number of FLAGS to send at end of packet
+/******************************* OLED Parameters *******************************/
 
-#define TX_POWERUP_DLY 30    // Wait time between TX keying and begining of transmission. [ms]
+  constexpr uint8_t width = 128;
+  constexpr uint8_t height = 64;
 
-#define CPU_FREQ 16E6  // MCU clock frequency
-#define PRE_SCLR 1     // Timer Pre-scaler value
-#define WAVE_ARRY_SIZE sizeof( SIN_ARRAY ) 
+  constexpr uint8_t OLED_COLS = 16;  // 16 columns for 8x16 font size
+  constexpr uint8_t FIRST_ROW = 0;
+  constexpr uint8_t SECOND_ROW = 2;  // 2 pages per font height
+  constexpr uint8_t THIRD_ROW = 4;
+  constexpr uint8_t FOURTH_ROW = 6;
 
-#define BAUD_FREQ 1200  // Transmit baud rate [Hz]
-#define MRK_FREQ 1200   // Mark (1) waveform frequency [Hz]
-#define SPC_FREQ 2200   // Space (0) waveform frequency [Hz]
+ /****************************** Splash Screen Parameters ******************************/
 
-#define MRK_NUM_SAMP   round (  ( (float) MRK_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  )
-#define SPC_NUM_SAMP   round (  ( (float) SPC_FREQ / (float) BAUD_FREQ ) * (float) WAVE_ARRY_SIZE  )
+ constexpr uint32_t SPLASH_SCRN_DLY = 2000;  // How long to display splash screen [ms]
 
-#define MRK_TMR_CMP    round(  ( (float)CPU_FREQ  / (float) ( PRE_SCLR * BAUD_FREQ * MRK_NUM_SAMP ) ) - 1 )
-#define SPC_TMR_CMP    round(  ( (float)CPU_FREQ  / (float) ( PRE_SCLR * BAUD_FREQ * SPC_NUM_SAMP ) ) - 1  )
-#define BAUD_TIMER_CMP round(  ( (float)CPU_FREQ  / (float) ( PRE_SCLR * BAUD_FREQ ) ) - 1  )
+/******************************************** Digital Pin Parameters********************************************/
 
-#define WAVE_PORT PORTB     // MCU port used to output waveform
-#define WAVE_PORT_DDR DDRB  // MCU port used to output waveform data direction register
+ constexpr uint8_t SCROLL_PIN = 2;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
+ constexpr uint8_t SELECT_PIN = 3;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
+ constexpr unsigned long  BTN_DBOUCE_TIME = 200;  // ms
+
+ constexpr uint8_t PTT_PIN = A0;  // Transmitter Push To Talk pin
+ constexpr uint8_t GPS_VALID_PIN = LED_BUILTIN;  // LED for indicating valid GPS position
+
+/************************************************** APRS Transmission Parameters **************************************************/
+
+ constexpr uint8_t MARK = 1;              // Mark symbol defined as binary 1
+ constexpr uint8_t SPACE = 0;             // Space symbol defined as binary 0
+ constexpr uint8_t FLAG = 0x7E;           // Start/end FLAG(s) sent before and after data portion of packet
+ constexpr uint8_t NUM_START_FLAGS = 30;  // Number of FLAGS to  send before data portion of packet
+ constexpr uint8_t NUM_END_FLAGS = 10;    // Number of FLAGS to send at end of packet
+
+ constexpr uint32_t TX_POWERUP_DLY = 30;  // Wait time between TX keying and begining of transmission. [ms]
+
+  const PROGMEM uint8_t SIN_ARRAY[] = {
+  8,  9,  9, 10, 11, 11, 12, 13,
+  13, 14, 14, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 14, 14, 13, 13,
+  12, 11, 11, 10,  9,  9,  8,  7,
+  7,  6,  5,  5,  4,  3,  3,  2,
+  2,  1,  1,  0,  0,  0,  0,  0,
+  0,  0,  0,  0,  1,  1,  2,  2,
+  3,  3,  4,  5,  5,  6,  7,  7
+};
+  
+#if 0
+ const PROGMEM uint8_t SIN_ARRAY[] = {  // Sampled sine integer array
+  32, 36, 36, 42, 46, 46, 50, 54,
+  54, 58, 58, 63, 63, 63, 63, 63,
+  63, 63, 63, 63, 58, 58, 54, 54,
+  50, 46, 46, 42, 36, 36, 32, 28,
+  28, 25, 21, 21, 17, 13, 13, 8,
+  8, 4, 4, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 4, 4, 8, 8,
+  13, 13, 17, 21, 21, 25, 28, 28
+  };
+
+#endif
+
+
+ constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );  // Store size of sampled sine array
+
+
+ constexpr uint32_t CPU_FREQ = 16E6;   // MCU clock frequency [Hz]
+ constexpr uint8_t BAUD_PRE_SCLR = 1;  // Baud timer Pre-scaler value
+ constexpr uint8_t TONE_PRE_SCLR = 8;  // Wave generator DAC timer Pre-scaler value
+
+
+ constexpr uint16_t  BAUD_FREQ = 1200;  // Transmit baud rate [symbols/sec]
+ constexpr uint16_t  MRK_FREQ = 1200;   // Mark (1) waveform frequency [Hz]
+ constexpr uint16_t  SPC_FREQ = 2200;   // Space (0) waveform frequency [Hz]
+ constexpr uint32_t  SAMPLE_RATE = 32000;  // 32 kHz fixed sample rate
+
+constexpr uint32_t MRK_PHASE_STEP = uint32_t( ( double( MRK_FREQ ) / SAMPLE_RATE ) * double( 1ULL << 32 ) );  // 1ULL << 32 = 2^32
+constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE ) * double( 1ULL << 32 ) );  // Phase step for Mark and Space tones
+
+ constexpr uint8_t  TONE_TIMER_CMP = uint8_t ( double( CPU_FREQ ) / ( TONE_PRE_SCLR  * SAMPLE_RATE ) - 1 );  // Timer compare value for tone generator ISR
+
+ constexpr uint16_t BAUD_TIMER_CMP = uint16_t( double( CPU_FREQ ) / ( BAUD_PRE_SCLR * BAUD_FREQ )  - 1 );  // Timer compare value for baud rate ISR
+
+#define WAVE_PORT PORTB      // MCU port used to output waveform
+#define WAVE_PORT_DDR DDRB   // MCU port used to output waveform data direction register
+#define R2R_MASK 0b00001111  // bits PB0–PB3, PB7 & PB8 are for the quartz crystal
 
 //* Define timer register & ISR values for the Baud Rate Timer */
 #define BAUD_TMR_ISR_VECT TIMER1_COMPA_vect
@@ -88,7 +135,7 @@
 #define BAUD_TMR_CS0 CS10
 
 /* Define timer register & ISR values for the Waveform Generator Timer */
-#define WAVE_GEN_TMR_ISR_VECT TIMER2_COMPA_vect 
+#define WAVE_GEN_TMR_ISR_VECT TIMER2_COMPA_vect
 #define WAVE_GEN_TMR_TCCRA TCCR2A
 #define WAVE_GEN_TMR_TCCRB TCCR2B
 #define WAVE_GEN_TMR_TIMSK TIMSK2
@@ -98,110 +145,49 @@
 #define WAVE_GEN_TMR_WGM1 WGM21
 #define WAVE_GEN_TMR_CS0 CS20
 
-#define delay_cycles(n) __builtin_avr_delay_cycles(n)
+/*********************************************************************** APRS AX.25 Parameters ***********************************************************************/
 
-/********** NMEA-0183 Sentence Fields Parameters **********/
+enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4, LAT_DIG_5, LAT_DIG_6, DIGI_PATH, DEST_ADDR_SIZE };  
+// DES_ADDR_SIZE is not a valid destination field.
+// It's used to determine the size of the destination field by adding one more elemnet to the enum. This captures the size of the enum since it is zero indexed by default.
 
-#define NMEA_DATA_MAX_SIZE 80
+enum MIC_E_MSG{ emergency, priority, special, commited, returning, in_service, en_route, off_duty };  // Enumerated Mic-E status messages
 
-/********** APRS AX.25 Parameters **********/
+enum DIGI_PATH_CODE : uint8_t { VIA, WIDE_1_1, WIDE2_2, WIDE3_3, WIDE4_4, WIDE5_5, WIDE6_6, WIDE7_7, NORTH, SOUTH, EAST, WEST, NORTH_WIDE, SOUTH_WIDE, EAST_WIDE, WEST_WIDE };
 
-#define ALT_INDX 10 // starting index of the altitude data field in the info array
+enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, SE_28, SYMBOL_CODE, SYMBOL_TABLE, ALT_INDX, MSG_INDX = ALT_INDX + 4 };
+// The message field begins comes right after the altitude field which is 4 bytes long.
 
-#define WIDE2_2 2  // APRS Digi Path Code
+/*************************** Unit Conversion Factors ***************************/
 
-/********** Unit Conversion Factors **********/
+ constexpr float M_to_F = 3.28084;  // Conversion factor between meters to feet
+ constexpr float KTS_to_MPH = 1.15078;  // Conversion factor between kts to mph
 
-#define M_to_F ( float ) 3.28084  // Conversion factor between meters to feet
-#define KTS_to_MPH (  float ) 1.15078  // Conversion factor between kts to mph
+/************************************************ Global Variables ************************************************/
 
-/********** Global Variables **********/
+// ARPS parameters
 
-volatile byte smp_num = 0;  // stores current sine array sample to put onto output port pins
+const char Call_Sign[] = "AI4QX 1";  // Set call sign here
 
-volatile bool baud_tmr_isr_busy = true;  // Timer 1 used for 1200 baud timing
+constexpr uint8_t Digi_Path = WIDE2_2;
 
-volatile byte lcd_disp_mode;
+// Timers
 
-const byte SIN_ARRAY[] = {
-8,8,9,10,10,11,12,12,
-13,13,14,14,14,15,15,15,
-15,15,15,15,14,14,14,13,
-13,12,12,11,10,10,9,8,
-8,7,6,5,5,4,3,3,
-2,2,1,1,1,0,0,0,
-0,0,0,0,1,1,1,2,
-2,3,3,4,5,5,6,7
-};
+extern volatile uint32_t phase_accumulator;  // Stores current sine array sample to put onto output port pins
+
+extern volatile uint32_t current_phase_step;  // Stores current phase steep need for either Space or Mark tone sampling
+
+extern volatile bool baud_tmr_isr_running;  // Timer used for 1200 baud timing
 
 
-struct GPS_data
-{
-   
-  byte hour;          // GMT hours
-  byte minute;        // GMT minutes
-  byte seconds;       // GMT seconds
-  byte year;          // GMT year
-  byte month;         // GMT month
-  byte day;           // GMT day
+// APRS packet fields
 
+extern uint8_t dest_address[DEST_ADDR_SIZE];  // Destination address portion of APRS packet
 
-  unsigned char lat_DD_10;
-  unsigned char lat_DD_01;
-  unsigned char lat_MM_10;
-  unsigned char lat_MM_01;
-  unsigned char lat_hh_10;
-  unsigned char lat_hh_01;
-  unsigned char lat_mm_10;
-  unsigned char lat_mm_01;
+extern const uint8_t src_digi_addrs_ctrl_pid_flds[];    // Source address, Control and PID portion of APRS packet
+extern const uint8_t SRC_DIGI_ADDRS_CTRL_PID_FLDS_LEN;  // Used to store length of src_digi_addrs_ctl_pid_flds[] array
 
+extern uint8_t info[];  // Infomation portion of APRS packet
+extern const uint8_t INFO_LEN;  // Used to store length of info[] array
 
-  byte lat_DD;
-  byte lat_MM;
-  byte lat_hh;
-  byte lat_mm;
-  
-  char NorS;
-
-  unsigned char lon_DD_100;
-  unsigned char lon_DD_10;
-  unsigned char lon_DD_01;
-  unsigned char lon_MM_10;
-  unsigned char lon_MM_01;
-  unsigned char lon_hh_10;
-  unsigned char lon_hh_01;
-  unsigned char lon_mm_10;
-  unsigned char lon_mm_01;
-
-  int lon_DD;
-  byte lon_MM;
-  byte lon_hh;
-  byte lon_mm;
-
-  char EorW;
-    
-  unsigned long altitude;  // Altitude in meters above MSL (32 bits)
-  unsigned int speed;      // Current speed over ground in knots (16 bits)
-  unsigned int course;     // Course in degrees from true north (16 bits )
-  
-  bool fix;            //  Have a fix?
-  byte fixquality;     //  Fix quality (0, 1, 2 = Invalid, GPS, DGPS)
-  byte fixquality_3d;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
-  byte satellites;     //  Number of satellites in use
-
-} gps_data;
-
-/********** Object Instance Declarations **********/
-
-LiquidCrystal_I2C lcd( LCD_I2C_ADDR, LCD_COL, LCD_ROW );
-
-/********** Additional Included Files **********/
-
-#include "packet_data.h"
-#include "gps_string_cap_case.cpp"
-#include "display_LCD.cpp"
-#include "mark_space_gen.cpp"
-#include "setup_functions.cpp"
-#include "packet_data_compressed_gps.cpp"
-#include "crc_calc.cpp"
-#include "send_packet.cpp"
+#endif  // APRS_H

@@ -12,12 +12,14 @@
         "OCIE",
         "OCIEA",
         "OCRA",
+        "OLED",
         "PORTB",
         "SCLR",
         "TCCR",
         "TCCRA",
         "TCCRB",
         "TIMSK",
+        "Trackr",
         "VECT"
     ]
 }
