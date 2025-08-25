@@ -4,7 +4,7 @@
 #ifdef DEBUG
 
 
-void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
+void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon )
 {
   int16_t next_tx = beacon_period - secs_since_beacon; // Compute time until next beacon
 
@@ -12,7 +12,7 @@ void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon 
 
   if ( next_tx < 0 )  // Handle possible negative values
     next_tx = 0;
-      
+
   uint8_t nxt_sec = next_tx % 60; // Compute seconds until next beacon.
 
   if ( nxt_sec != prev_sec )  // Check if one seconds has passed since last beacon timing printing
@@ -35,9 +35,9 @@ void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon 
 #ifdef USE_OLED
 
 
-void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon ) 
-{  
- 
+void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
+{
+
   char oled_row[ OLED_COLS + 1 ];  // Used to create character array for display on OLED
 
   static uint8_t current_disp_mode;
@@ -60,10 +60,10 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
     case POSITION:
 
       oled.setCursor( 0, FIRST_ROW ); // Latitude
-      sprintf( oled_row, " %u%u %u%u.%u%u%u%u %c", my_gps.gps_data.lat_DD_10, my_gps.gps_data.lat_DD_01, 
+      sprintf( oled_row, " %u%u %u%u.%u%u%u%u %c", my_gps.gps_data.lat_DD_10, my_gps.gps_data.lat_DD_01,
                                                   my_gps.gps_data.lat_MM_10, my_gps.gps_data.lat_MM_01,
-                                                  my_gps.gps_data.lat_hh_10, my_gps.gps_data.lat_hh_01, 
-                                                  my_gps.gps_data.lat_mm_10, my_gps.gps_data.lat_mm_01, 
+                                                  my_gps.gps_data.lat_hh_10, my_gps.gps_data.lat_hh_01,
+                                                  my_gps.gps_data.lat_mm_10, my_gps.gps_data.lat_mm_01,
                                                   my_gps.gps_data.NorS );
       oled.print ( oled_row );
       //oled.bitmap( 16, FIRST_ROW, 8 + 16, FIRST_ROW + 2, degree_symbol_bitmap );
@@ -71,9 +71,9 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
 
       oled.setCursor( 0, SECOND_ROW ); // Longitude
-      sprintf( oled_row, "%03u %02u.%02u%u%u %c", my_gps.gps_data.lon_DD, 
+      sprintf( oled_row, "%03u %02u.%02u%u%u %c", my_gps.gps_data.lon_DD,
                                                   my_gps.gps_data.lon_MM,
-                                                  my_gps.gps_data.lon_hh, 
+                                                  my_gps.gps_data.lon_hh,
                                                   my_gps.gps_data.lon_mm_10, my_gps.gps_data.lon_mm_01,
                                                   my_gps.gps_data.EorW );
       oled.print( oled_row );
@@ -94,7 +94,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
       oled.print( " ft" );
       oled.clearToEOL();
 
-    break;  
+    break;
       
 
     case SATS_INFO:
@@ -118,13 +118,13 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
       oled.clearToEOP();
         
-    break;    
+    break;
 
 
-    case DATE_TIME: 
+    case DATE_TIME:
     
       
-      short next_tx = beacon_period - secs_since_beacon;  
+      short next_tx = beacon_period - secs_since_beacon;
 
       if ( next_tx < 0 )
         next_tx = 0;
@@ -175,7 +175,7 @@ void setup_Menu()
 
   if ( setup_mode != prev_setup_mode )
   {
-     
+  
     oled.clear();
 
     prev_setup_mode = setup_mode;
@@ -249,7 +249,7 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 #ifdef DEBUG
 
 
-void display_Timers_Setup() 
+void display_Timers_Setup()
 {
 
   my_gps.gpsSerial.println( F("\r\n-----WAVE_GEN_TMR Settings-----") );
@@ -265,7 +265,7 @@ void display_Timers_Setup()
   my_gps.gpsSerial.println( WAVE_GEN_TMR_OCRA, BIN );
   my_gps.gpsSerial.print( F("WAVE_GEN_TMR_TIMSK = ") );
   my_gps.gpsSerial.println( WAVE_GEN_TMR_TIMSK, BIN );
-  
+
 
   my_gps.gpsSerial.println( F("\r\n-----BAUD_TMR Settings-----") );
   my_gps.gpsSerial.print( F("BAUD_TIMER_CMP: ") );
@@ -279,7 +279,7 @@ void display_Timers_Setup()
   my_gps.gpsSerial.print( F("BAUD_TMR_TIMSK = ") );
   my_gps.gpsSerial.println( BAUD_TMR_TIMSK, BIN );
   my_gps.gpsSerial.println( "" );
-   
+
 }  // End display_timers_setup()
 
 
@@ -300,19 +300,19 @@ void print_GPS_Data()
   {
 
     prev_timestamp = current_timestamp;  // Remember when printing started the last time
-    
-    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", my_gps.gps_data.hour, my_gps.gps_data.minute, my_gps.gps_data.seconds, 
-                                                        my_gps.gps_data.month, my_gps.gps_data.day, my_gps.gps_data.year ) ;          
+
+    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", my_gps.gps_data.hour, my_gps.gps_data.minute, my_gps.gps_data.seconds,
+                                                        my_gps.gps_data.month, my_gps.gps_data.day, my_gps.gps_data.year ) ;
 
     my_gps.gpsSerial.println( F("\r\n---------GPS Data--------") );
     my_gps.gpsSerial.print( F("Time: ") );
     my_gps.gpsSerial.println( gps_str );
-  
+
     my_gps.gpsSerial.print( F("Pos: ") );
     sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", my_gps.gps_data.NorS, my_gps.gps_data.lat_DD, my_gps.gps_data.lat_MM, my_gps.gps_data.lat_hh, my_gps.gps_data.lat_mm,
-                                                                                    my_gps.gps_data.EorW, my_gps.gps_data.lon_DD, my_gps.gps_data.lon_MM, my_gps.gps_data.lon_hh, my_gps.gps_data.lon_mm ) ; 
+                                                                                    my_gps.gps_data.EorW, my_gps.gps_data.lon_DD, my_gps.gps_data.lon_MM, my_gps.gps_data.lon_hh, my_gps.gps_data.lon_mm ) ;
     my_gps.gpsSerial.println( gps_str );
-    
+  
     my_gps.gpsSerial.print(F ("Speed: ") );
     my_gps.gpsSerial.print( KTS_to_MPH *my_gps.gps_data.speed, 0 );
     my_gps.gpsSerial.println( F(" mph" ) );
@@ -335,11 +335,11 @@ void print_GPS_Data()
     my_gps.gpsSerial.println( my_gps.gps_data.fixquality_3d );
 
   }
-  
+
 }
 
 
 #endif
 
 
-#endif 
+#endif

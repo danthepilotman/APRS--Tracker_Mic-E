@@ -119,8 +119,8 @@ bool gps_NMEA::parse_GGA( const char* NMEA_data )
 
   if ( is_Empty(ptr) == false )  // Check for errors
   {
-   gps_data.fixquality = atoi( ptr );  // Capture the fix quality parameter
-   gps_data.fix = gps_data.fixquality > 0;
+    gps_data.fixquality = atoi( ptr );  // Capture the fix quality parameter
+    gps_data.fix = gps_data.fixquality > 0;
   }
 
   if ( gps_data.fix == false )  // Check if we have a valid fix
@@ -143,15 +143,15 @@ bool gps_NMEA::parse_GGA( const char* NMEA_data )
 
 bool gps_NMEA::parse_RMC( const char* NMEA_data )
 {
-  
+
   const char* ptr = next_field( NMEA_data );  // Point to NMEA_data array and skip the 1st comma
-  
+
   parse_Time( ptr );  // Get the time info
 
   ptr = next_field( ptr );   // Skip the 2nd comma
-  
+
   parse_Fix( ptr );  // Capture fix paramater
-  
+
   if ( gps_data.fix == false )
    return false;  // Go back and capture another NMEA sentence 
 
@@ -188,14 +188,15 @@ bool gps_NMEA::parse_RMC( const char* NMEA_data )
   }
 
   return true;   // If you made it this far, all is good
+
 }
 
 
 bool gps_NMEA::parse_GSA( const char* NMEA_data )
 {
-  
+
   const char* ptr = next_field( NMEA_data );  // Point it to the 2nd field
-  
+
   ptr = next_field( ptr );  // Move to the 3rd field
 
   if (is_Empty (ptr ) == false )  // Check for errors
@@ -210,16 +211,17 @@ bool gps_NMEA::parse_GSA( const char* NMEA_data )
 
 char* gps_NMEA::next_field( const char* ptr )
 {
-  
+
   char* next = strchr( ptr, ',' );   // Pointer to the location of the next comma
-  
+
   return ( next ) ? ( next + 1 ) : NULL;  // If the pointer is not NULL, return the location right after the comma, otherwise return NULL
+
 }
 
 
 bool gps_NMEA::is_Empty( const char* pStart )
 {
-  
+
   return ( pStart == nullptr || *pStart == ',' || *pStart == '*' );  // Check that it is not empty, nor another comma, nor the '*' for the checksum field
 
 }
@@ -227,7 +229,7 @@ bool gps_NMEA::is_Empty( const char* pStart )
 
 bool gps_NMEA::parse_Time( const char* ptr )
 {
-  
+
   if ( is_Empty( ptr ) == false )  // Check for empty field 
   {
     unsigned long time = atol( ptr );   // Convert string to 32-bit integer
@@ -242,41 +244,43 @@ bool gps_NMEA::parse_Time( const char* ptr )
   }
   
   return false;  // If field is empty report failure
+
 }
 
 
 bool gps_NMEA::parse_Fix( const char* ptr )
 {
-  
+
   if ( is_Empty( ptr ) == false )  // Check for empty field
   {
 
-    if ( ptr[0] == 'A' ) 
-      gps_data.fix = true;   // 'A' represents a good fix    
-    
+    if ( ptr[0] == 'A' )
+      gps_data.fix = true;   // 'A' represents a good fix
+
     else if ( ptr[0] == 'V' )
-      gps_data.fix = false;  // 'V' represents lack of a valid fix 
-    
+      gps_data.fix = false;  // 'V' represents lack of a valid fix
+
     else return false;  // Return false if character is not an 'A' or a 'V'
-    
+
     return true;  // If you made it this far down everything checked out okay
 
   }
   
   return false;  // Return false if field is empty
+
 }
 
 
 bool gps_NMEA::parse_Coord( const char* coord )
 {
-  
+
   if ( coord == nullptr || *coord == '\0' )  // Check for errors
     return false;
 
   const char* dp = strchr( coord, '.' );  // Locate decimal point
 
   if ( dp == nullptr  )  // Check for errors
-   return false;
+    return false;
 
   ptrdiff_t int_len = dp - coord;  // Compute distance between first digit character and the decimal point
 
@@ -288,7 +292,7 @@ bool gps_NMEA::parse_Coord( const char* coord )
 
   if ( int_len == 5 ) // If longitude
     memcpy( digits, dp - 5, 5 );  // Copy whole degrees and minutes digits from NMEA_data to digits array
-  
+
   else  // If latitude
     memcpy( digits + 1, dp - 4, 4 );  // Copy whole degrees and minutes digits from NMEA_data to digits array
   
@@ -304,7 +308,7 @@ bool gps_NMEA::parse_Coord( const char* coord )
 
   if ( int_len == 5 )  // Longitude
   {
-   
+
     my_gps.gps_data.lon_DD_100 = digits[0];  // Capture lat/lon 100's digit
 
 
@@ -330,14 +334,14 @@ bool gps_NMEA::parse_Coord( const char* coord )
 
 
     my_gps.gps_data.lon_mm_01  = digits[8];  // Capture lat/lon 1's digit
-   
-   
-   
+
+
+
     my_gps.gps_data.lon_DD = 100 * my_gps.gps_data.lon_DD_100 + 10 * my_gps.gps_data.lon_DD_10 + my_gps.gps_data.lon_DD_01;  // Compute integer value from 100's 10's and 1's components
     my_gps.gps_data.lon_MM = 10 * my_gps.gps_data.lon_MM_10 + my_gps.gps_data.lon_MM_01;  // Compute integer value from tens and ones components
     my_gps.gps_data.lon_hh =  10 * my_gps.gps_data.lon_hh_10 + my_gps.gps_data.lon_hh_01;  // Compute integer value from tens and ones components
 
-  } 
+  }
 
   else  // Latitude
   {
@@ -368,20 +372,19 @@ bool gps_NMEA::parse_Coord( const char* coord )
   }
 
   return true;  // Retrun success if you made it this far
-}
 
+}
 
 
 uint8_t gps_NMEA::hex_Str_To_Int( const char* chk_sum_in )
 {
-  
+
   uint8_t delta, integer = 0;  // Initialize variables to 0
 
-  
-  
+
   if (  chk_sum_in[1] >= 'A' && chk_sum_in[1] <= 'F' )  // Check for alpha hexadecimal characters
    delta = 'A' - 0xA;  // Compute offset
-  
+
   else
     delta = '0';  // Offset for numeric characters
 
@@ -391,7 +394,7 @@ uint8_t gps_NMEA::hex_Str_To_Int( const char* chk_sum_in )
 
   if ( chk_sum_in[2] >= 'A' && chk_sum_in[2] <= 'F' ) // Check for alpha hexadecimal characters
    delta = 'A' - 0xA;  // Compute offset
-  
+
   else
     delta = '0';   // Offset for numeric characters
 

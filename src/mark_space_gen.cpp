@@ -5,13 +5,13 @@
 
 ISR ( WAVE_GEN_TMR_ISR_VECT )
 {
- 
+
 #ifdef DEBUG
 
   //PORTD |= _BV(PD7);  // Set PD7 HIGH to mark ISR entry
 
   //PIND |= _BV(PD7);
-  
+
 #endif
 
   phase_accumulator += current_phase_step;  // Increment the phase by the proper amount each cycle

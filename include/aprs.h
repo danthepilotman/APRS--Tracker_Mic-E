@@ -21,18 +21,18 @@
 /**************** Smart Beaconing Parameters ****************/
 
  constexpr uint16_t FAST_SPEED = 60;  // mph
- constexpr uint16_t FAST_RATE  = 60;  // seconds  
+ constexpr uint16_t FAST_RATE  = 60;  // seconds
  
  constexpr uint16_t SLOW_SPEED  = 5;  // mph
 
 #ifdef DEBUG
 
- constexpr uint16_t SLOW_RATE = 30;  // seconds 
+ constexpr uint16_t SLOW_RATE = 30;  // seconds
 
 #else
 
- constexpr uint16_t SLOW_RATE = 600;  // seconds 
- 
+ constexpr uint16_t SLOW_RATE = 600;  // seconds
+
 #endif
 
  constexpr uint16_t MIN_TURN_TIME = 7;    // seconds
@@ -41,15 +41,15 @@
 
 /******************************* OLED Parameters *******************************/
 
- constexpr uint8_t width = 128;
- constexpr uint8_t height = 64;
+  constexpr uint8_t width = 128;
+  constexpr uint8_t height = 64;
 
- constexpr uint8_t OLED_COLS = 16;  // 16 columns for 8x16 font size
- constexpr uint8_t FIRST_ROW = 0;
- constexpr uint8_t SECOND_ROW = 2;  // 2 pages per font height
- constexpr uint8_t THIRD_ROW = 4;
- constexpr uint8_t FOURTH_ROW = 6;
- 
+  constexpr uint8_t OLED_COLS = 16;  // 16 columns for 8x16 font size
+  constexpr uint8_t FIRST_ROW = 0;
+  constexpr uint8_t SECOND_ROW = 2;  // 2 pages per font height
+  constexpr uint8_t THIRD_ROW = 4;
+  constexpr uint8_t FOURTH_ROW = 6;
+
  /****************************** Splash Screen Parameters ******************************/
 
  constexpr uint32_t SPLASH_SCRN_DLY = 2000;  // How long to display splash screen [ms]
@@ -73,15 +73,15 @@
 
  constexpr uint32_t TX_POWERUP_DLY = 30;  // Wait time between TX keying and begining of transmission. [ms]
 
- const PROGMEM uint8_t SIN_ARRAY[] = {
+  const PROGMEM uint8_t SIN_ARRAY[] = {
   8,  9,  9, 10, 11, 11, 12, 13,
   13, 14, 14, 15, 15, 15, 15, 15,
   15, 15, 15, 15, 14, 14, 13, 13,
   12, 11, 11, 10,  9,  9,  8,  7,
-   7,  6,  5,  5,  4,  3,  3,  2,
-   2,  1,  1,  0,  0,  0,  0,  0,
-   0,  0,  0,  0,  1,  1,  2,  2,
-   3,  3,  4,  5,  5,  6,  7,  7
+  7,  6,  5,  5,  4,  3,  3,  2,
+  2,  1,  1,  0,  0,  0,  0,  0,
+  0,  0,  0,  0,  1,  1,  2,  2,
+  3,  3,  4,  5,  5,  6,  7,  7
 };
   
 #if 0
@@ -135,7 +135,7 @@ constexpr uint32_t SPC_PHASE_STEP = uint32_t( ( double( SPC_FREQ ) / SAMPLE_RATE
 #define BAUD_TMR_CS0 CS10
 
 /* Define timer register & ISR values for the Waveform Generator Timer */
-#define WAVE_GEN_TMR_ISR_VECT TIMER2_COMPA_vect 
+#define WAVE_GEN_TMR_ISR_VECT TIMER2_COMPA_vect
 #define WAVE_GEN_TMR_TCCRA TCCR2A
 #define WAVE_GEN_TMR_TCCRB TCCR2B
 #define WAVE_GEN_TMR_TIMSK TIMSK2
@@ -169,7 +169,7 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 const char Call_Sign[] = "AI4QX 1";  // Set call sign here
 
-constexpr uint8_t Digi_Path = WIDE2_2; 
+constexpr uint8_t Digi_Path = WIDE2_2;
 
 // Timers
 

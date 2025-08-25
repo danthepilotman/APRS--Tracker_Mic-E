@@ -30,7 +30,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
 
   if( bitRead ( mic_e_message, 0 ) )
     char_offset = 'P';
-  
+
   else
     char_offset = '0';
 
@@ -40,7 +40,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
 
   if( my_gps.gps_data.NorS == 'N' )
     char_offset = 'P';
-  
+
   else
     char_offset = '0';
 
@@ -48,10 +48,10 @@ void compute_Dest_Address( uint8_t mic_e_message )
 
   // Determine 5th Destination Address byte ( Lat Digit 5 + Longitude Offset )
 
- 
+
   if( my_gps.gps_data.lon_DD > 99 || my_gps.gps_data.lon_DD < 10 )
     char_offset = 'P';
-  
+
   else
     char_offset = '0';
 
@@ -61,7 +61,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
 
   if( my_gps.gps_data.EorW == 'W' )
     char_offset = 'P';
-  
+
   else
     char_offset = '0';
 
@@ -69,7 +69,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
 
   // Determine APRS Digi Path Code
 
-  dest_address[DIGI_PATH] =  Digi_Path << 1; 
+  dest_address[DIGI_PATH] =  Digi_Path << 1;
 
 }
 
@@ -78,13 +78,13 @@ void compute_Info_Longitude()
 {
 
   int char_offset = 0;  // Store offset value used for MIC-E encoding. Note that offset can be a negative value.
-  
+
   // Determine 2nd Information Field byte ( d+28 )
 
   if ( my_gps.gps_data.lon_DD < 10 )
     char_offset = 'v';
-  
-  else if ( my_gps.gps_data.lon_DD < 100 ) 
+
+  else if ( my_gps.gps_data.lon_DD < 100 )
     char_offset = '&' - 10;
 
   else if ( my_gps.gps_data.lon_DD < 110 )
@@ -92,14 +92,14 @@ void compute_Info_Longitude()
 
   else
     char_offset = '&' - 110;
-  
+
   info[d_28] = uint8_t( my_gps.gps_data.lon_DD + char_offset );
 
   // Determine 3rd Information Field byte ( m+28 )
 
   if (my_gps.gps_data.lon_MM < 10 )
     char_offset = 'X';
-  
+
   else
     char_offset = '&' - 10;
 
@@ -109,7 +109,7 @@ void compute_Info_Longitude()
 
   info[h_28] = uint8_t( my_gps.gps_data.lon_hh + 28 );
 
-}  
+}
 
 
 void compute_Info_Spd_Crs()
@@ -117,7 +117,7 @@ void compute_Info_Spd_Crs()
 
   if( my_gps.gps_data.course == 0 )
     my_gps.gps_data.course = 360;  // Only 360 allowed for Mic-E encoding
-  
+
   // Determine 5th Information Field byte ( SP+28 )
 
   info[SP_28] = uint8_t( my_gps.gps_data.speed / 10 ) + 28;  // Speed's 10's digit
@@ -129,8 +129,8 @@ void compute_Info_Spd_Crs()
   // Determine 7h Information Field byte ( SE+28 )
 
   info[SE_28] = uint8_t( my_gps.gps_data.course % 100 ) + 28;
-  
-} 
+
+}
 
 
 void compute_Info_Alt()
@@ -138,7 +138,7 @@ void compute_Info_Alt()
   uint16_t alt_abv_datum = 10000 + my_gps.gps_data.altitude;  // Adjust altitude for datum reference
 
   info[ALT_INDX] = uint8_t( alt_abv_datum / 8281 ) + 33;  // Encode first altitude value
-  
+
   uint16_t remainder =  uint16_t( alt_abv_datum % 8281 );  // Altitude encoding computation for Mic-E
 
   info[ALT_INDX + 1] = uint8_t( remainder / 91 ) + 33;  // Encode second altitude value
@@ -149,7 +149,6 @@ void compute_Info_Alt()
 
 
 void compute_Mic_E_Data( uint8_t mic_e_message )
-
 {
 
   compute_Dest_Address( mic_e_message );  // Encode destination address

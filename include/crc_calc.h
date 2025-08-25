@@ -18,7 +18,7 @@ extern CRC16 crc;  // Note: CRC16 can do CRC16_X_25
 void crcbit ( uint8_t tbyte, uint16_t &crc_value );  // Shift register bit based CRC calculation
 
 
-#endif 
+#endif
 
 
 uint16_t calc_CRC() ;  // Top level CRC calculation function

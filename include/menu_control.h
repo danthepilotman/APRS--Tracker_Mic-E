@@ -8,13 +8,12 @@
 
 // Menu Options
 
-enum Operating_Modes { RUN, SETUP, NUM_OF_OP_MODES };  //Enumerated  Operating modes 
+enum Operating_Modes { RUN, SETUP, NUM_OF_OP_MODES };  //Enumerated  Operating modes
 
 enum Display_Pages { POSITION, SATS_INFO, DATE_TIME, NUM_OF_DISP_SCREENS };  // Enumerated display modes (pages)
 
 enum Setup_Options { SYMB_AND_TBL, MIC_MSG, TX_DLY, SEND_ALT, NUM_OF_SETUP_SCREENS  };  // Enumerated display modes (pages)
 
- 
 extern uint8_t operating_mode;  // Store the display mode
 
 extern uint8_t disp_mode;  // Store the display mode
@@ -33,9 +32,6 @@ extern volatile bool scroll_pressed;  // Store the display mode
 extern bool send_alt;
 
 extern uint32_t tx_delay;
-
-
-
 
 /**** Function Prototypes ****/
 

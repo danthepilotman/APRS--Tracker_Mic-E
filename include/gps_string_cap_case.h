@@ -17,7 +17,7 @@
 
 class gps_NMEA {
   
-    public:    
+    public:
     
     const uint8_t NMEA_DATA_MAX_SIZE = 83;  // Define maximum size of NMEA character array for storing NMEA sentences
   
@@ -124,8 +124,6 @@ class gps_NMEA {
     uint8_t fixquality_3d;  //  3D fix quality (1, 2, 3 = Nofix, 2D fix, 3D fix)
     uint8_t satellites;     //  Number of satellites in use
 
-   
-
     };
 
 
@@ -138,8 +136,8 @@ class gps_NMEA {
 
     HardwareSerial& gpsSerial;     // Reference to the passed-in serial port
     uint32_t baudRate;
-    
-    
+
+
   gps_NMEA( HardwareSerial& serialPort, uint32_t baudRate ):
   gpsSerial( serialPort ), baudRate( baudRate ) {}
 
@@ -147,7 +145,7 @@ void get_GPS_Data();
 
 
   private:
-      
+
     void get_NMEA_Sentence(char* NMEA_data);
     bool parse_GGA(const char* NMEA_data);
     bool parse_RMC(const char* NMEA_data);
@@ -159,8 +157,6 @@ void get_GPS_Data();
     bool parse_Coord(const char* coord);
     uint8_t hex_Str_To_Int( const char* chk_sum);
     bool xsum_Check(const char* NMEA_data);
-
- 
 
 };
 
