@@ -9,7 +9,9 @@ void setup_Peripherals()
   
 #ifdef USE_WDT
 
-  wdt_enable( WDTO_4S );  // Set watchdog timer for 2 seconds
+  wdt_reset();  // Reset Watch Dog Timer once all desired NMEA sentences have been captured
+  
+  wdt_enable( WDTO_4S );  // Set watchdog timer for 4 seconds
 
 #endif
   
@@ -30,20 +32,17 @@ void setup_Pins()
 
     pinMode( SCROLL_PIN, INPUT_PULLUP );  // Configure display mode pin
 
-    pinMode( SELECT_PIN, INPUT_PULLUP );  // Configure display mode pin
-  
+    attachInterrupt( digitalPinToInterrupt( SCROLL_PIN ) , scroll_Btn, FALLING );
+
     pinMode( PTT_PIN, OUTPUT );  // Configure PTT pin
+
+    digitalWrite( PTT_PIN, LOW );  // Set PTT to off be default
   
     pinMode( GPS_VALID_PIN, OUTPUT );  // Configure GPS_VALID_PIN pin
   
-    digitalWrite( PTT_PIN, LOW );  // Set PTT to off be default
-  
     digitalWrite( GPS_VALID_PIN, LOW );  // Set GPS_VALID_PIN to be off by default
 
-    attachInterrupt( digitalPinToInterrupt( SCROLL_PIN ) , scroll_Btn, FALLING );
-
-    attachInterrupt( digitalPinToInterrupt( SELECT_PIN ) , select_Btn, FALLING );
-
+    
 #ifdef DEBUG
 
   // DDRD |= _BV(PD7);  // Set PD7 (digital pin 7) as output

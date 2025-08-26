@@ -108,14 +108,14 @@ void send_Packet()
   for ( uint8_t i = 0; i < NUM_END_FLAGS; i++ )
     send_Byte( FLAG );
 
-  // Disable Timer interrupts
+  digitalWrite( PTT_PIN, LOW );  //unkey PTT
+  
+    // Disable Timer interrupts
   WAVE_GEN_TMR_TIMSK &= ~( 1 << WAVE_GEN_TMR_OCIEA );
 
   BAUD_TMR_TIMSK &= ~( 1 << BAUD_TMR_OCIEA );
 
   WAVE_PORT = 8;  // Reset output port to 0s (low)
-
-  digitalWrite( PTT_PIN, LOW );  //unkey PTT
 
 }
 
@@ -196,14 +196,13 @@ void mic_E_Beacon()
 
 #ifdef DEBUG
 
-  //print_GPS_Data();
+  print_GPS_Data();
 
 #endif
 
   secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
 #ifdef USE_OLED
-
 
   display_Data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD
 

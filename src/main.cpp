@@ -11,15 +11,13 @@
 void setup()
 {
 
-  setup_Peripherals();  // Disable unneeded peripherals to save power
-
   my_gps.gpsSerial.begin( 9600 );  // Start serial UART and set baud rate
 
   setup_Pins();  // Pins for buttons and LEDs
 
   setup_Timers();  // Timers for baud and DAC transmission rate
 
-
+  
 #ifdef USE_OLED
 
   setup_OLED();  // OLED setup
@@ -34,6 +32,8 @@ void setup()
 
 #endif
 
+setup_Peripherals();  // Disable unneeded peripherals to save power
+
 }
 
 
@@ -42,20 +42,6 @@ void loop()
 
   check_Buttons();  // Check if buttons have been pressed
 
-  switch ( operating_mode )
-  {
-
-    case RUN:
-      mic_E_Beacon();
-    break;
-
-    case SETUP:
-      setup_Menu();
-    break;
-
-    default:
-      mic_E_Beacon();
-
-  }
+  mic_E_Beacon();  // Send MIC-E beacon packet
 
 }

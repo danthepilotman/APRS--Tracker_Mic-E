@@ -1,37 +1,6 @@
 #include"display_OLED.h"
 
 
-#ifdef DEBUG
-
-
-void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon )
-{
-  int16_t next_tx = beacon_period - secs_since_beacon; // Compute time until next beacon
-
-  static int16_t prev_sec = 0;  // Remember previous timestamp form when beacon data was printed
-
-  if ( next_tx < 0 )  // Handle possible negative values
-    next_tx = 0;
-
-  uint8_t nxt_sec = next_tx % 60; // Compute seconds until next beacon.
-
-  if ( nxt_sec != prev_sec )  // Check if one seconds has passed since last beacon timing printing
-  {
-
-    my_gps.gpsSerial.print( F("Next Tx:" ) );  // Print label
-
-    my_gps.gpsSerial.println( nxt_sec );  // Print number of seconds until next beacon
-
-    prev_sec = nxt_sec;  // Update previous printing timestamp
-
-  }
-
-}
-
-
-#endif
-
-
 #ifdef USE_OLED
 
 
@@ -90,7 +59,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
       
       oled.setCursor( 0, FOURTH_ROW );  // Altitude
-      oled.print( M_to_F * float( my_gps.gps_data.altitude ), 0 );
+      oled.print( M_to_FT * float( my_gps.gps_data.altitude ), 0 );
       oled.print( " ft" );
       oled.clearToEOL();
 
@@ -167,72 +136,6 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 }
 
 
-void setup_Menu()
-{
-
-  static uint8_t prev_setup_mode;
-
-
-  if ( setup_mode != prev_setup_mode )
-  {
-  
-    oled.clear();
-
-    prev_setup_mode = setup_mode;
-
-  }
-
-
-  if ( setup_mode == SYMB_AND_TBL )
-    oled.invertOutput( true );
-
-  oled.setCursor( 0, FIRST_ROW );  // Symbol and Table
-  oled.print( F( "Sym & Tbl" ) );
-  oled.clearToEOL();
-
-  oled.invertOutput( false );
-
-
-  if ( setup_mode == MIC_MSG )
-    oled.invertOutput( true );
-
-
-  oled.setCursor( 0, SECOND_ROW );  // Mic-E message
-  oled.print( F( "Mic Msg" ) );
-  oled.clearToEOL();
-
-  oled.invertOutput( false );
-
-
-  if ( setup_mode == TX_DLY )
-    oled.invertOutput( true );
-
-  oled.setCursor( 0, THIRD_ROW );  // Transmit Delay
-  oled.print( F( "TX Dly: " ) );
-  oled.print( tx_delay );
-  oled.clearToEOL();
-
-  oled.invertOutput( false );
-
-
-  if ( setup_mode == SEND_ALT )
-    oled.invertOutput( true );
-
-  oled.setCursor( 0, FOURTH_ROW );  // Send Altitude
-  oled.print( F( "Send Alt: " ) );
-
-  if ( send_alt )
-    oled.print( F( "Y" ) );
-  else
-    oled.print( F( "N" ) );
-
-  oled.clearToEOL();
-
-  oled.invertOutput( false );
-
-}
-
-
 void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 {
   oled.print( F( "APRS Tracker\r\nV1.0" ) );
@@ -247,6 +150,31 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 
 
 #ifdef DEBUG
+
+
+void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon )
+{
+  int16_t next_tx = beacon_period - secs_since_beacon; // Compute time until next beacon
+
+  static int16_t prev_sec = 0;  // Remember previous timestamp form when beacon data was printed
+
+  if ( next_tx < 0 )  // Handle possible negative values
+    next_tx = 0;
+
+  uint8_t nxt_sec = next_tx % 60; // Compute seconds until next beacon.
+
+  if ( nxt_sec != prev_sec )  // Check if one seconds has passed since last beacon timing printing
+  {
+
+    my_gps.gpsSerial.print( F("Next Tx:" ) );  // Print label
+
+    my_gps.gpsSerial.println( nxt_sec );  // Print number of seconds until next beacon
+
+    prev_sec = nxt_sec;  // Update previous printing timestamp
+
+  }
+
+}
 
 
 void display_Timers_Setup()
@@ -281,9 +209,6 @@ void display_Timers_Setup()
   my_gps.gpsSerial.println( "" );
 
 }  // End display_timers_setup()
-
-
-#ifdef DEBUG
 
 
 void print_GPS_Data()
@@ -322,7 +247,7 @@ void print_GPS_Data()
     my_gps.gpsSerial.println( F("\xC2\xB0" ) );
 
     my_gps.gpsSerial.print( F("Altitude: ") );
-    my_gps.gpsSerial.print( M_to_F *my_gps.gps_data.altitude, 0 );
+    my_gps.gpsSerial.print( M_to_FT *my_gps.gps_data.altitude, 0 );
     my_gps.gpsSerial.println( F(" ft" ) );
 
     my_gps.gpsSerial.print( F("Sats in use: ") );
@@ -337,9 +262,6 @@ void print_GPS_Data()
   }
 
 }
-
-
-#endif
 
 
 #endif

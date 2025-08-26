@@ -57,7 +57,6 @@
 /******************************************** Digital Pin Parameters********************************************/
 
  constexpr uint8_t SCROLL_PIN = 2;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
- constexpr uint8_t SELECT_PIN = 3;  // IMPORTANT: Pin state interrupts only available on pins 2,3 on Pro Mini
  constexpr unsigned long  BTN_DBOUCE_TIME = 200;  // ms
 
  constexpr uint8_t PTT_PIN = A0;  // Transmitter Push To Talk pin
@@ -71,7 +70,7 @@
  constexpr uint8_t NUM_START_FLAGS = 30;  // Number of FLAGS to  send before data portion of packet
  constexpr uint8_t NUM_END_FLAGS = 10;    // Number of FLAGS to send at end of packet
 
- constexpr uint32_t TX_POWERUP_DLY = 30;  // Wait time between TX keying and begining of transmission. [ms]
+ constexpr uint32_t TX_POWERUP_DLY = 300;  // Wait time between TX keying and begining of transmission. [ms]
 
   const PROGMEM uint8_t SIN_ARRAY[] = {
   8,  9,  9, 10, 11, 11, 12, 13,
@@ -84,28 +83,11 @@
   3,  3,  4,  5,  5,  6,  7,  7
 };
   
-#if 0
- const PROGMEM uint8_t SIN_ARRAY[] = {  // Sampled sine integer array
-  32, 36, 36, 42, 46, 46, 50, 54,
-  54, 58, 58, 63, 63, 63, 63, 63,
-  63, 63, 63, 63, 58, 58, 54, 54,
-  50, 46, 46, 42, 36, 36, 32, 28,
-  28, 25, 21, 21, 17, 13, 13, 8,
-  8, 4, 4, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 4, 4, 8, 8,
-  13, 13, 17, 21, 21, 25, 28, 28
-  };
-
-#endif
-
-
  constexpr uint8_t WAVE_ARRY_SIZE = sizeof( SIN_ARRAY );  // Store size of sampled sine array
-
 
  constexpr uint32_t CPU_FREQ = 16E6;   // MCU clock frequency [Hz]
  constexpr uint8_t BAUD_PRE_SCLR = 1;  // Baud timer Pre-scaler value
  constexpr uint8_t TONE_PRE_SCLR = 8;  // Wave generator DAC timer Pre-scaler value
-
 
  constexpr uint16_t  BAUD_FREQ = 1200;  // Transmit baud rate [symbols/sec]
  constexpr uint16_t  MRK_FREQ = 1200;   // Mark (1) waveform frequency [Hz]
@@ -151,7 +133,7 @@ enum DESTINATION_INDEXES : uint8_t { LAT_DIG_1, LAT_DIG_2, LAT_DIG_3, LAT_DIG_4,
 // DES_ADDR_SIZE is not a valid destination field.
 // It's used to determine the size of the destination field by adding one more elemnet to the enum. This captures the size of the enum since it is zero indexed by default.
 
-enum MIC_E_MSG{ emergency, priority, special, commited, returning, in_service, en_route, off_duty };  // Enumerated Mic-E status messages
+enum MIC_E_MSG : uint8_t { emergency, priority, special, commited, returning, in_service, en_route, off_duty };  // Enumerated Mic-E status messages
 
 enum DIGI_PATH_CODE : uint8_t { VIA, WIDE_1_1, WIDE2_2, WIDE3_3, WIDE4_4, WIDE5_5, WIDE6_6, WIDE7_7, NORTH, SOUTH, EAST, WEST, NORTH_WIDE, SOUTH_WIDE, EAST_WIDE, WEST_WIDE };
 
@@ -160,7 +142,7 @@ enum INFORMATION_INDEXES : uint8_t { DATA_TYPE, d_28, m_28, h_28, SP_28, DC_28, 
 
 /*************************** Unit Conversion Factors ***************************/
 
- constexpr float M_to_F = 3.28084;  // Conversion factor between meters to feet
+ constexpr float M_to_FT = 3.28084;  // Conversion factor between meters to feet
  constexpr float KTS_to_MPH = 1.15078;  // Conversion factor between kts to mph
 
 /************************************************ Global Variables ************************************************/

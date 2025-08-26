@@ -16,7 +16,7 @@ void gps_NMEA::get_GPS_Data()
 
 #ifndef DEBUG
 
-  memset( &gps_data, 0, sizeof( gps_data ) );  // Clear stale data from gps structure
+  //memset( &gps_data, 0, sizeof( gps_data ) );  // Clear stale data from gps structure
 
 #endif
 
@@ -66,13 +66,14 @@ void gps_NMEA::get_GPS_Data()
 #endif
 
   }
+
+  digitalWrite( GPS_VALID_PIN, HIGH );  // Turn on LED once all NMEA sentences has been successfully received
+
 }
 
 
 void gps_NMEA::get_NMEA_Sentence( char* NMEA_data )
 {
-  
-  digitalWrite( GPS_VALID_PIN, HIGH );
   
   while ( true )
   {
@@ -80,9 +81,14 @@ void gps_NMEA::get_NMEA_Sentence( char* NMEA_data )
     if ( my_gps.gpsSerial.read() != '$' )
       continue;
 
-    NMEA_data[my_gps.gpsSerial.readBytesUntil( '\r', NMEA_data, NMEA_DATA_MAX_SIZE - 1 )] = '\0';
+    
+    if ( gps_data.fix == false )  // Check valid GPS fix flag 
+      digitalWrite( GPS_VALID_PIN, HIGH );
 
-    digitalWrite( GPS_VALID_PIN, LOW );
+    NMEA_data[my_gps.gpsSerial.readBytesUntil( '\r', NMEA_data, NMEA_DATA_MAX_SIZE )] = '\0';
+
+    if ( gps_data.fix == false )  // Check valid GPS fix flag 
+      digitalWrite( GPS_VALID_PIN, LOW );
 
 #ifdef DEBUG
 
