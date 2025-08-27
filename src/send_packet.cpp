@@ -47,7 +47,7 @@ void send_Byte ( uint8_t inbyte )
 
         send_Tone( afsk_tone );  // Send the previous tone for a MARK
 
-        afsk_tone = ! afsk_tone;  // Flip tone for a SPACE
+        afsk_tone = !afsk_tone;  // Flip tone for a SPACE
 
         send_Tone( afsk_tone );  // Send the tone for a SPACE
 

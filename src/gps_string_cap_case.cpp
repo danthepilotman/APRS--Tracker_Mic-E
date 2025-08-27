@@ -10,7 +10,7 @@ void gps_NMEA::get_GPS_Data()
   char NMEA_data[NMEA_DATA_MAX_SIZE];  // Character array to store NMEA sentences
 
   bool GGA_good = false;  // Boolean flags to determine if sentence has been successfully received and parsed
-  bool GSA_good =  false;
+  bool GSA_good = false;
   bool RMC_good = false;
 
 
@@ -260,10 +260,10 @@ bool gps_NMEA::parse_Fix( const char* ptr )
   if ( is_Empty( ptr ) == false )  // Check for empty field
   {
 
-    if ( ptr[0] == 'A' )
+    if ( *ptr == 'A' )
       gps_data.fix = true;   // 'A' represents a good fix
 
-    else if ( ptr[0] == 'V' )
+    else if ( *ptr == 'V' )
       gps_data.fix = false;  // 'V' represents lack of a valid fix
 
     else return false;  // Return false if character is not an 'A' or a 'V'
