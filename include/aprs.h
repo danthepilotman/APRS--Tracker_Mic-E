@@ -25,7 +25,7 @@
  
  constexpr uint16_t SLOW_SPEED  = 5;  // mph
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
  constexpr uint16_t SLOW_RATE = 30;  // seconds
 

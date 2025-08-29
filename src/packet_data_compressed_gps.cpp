@@ -55,7 +55,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[LAT_DIG_5] = ( my_gps.gps_data.lat_hh_10 + char_offset ) << 1;
+  dest_address[LAT_DIG_5] = ( my_gps.gps_data.lat_mm_1 + char_offset ) << 1;
 
   // Determine 6th Destination Address byte ( Lat Digit 6 + W/E Lon Indicator )
 
@@ -65,7 +65,7 @@ void compute_Dest_Address( uint8_t mic_e_message )
   else
     char_offset = '0';
 
-  dest_address[LAT_DIG_6] = ( my_gps.gps_data.lat_hh_01 + char_offset ) << 1;
+  dest_address[LAT_DIG_6] = ( my_gps.gps_data.lat_mm_01 + char_offset ) << 1;
 
   // Determine APRS Digi Path Code
 
@@ -107,7 +107,7 @@ void compute_Info_Longitude()
 
   // Determine 4th Information Field byte ( h+28 )
 
-  info[h_28] = uint8_t( my_gps.gps_data.lon_hh + 28 );
+  info[h_28] = uint8_t( my_gps.gps_data.lon_mm + 28 );
 
 }
 
@@ -157,7 +157,7 @@ void compute_Mic_E_Data( uint8_t mic_e_message )
 
   compute_Info_Spd_Crs();  // Encode speed and course
 
-#ifdef SEND_ALTITUDE
+#if defined( SEND_ALTITUDE )
 
   compute_Info_Alt();  // Encode altitude
 

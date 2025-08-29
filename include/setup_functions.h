@@ -5,7 +5,7 @@
 #include"display_OLED.h"
 
 
-#ifdef USE_WDT
+#if defined( USE_WDT )
 
 #include <avr/wdt.h>
 

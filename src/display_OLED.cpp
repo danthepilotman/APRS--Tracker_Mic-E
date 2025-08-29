@@ -1,7 +1,7 @@
 #include"display_OLED.h"
 
 
-#ifdef USE_OLED
+#if defined( USE_OLED )
 
 
 void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
@@ -11,12 +11,12 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 
   static uint8_t current_disp_mode;
   
-  if ( current_disp_mode != disp_mode )
+  if ( disp_mode != current_disp_mode )
   {
   
-  oled.clear();  // Erase all content on the display
+    oled.clear();  // Erase all content on the display
 
-  current_disp_mode = disp_mode;
+    current_disp_mode = disp_mode;
 
   }
 
@@ -29,22 +29,26 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
     case POSITION:
 
       oled.setCursor( 0, FIRST_ROW ); // Latitude
-      sprintf( oled_row, " %u%u %u%u.%u%u%u%u %c", my_gps.gps_data.lat_DD_10, my_gps.gps_data.lat_DD_01,
-                                                  my_gps.gps_data.lat_MM_10, my_gps.gps_data.lat_MM_01,
-                                                  my_gps.gps_data.lat_hh_10, my_gps.gps_data.lat_hh_01,
-                                                  my_gps.gps_data.lat_mm_10, my_gps.gps_data.lat_mm_01,
-                                                  my_gps.gps_data.NorS );
+      sprintf( oled_row, " %u%u %u%u.%u%u%u%u %c",
+      my_gps.gps_data.lat_DD_10, my_gps.gps_data.lat_DD_01,
+      my_gps.gps_data.lat_MM_10, my_gps.gps_data.lat_MM_01,
+      my_gps.gps_data.lat_mm_1, my_gps.gps_data.lat_mm_01,
+      my_gps.gps_data.lat_mm_001, my_gps.gps_data.lat_mm_0001,
+      my_gps.gps_data.NorS );
+
       oled.print ( oled_row );
       //oled.bitmap( 16, FIRST_ROW, 8 + 16, FIRST_ROW + 2, degree_symbol_bitmap );
       oled.clearToEOL();
 
 
       oled.setCursor( 0, SECOND_ROW ); // Longitude
-      sprintf( oled_row, "%03u %02u.%02u%u%u %c", my_gps.gps_data.lon_DD,
-                                                  my_gps.gps_data.lon_MM,
-                                                  my_gps.gps_data.lon_hh,
-                                                  my_gps.gps_data.lon_mm_10, my_gps.gps_data.lon_mm_01,
-                                                  my_gps.gps_data.EorW );
+      sprintf( oled_row, "%03u %02u.%02u%u%u %c",
+      my_gps.gps_data.lon_DD,
+      my_gps.gps_data.lon_MM,
+      my_gps.gps_data.lon_mm,
+      my_gps.gps_data.lon_mm_001, my_gps.gps_data.lon_mm_0001,
+      my_gps.gps_data.EorW );
+      
       oled.print( oled_row );
       //oled.bitmap( 24, SECOND_ROW, 8 + 24, SECOND_ROW + 2, degree_symbol_bitmap );
       oled.clearToEOL();
@@ -93,7 +97,7 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
     case DATE_TIME:
     
       
-      short next_tx = beacon_period - secs_since_beacon;
+      int16_t next_tx = beacon_period - secs_since_beacon;
 
       if ( next_tx < 0 )
         next_tx = 0;
@@ -136,11 +140,11 @@ void display_Data( uint16_t beacon_period,  uint16_t secs_since_beacon )
 }
 
 
-void show_SPLASH_SCRN( uint32_t splash_screen_delay )
+void show_SPLASH_SCRN( uint32_t SPLASH_SCREEN_DELAY )
 {
   oled.print( F( "APRS Tracker\r\nV1.0" ) );
 
-  delay(  splash_screen_delay );
+  delay( SPLASH_SCREEN_DELAY );
 
   oled.clear();
 }
@@ -149,7 +153,7 @@ void show_SPLASH_SCRN( uint32_t splash_screen_delay )
 #endif
 
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
 
 void display_Beacon_Timing( uint16_t beacon_period,  uint16_t secs_since_beacon )
@@ -226,37 +230,48 @@ void print_GPS_Data()
 
     prev_timestamp = current_timestamp;  // Remember when printing started the last time
 
-    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d", my_gps.gps_data.hour, my_gps.gps_data.minute, my_gps.gps_data.seconds,
-                                                        my_gps.gps_data.month, my_gps.gps_data.day, my_gps.gps_data.year ) ;
+    sprintf( gps_str,"%02d:%02d:%02d UTC %d/%02d/%02d",
+    my_gps.gps_data.hour, my_gps.gps_data.minute, my_gps.gps_data.seconds,
+    my_gps.gps_data.month, my_gps.gps_data.day, my_gps.gps_data.year );
 
-    my_gps.gpsSerial.println( F("\r\n---------GPS Data--------") );
-    my_gps.gpsSerial.print( F("Time: ") );
+    my_gps.gpsSerial.println( F( "\r\n---------GPS Data--------" ) );
+    my_gps.gpsSerial.print( F( "Time: " ) );
     my_gps.gpsSerial.println( gps_str );
 
-    my_gps.gpsSerial.print( F("Pos: ") );
-    sprintf( gps_str,"%c %02d\xC2\xB0 %02d.%02d%02d %c %03d\xC2\xB0 %02d.%02d%02d", my_gps.gps_data.NorS, my_gps.gps_data.lat_DD, my_gps.gps_data.lat_MM, my_gps.gps_data.lat_hh, my_gps.gps_data.lat_mm,
-                                                                                    my_gps.gps_data.EorW, my_gps.gps_data.lon_DD, my_gps.gps_data.lon_MM, my_gps.gps_data.lon_hh, my_gps.gps_data.lon_mm ) ;
+    my_gps.gpsSerial.print( F( "Pos: " ) );
+    sprintf( gps_str,"%c %c%c\xC2\xB0 %c%c.%c%c%c%c %c %c%c%c\xC2\xB0 %c%c.%c%c%c%c",
+    my_gps.gps_data.NorS, 
+    my_gps.gps_data.lat_DD_10, my_gps.gps_data.lat_DD_01,
+    my_gps.gps_data.lat_MM_10, my_gps.gps_data.lat_MM_01,
+    my_gps.gps_data.lat_mm_1, my_gps.gps_data.lat_mm_01,
+    my_gps.gps_data.lat_mm_001, my_gps.gps_data.lat_mm_0001,
+    my_gps.gps_data.EorW,
+    my_gps.gps_data.lon_DD_100, my_gps.gps_data.lon_DD_10, my_gps.gps_data.lon_DD_01,
+    my_gps.gps_data.lon_MM_10, my_gps.gps_data.lon_MM_01,
+    my_gps.gps_data.lon_mm_1, my_gps.gps_data.lon_mm_01,
+    my_gps.gps_data.lon_mm_001, my_gps.gps_data.lon_mm_0001 );
+
     my_gps.gpsSerial.println( gps_str );
   
-    my_gps.gpsSerial.print(F ("Speed: ") );
+    my_gps.gpsSerial.print( F ("Speed: ") );
     my_gps.gpsSerial.print( KTS_to_MPH *my_gps.gps_data.speed, 0 );
-    my_gps.gpsSerial.println( F(" mph" ) );
+    my_gps.gpsSerial.println( F( " mph" ) );
 
-    my_gps.gpsSerial.print( F("course: ") );
+    my_gps.gpsSerial.print( F( "Course: " ) );
     my_gps.gpsSerial.print( my_gps.gps_data.course );
-    my_gps.gpsSerial.println( F("\xC2\xB0" ) );
+    my_gps.gpsSerial.println( F( "\xC2\xB0" ) );
 
-    my_gps.gpsSerial.print( F("Altitude: ") );
+    my_gps.gpsSerial.print( F( "Altitude: " ) );
     my_gps.gpsSerial.print( M_to_FT *my_gps.gps_data.altitude, 0 );
-    my_gps.gpsSerial.println( F(" ft" ) );
+    my_gps.gpsSerial.println( F( " ft" ) );
 
-    my_gps.gpsSerial.print( F("Sats in use: ") );
+    my_gps.gpsSerial.print( F( "Sats in use: " ) );
     my_gps.gpsSerial.println( my_gps.gps_data.satellites );
 
-    my_gps.gpsSerial.print( F("Pos Fix Indicator: ") );
-    my_gps.gpsSerial.println( my_gps.gps_data.pos_fix[my_gps.gps_data.fixquality] );
+    my_gps.gpsSerial.print( F( "Pos Fix Indicator: " ) );
+    my_gps.gpsSerial.println( my_gps.pos_fix[my_gps.gps_data.fixquality] );
 
-    my_gps.gpsSerial.print( F("Fix type [none/2D/3D]: ") );
+    my_gps.gpsSerial.print( F( "Fix type [none/2D/3D]: " ) );
     my_gps.gpsSerial.println( my_gps.gps_data.fixquality_3d );
 
   }

@@ -7,7 +7,7 @@ void setup_Peripherals()
 {
 
   
-#ifdef USE_WDT
+#if defined( USE_WDT )
 
   wdt_reset();  // Reset Watch Dog Timer once all desired NMEA sentences have been captured
   
@@ -43,7 +43,7 @@ void setup_Pins()
     digitalWrite( GPS_VALID_PIN, LOW );  // Set GPS_VALID_PIN to be off by default
 
     
-#ifdef DEBUG
+#if defined( DEBUG )
 
   // DDRD |= _BV(PD7);  // Set PD7 (digital pin 7) as output
 
@@ -81,7 +81,7 @@ void setup_Timers()
 }
 
 
-#ifdef USE_OLED
+#if defined( USE_OLED )
 
 
 void setup_OLED()

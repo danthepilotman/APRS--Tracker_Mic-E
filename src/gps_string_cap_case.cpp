@@ -14,7 +14,7 @@ void gps_NMEA::get_GPS_Data()
   bool RMC_good = false;
 
 
-#ifndef DEBUG
+#if !defined( DEBUG )
 
   //memset( &gps_data, 0, sizeof( gps_data ) );  // Clear stale data from gps structure
 
@@ -40,14 +40,14 @@ void gps_NMEA::get_GPS_Data()
     {
       RMC_good = parse_RMC( NMEA_data );  // Parse sentence and store parsing result
 
-#ifdef USE_OLED
+#if defined( USE_OLED )
 
       if ( gps_data.fix == false )  // Check valid GPS fix flag 
       {
         
         oled.setCursor( 0, 0 );  // Set cursor to home position
         
-        for ( uint8_t i = 0; i < NMEA_DATA_MAX_SIZE && NMEA_data[i]; i++ )  // Loop through all characters of the capture NMEA sentence
+        for ( uint8_t i = 0; i < NMEA_DATA_MAX_SIZE && NMEA_data[i]; ++i )  // Loop through all characters of the capture NMEA sentence
         {
           oled.print ( NMEA_data[i] );  // Print out each character of the NMEA sentence
         }
@@ -59,7 +59,7 @@ void gps_NMEA::get_GPS_Data()
 
     }
 
-#ifdef USE_WDT
+#if defined( USE_WDT )
 
     wdt_reset();  // Reset Watch Dog Timer once all desired NMEA sentences have been captured
 
@@ -90,7 +90,7 @@ void gps_NMEA::get_NMEA_Sentence( char* NMEA_data )
     if ( gps_data.fix == false )  // Check valid GPS fix flag 
       digitalWrite( GPS_VALID_PIN, LOW );
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
     my_gps.gpsSerial.print(F("NMEA_data: "));
     my_gps.gpsSerial.println(NMEA_data);
@@ -100,7 +100,7 @@ void gps_NMEA::get_NMEA_Sentence( char* NMEA_data )
     if ( gps_NMEA::xsum_Check( NMEA_data ) )
     {
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
       my_gps.gpsSerial.println(F("Good checksum"));
 
@@ -315,69 +315,28 @@ bool gps_NMEA::parse_Coord( const char* coord )
   if ( int_len == 5 )  // Longitude
   {
 
-    my_gps.gps_data.lon_DD_100 = digits[0];  // Capture lat/lon 100's digit
+    uint8_t* longitude =  &my_gps.gps_data.lon_DD_100;    // Pointer to first longitude variable inside GPS Structure
 
+    for ( uint8_t i = 0; i < 9; ++i )  // Store digits values into strucure data member
+      *( longitude + i ) = digits[i];
 
-    my_gps.gps_data.lon_DD_10  = digits[1];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lon_DD_01  = digits[2];  // Capture lat/lon 1's digit
-
-
-    my_gps.gps_data.lon_MM_10  = digits[3];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lon_MM_01  = digits[4];  // Capture lat/lon 1's digit
-
-
-    my_gps.gps_data.lon_hh_10  = digits[5];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lon_hh_01  = digits[6];  // Capture lat/lon 1's digit
-
-
-    my_gps.gps_data.lon_mm_10  = digits[7];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lon_mm_01  = digits[8];  // Capture lat/lon 1's digit
-
-
-
-    my_gps.gps_data.lon_DD = 100 * my_gps.gps_data.lon_DD_100 + 10 * my_gps.gps_data.lon_DD_10 + my_gps.gps_data.lon_DD_01;  // Compute integer value from 100's 10's and 1's components
-    my_gps.gps_data.lon_MM = 10 * my_gps.gps_data.lon_MM_10 + my_gps.gps_data.lon_MM_01;  // Compute integer value from tens and ones components
-    my_gps.gps_data.lon_hh =  10 * my_gps.gps_data.lon_hh_10 + my_gps.gps_data.lon_hh_01;  // Compute integer value from tens and ones components
+    my_gps.gps_data.lon_DD = 100 * my_gps.gps_data.lon_DD_100 + 10 * my_gps.gps_data.lon_DD_10 + my_gps.gps_data.lon_DD_01;  // Compute degrees integer value from 100's 10's and 1's components
+    my_gps.gps_data.lon_MM = 10 * my_gps.gps_data.lon_MM_10 + my_gps.gps_data.lon_MM_01;  // Compute whole minutes integer value from tens and ones components
+    my_gps.gps_data.lon_mm =  10 * my_gps.gps_data.lon_mm_1 + my_gps.gps_data.lon_mm_01;  // Compute decimal minutes integer value from tens and ones components
 
   }
 
   else  // Latitude
   {
-    my_gps.gps_data.lat_DD_10 = digits[1];  // Capture lat/lon 10's digit
+    
+    uint8_t* latitude =  &my_gps.gps_data.lat_DD_10;  // Pointer to first latitude variable inside GPS Structure
 
-
-    my_gps.gps_data.lat_DD_01 = digits[2];  // Capture lat/lon 1's digit
-
-
-    my_gps.gps_data.lat_MM_10 = digits[3];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lat_MM_01 = digits[4];  // Capture lat/lon 1's digit
-
-
-    my_gps.gps_data.lat_hh_10 = digits[5];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lat_hh_01 = digits[6];  // Capture lat/lon 1's digit
-
-
-    my_gps.gps_data.lat_mm_10 = digits[7];  // Capture lat/lon 10's digit
-
-
-    my_gps.gps_data.lat_mm_01 = digits[8];  // Capture lat/lon 1's digit
-
+    for ( uint8_t i = 1; i < 9; ++i )   // Store digits values into strucure data member
+      *( latitude + i - 1 ) = digits[i];
 
   }
 
-  return true;  // Retrun success if you made it this far
+  return true;  // Retrun success (true) if you made it this far
 
 }
 

@@ -23,7 +23,7 @@ void send_Byte ( uint8_t inbyte )
 
   static uint8_t stuff_ctr = 0;  // Reset stuff counter
   
-  for ( uint8_t i = 0; i < 8; i++ )  // Loop through all 8 bits of each byte
+  for ( uint8_t i = 0; i < 8; ++i )  // Loop through all 8 bits of each byte
   {
     
     if ( bitRead( inbyte, i ) == SPACE )  // If this bit is a zero (SPACE)
@@ -184,7 +184,7 @@ void mic_E_Beacon()
   uint8_t mic_e_message;  // Contents of Mic-e message (En-route, Off Duty, Emergency, etc)
 
 
-#ifdef USE_GPS
+#if defined( USE_GPS )
 
   if ( my_gps.gps_data.fix == false )
     oled.print( F( "Waiting for GPS signal" ) );
@@ -194,7 +194,7 @@ void mic_E_Beacon()
 #endif
 
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
   print_GPS_Data();
 
@@ -202,7 +202,7 @@ void mic_E_Beacon()
 
   secs_since_beacon = uint16_t( ( millis() - last_TX_time ) / 1000 );  // Compute seconds since last packet transmission
 
-#ifdef USE_OLED
+#if defined( USE_OLED )
 
   display_Data( beacon_period, secs_since_beacon );  // Displays captured GPS data to LCD
 

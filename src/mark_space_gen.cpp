@@ -6,7 +6,7 @@
 ISR ( WAVE_GEN_TMR_ISR_VECT )
 {
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
   //PORTD |= _BV(PD7);  // Set PD7 HIGH to mark ISR entry
 
@@ -22,7 +22,7 @@ ISR ( WAVE_GEN_TMR_ISR_VECT )
 
   WAVE_PORT =  sample;  // Drive output port value
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
   //PORTD &= ~_BV(PD7); // Set PD7 LOW to mark ISR exit
 

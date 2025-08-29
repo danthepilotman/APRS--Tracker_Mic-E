@@ -38,7 +38,7 @@ uint8_t info[] = {
   ,'>'   // #7  Symbol Code, O = Ballon, ' = Small Aircraft, ^ = Large Aircraft, > = Car
   ,'/'   // #8  Symbol Table ID,  Primary Symbol Table = '/', Alternate Symbol Table = '\'
 
-#ifdef SEND_ALTITUDE
+#if defined( SEND_ALTITUDE ) && !defined( SEND_TELEMETRY )
   ,'"'   // #9  Begin Altitude Field
   ,'3'
   ,'r'
@@ -46,7 +46,7 @@ uint8_t info[] = {
 
 #endif
 
-#ifdef SEND_TELEMETRY
+#if defined( SEND_TELEMETRY ) && !defined( SEND_ALTITUDE )
 
 ,'\''  // #9  Begin Telemetry Field - 5 printable hex telemetry values follow.
   ,'A'   // #10 Begin Telemetry Channel 1
@@ -62,7 +62,7 @@ uint8_t info[] = {
 
   #endif
 
-#ifdef SEND_COMMENT
+#if defined( SEND_COMMENT ) && defined ( SEND_ALTITUDE )
 
   ,'1'  // #13 Begin Radio Frequency Field
   ,'4'

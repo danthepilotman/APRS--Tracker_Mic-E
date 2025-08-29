@@ -18,7 +18,7 @@ void setup()
   setup_Timers();  // Timers for baud and DAC transmission rate
 
   
-#ifdef USE_OLED
+#if defined( USE_OLED )
 
   setup_OLED();  // OLED setup
 
@@ -26,7 +26,7 @@ void setup()
 
 #endif
 
-#ifdef DEBUG
+#if defined( DEBUG )
 
   display_Timers_Setup();  // Show baud and DAC timer settings
 
